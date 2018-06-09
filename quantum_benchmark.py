@@ -174,7 +174,7 @@ class Benchmark():
     """
     """
 
-    def __init__(self, qasm_file_path, input_output, N_qubits, N_exp=1000):
+    def __init__(self, qasm_file_path, N_qubits, N_exp=1000):
 
         self.qasm_file_path = qasm_file_path
         self.cp = "."+qasm_file_path+"~"
