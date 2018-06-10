@@ -79,7 +79,7 @@ def addinit(ori_path, cp_path):
     """
 
     init = "\n.init\nload_state "+INIT_QST_FILE+"\n"
-    add2qasm(ori_path, cp_path, "qubits \d+", init)
+    return add2qasm(ori_path, cp_path, "qubits \d+", init)
 
 
 def graph(N_qubits, matrix):
@@ -185,7 +185,7 @@ class Benchmark(object):
     """
     """
 
-    def __init__(self, qasm_file_path, N_qubits, N_exp=1000):
+    def __init__(self, qasm_file_path, N_exp=1000):
 
         self.qasm_file_path = qasm_file_path
         self.cp = "."+qasm_file_path+"~"
@@ -197,15 +197,13 @@ class Benchmark(object):
         # # The value in the array is the expected output of that input.
 
         self.N_exp = N_exp
-        self.N_qubits = N_qubits
+        # self.N_qubits = N_qubits
         # self.total_n_experiments = (2**N_qubits)*N_exp #?
         # self.output_qs = [] #?
         self.output_registry = []
         self.success_registry = []
         self.fidelity_registry = []
         self.total_meas_err = 0
-
-        self.success_matrix = np.zeros((2**N_qubits, 2**N_qubits))
 
         # Initializing qasm copy
         try:
@@ -218,6 +216,8 @@ class Benchmark(object):
             raise
 
         atexit.register(delcopy, cp="."+qasm_file_path+"~")
+
+        self.success_matrix = np.zeros((2**self.N_qubits, 2**self.N_qubits))
 
         # Initializing quantumsim
         try:
