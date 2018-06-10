@@ -65,7 +65,7 @@ def add2qasm(ori_path, cp_path, before, after):
             else:
                 o.write(line)
 
-    return N_qubits
+    return int(N_qubits)
 
 
 def add_error_model(ori_path, cp_path, errprob):
