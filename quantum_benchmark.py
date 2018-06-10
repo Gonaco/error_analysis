@@ -239,6 +239,26 @@ class Benchmark(object):
 
     #     atexit.register(delcopy(self.cp))
 
+        # Initializing quantumsim
+        try:
+            self.qsimc = __import__(qasm_file_path.replace(".qasm", ""))
+        except ModuleNotFoundError:
+            print(
+                "The quantumsim file doesn't exist, so quantumsim cannot be used for simulating this benchmark")
+
+    # def __enter__(self):
+
+    #     try:
+    #         addinit(self.qasm_file_path, self.cp)
+
+    #     except FileNotFoundError:
+    #         print(
+    #             "The QASM file does not exist or the path is incorrect." +
+    #             "\nThe Benchmark cannot be created")
+    #         raise
+
+    #     atexit.register(delcopy(self.cp))
+
     def __exit__(self):
 
         delcopy(self.cp)
