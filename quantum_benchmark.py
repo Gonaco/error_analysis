@@ -49,14 +49,23 @@ def add2qasm(ori_path, cp_path, before, after):
     and add something new after it in a copy of this file
     """
 
+    N_qubits = 0
+
     with open(ori_path, "r") as i:
         data = i.readlines()
     with open(cp_path, "w") as o:
         for line in data:
+
+            match = re.search("qubits (\d*)", line)
+            if match:
+                N_qubits = match[1]
+
             if re.search(before, line):
                 o.write(line+"\n"+after)
             else:
                 o.write(line)
+
+    return N_qubits
 
 
 def add_error_model(ori_path, cp_path, errprob):
@@ -66,6 +75,8 @@ def add_error_model(ori_path, cp_path, errprob):
 
 
 def addinit(ori_path, cp_path):
+    """
+    """
 
     init = "\n.init\nload_state "+INIT_QST_FILE+"\n"
     add2qasm(ori_path, cp_path, "qubits \d+", init)
@@ -170,7 +181,7 @@ def graph(N_qubits, matrix):
 # Classes #################################################################
 
 
-class Benchmark():
+class Benchmark(object):
     """
     """
 
@@ -179,13 +190,6 @@ class Benchmark():
         self.qasm_file_path = qasm_file_path
         self.cp = "."+qasm_file_path+"~"
         # self.conf_file_path = conf_file_path
-
-        # Initializing quantumsim
-        try:
-            self.qsimc = __import__(qasm_file_path.replace(".qasm", ""))
-        except ModuleNotFoundError:
-            print(
-                "The quantumsim file doesn't exist, so quantumsim cannot be used for simulating this benchmark")
 
         # self.input_output = input_output
         # # The input - output realtion is an array. The position number in the
@@ -203,10 +207,9 @@ class Benchmark():
 
         self.success_matrix = np.zeros((2**N_qubits, 2**N_qubits))
 
-    def __enter__(self):
-
+        # Initializing qasm copy
         try:
-            addinit(self.qasm_file_path, self.cp)
+            self.N_qubits = addinit(qasm_file_path, self.cp)
 
         except FileNotFoundError:
             print(
@@ -214,7 +217,27 @@ class Benchmark():
                 "\nThe Benchmark cannot be created")
             raise
 
-        atexit.register(delcopy(self.cp))
+        atexit.register(delcopy("."+qasm_file_path+"~"))
+
+        # Initializing quantumsim
+        try:
+            self.qsimc = __import__(qasm_file_path.replace(".qasm", ""))
+        except ModuleNotFoundError:
+            print(
+                "The quantumsim file doesn't exist, so quantumsim cannot be used for simulating this benchmark")
+
+    # def __enter__(self):
+
+    #     try:
+    #         addinit(self.qasm_file_path, self.cp)
+
+    #     except FileNotFoundError:
+    #         print(
+    #             "The QASM file does not exist or the path is incorrect." +
+    #             "\nThe Benchmark cannot be created")
+    #         raise
+
+    #     atexit.register(delcopy(self.cp))
 
     def __exit__(self):
 
