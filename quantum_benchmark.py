@@ -184,7 +184,8 @@ class Benchmark():
         try:
             self.qsimc = __import__(qasm_file_path.replace(".qasm", ""))
         except ModuleNotFoundError:
-            print("The quantumsim doesn't exist")
+            print(
+                "The quantumsim file doesn't exist, so quantumsim cannot be used for simulating this benchmark")
 
         # self.input_output = input_output
         # # The input - output realtion is an array. The position number in the
@@ -312,7 +313,6 @@ class Benchmark():
 
         success_registry = []
         fidelity_registry = []
-        N_qubits = self.N_qubits
         N_exp = self.N_exp
         qasm_f_path = self.cp
 
@@ -320,16 +320,16 @@ class Benchmark():
             # Quantumsim will be used as simulator
 
             expected_q_state, expected_measurement = self.qx_simulation(
-                qasm_f_path, N_qubits)
+                qasm_f_path)
 
             # return self.quantumsim_simulation()
 
             return self.quantumsim_simulation(errprob, initial_state, N_exp, expected_measurement, all_states_matrix)
 
-        else:                   # TODO
+        else:
 
             expected_q_state, expected_measurement = self.qx_simulation(
-                qasm_f_path, N_qubits)
+                qasm_f_path)
 
             error_file = qasm_f_path.replace(".qasm", "_error.qasm")
             add_error_model(qasm_f_path, error_file, errprob)
