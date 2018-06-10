@@ -378,16 +378,16 @@ class Benchmark(object):
                 all_states_matrix[exp_m_int,
                                   m_int] = all_states_matrix[exp_m_int, m_int] + 1/N_exp
 
-                success_registry.append(1 if np.array_equal(
+                self.success_registry.append(1 if np.array_equal(
                     measurement, expected_measurement) else 0)
 
-                fidelity_registry.append(
+                self.fidelity_registry.append(
                     self.fidelity(expected_q_state, q_state))
 
                 # if fidelity_registry[i] - success_registry[i] != 0:
                 #     input("Fidelity and Success not equal")
 
-            return self.probability_of_success(success_registry, N_exp), all_states_matrix
+            return self.probability_of_success(), all_states_matrix
 
     def qx_simulation(self, qasm_f_path):
 
