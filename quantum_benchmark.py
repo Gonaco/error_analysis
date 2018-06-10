@@ -181,7 +181,10 @@ class Benchmark():
         # self.conf_file_path = conf_file_path
 
         # Initializing quantumsim
-        self.qsimc = __import__(qasm_file_path.replace(".qasm", ""))
+        try:
+            self.qsimc = __import__(qasm_file_path.replace(".qasm", ""))
+        except ModuleNotFoundError:
+            print("The quantumsim doesn't exist")
 
         # self.input_output = input_output
         # # The input - output realtion is an array. The position number in the
