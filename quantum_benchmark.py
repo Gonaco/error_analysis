@@ -240,6 +240,7 @@ class Benchmark(object):
     #     atexit.register(delcopy(self.cp))
 
     def __exit__(self):
+        print("Deleting benchmark garbage")
 
         delcopy(self.cp)
         delcopy(self.cp.replace(".qasm", "_error.qasm"))
@@ -403,7 +404,7 @@ class Benchmark(object):
 
         measurement = np.array(c_buff[::-1], dtype=float)
         print(qx.get_state())
-        q_state = self.output_quantum_state(qx.get_state(), self.N_qubits)
+        q_state = self.output_quantum_state(qx.get_state())
 
         return q_state, measurement
 
