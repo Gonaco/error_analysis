@@ -217,7 +217,7 @@ class Benchmark(object):
 
         atexit.register(delcopy, cp="."+qasm_file_path+"~")
 
-        self.success_matrix = np.zeros((2**self.N_qubits, 2**self.N_qubits))
+        self.tomography_matrix = np.zeros((2**self.N_qubits, 2**self.N_qubits))
 
         # Initializing quantumsim
         try:
@@ -251,8 +251,6 @@ class Benchmark(object):
 
         if init_state_type == 0:
 
-            tomography_matrix = np.zeros((2**N_qubits, 2**N_qubits))
-
             for q in range(2**N_qubits):
 
                 with open(INIT_QST_FILE, "w") as f:
@@ -262,12 +260,12 @@ class Benchmark(object):
                 init_state = format(q, "0"+str(N_qubits)+"b")
 
                 # prob_succ, tomography_matrix = analysis(N_qubits, tomography_matrix)
-                prob_succ, tomography_matrix = self.simulate(
-                    errprob, tomography_matrix, quantumsim, init_state)
+                prob_succ = self.simulate(
+                    errprob, quantumsim, init_state)
 
-            print(tomography_matrix)
+            print(self.tomography_matrix)
 
-            graph(N_qubits, tomography_matrix)
+            graph(N_qubits, self.tomography_matrix)
 
         elif init_state_type == 1:
 
@@ -333,10 +331,8 @@ class Benchmark(object):
         # return sum(self.success_registry)/self.total_n_experiments #?
         return sum(self.success_registry)/self.N_exp
 
-    def simulate(self, errprob, all_states_matrix=None, quantumsim=False, initial_state=None):
+    def simulate(self, errprob, quantumsim=False, initial_state=None):
 
-        success_registry = []
-        fidelity_registry = []
         N_exp = self.N_exp
         qasm_f_path = self.cp
 
@@ -348,7 +344,7 @@ class Benchmark(object):
 
             # return self.quantumsim_simulation()
 
-            return self.quantumsim_simulation(errprob, initial_state, N_exp, expected_measurement, all_states_matrix)
+            return self.quantumsim_simulation(errprob, initial_state, N_exp, expected_measurement)
 
         else:
 
@@ -375,8 +371,8 @@ class Benchmark(object):
                 m_int = int(''.join(str(int(e))
                                     for e in measurement.tolist()), 2)
 
-                all_states_matrix[exp_m_int,
-                                  m_int] = all_states_matrix[exp_m_int, m_int] + 1/N_exp
+                self.tomography_matrix[exp_m_int,
+                                       m_int] = self.tomography_matrix[exp_m_int, m_int] + 1/N_exp
 
                 self.success_registry.append(1 if np.array_equal(
                     measurement, expected_measurement) else 0)
@@ -387,7 +383,7 @@ class Benchmark(object):
                 # if fidelity_registry[i] - success_registry[i] != 0:
                 #     input("Fidelity and Success not equal")
 
-            return self.probability_of_success(), all_states_matrix
+            return self.probability_of_success()
 
     def qx_simulation(self, qasm_f_path):
 
@@ -423,7 +419,7 @@ class Benchmark(object):
 
     #     return measurements
 
-    def quantumsim_simulation(self, error, init_state, expected_measurement, all_states_matrix):
+    def quantumsim_simulation(self, error, init_state, expected_measurement):
 
         N_exp = self.N_exp
         success_registry = []
@@ -454,13 +450,13 @@ class Benchmark(object):
             exp_m_int = int(''.join(str(int(e))
                                     for e in expected_measurement.tolist()), 2)
             m_int = int(''.join(str(int(e)) for e in measurement.tolist()), 2)
-            all_states_matrix[exp_m_int,
-                              m_int] = all_states_matrix[exp_m_int, m_int] + 1/N_exp
+            self.tomography_matrix[exp_m_int,
+                                   m_int] = self.tomography_matrix[exp_m_int, m_int] + 1/N_exp
 
             success_registry.append(1 if np.array_equal(
                 measurement, expected_measurement) else 0)
 
-        return self.probability_of_success(success_registry, N_exp), all_states_matrix
+        return self.probability_of_success(success_registry, N_exp), self.tomography_matrix
 
     def output_quantum_state(self, q_state):
         """ Defines the quantum state based on the output string of QX get_state() function """
