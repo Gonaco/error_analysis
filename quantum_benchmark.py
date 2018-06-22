@@ -82,6 +82,9 @@ def addinit(ori_path, cp_path):
     return add2qasm(ori_path, cp_path, "qubits \d+", init)
 
 
+def add_measurement(ori_path, cp_path, N_qubits):
+
+
 def graph(N_qubits, matrix):
     """Draw a graph for the all input analysis
     """
@@ -115,7 +118,7 @@ def graph(N_qubits, matrix):
     dy = dx.copy()
     dz = matrix.flatten()
 
-    ratio = int(20/(2**N_qubits))
+    ratio = int(20/(2**N_qubits)) if int(20/(2**N_qubits)) != 0 else 1
     end = 2**N_qubits * ratio
     # cs = Tableau_20.mpl_colors[:8] * 2**N_qubits
     cs_y = Cube1_20.mpl_colors[:end:ratio] * 2**N_qubits
