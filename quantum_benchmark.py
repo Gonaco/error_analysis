@@ -224,7 +224,7 @@ class Benchmark(object):
             self.qsimc = __import__(qasm_file_path.replace(".qasm", ""))
         except ModuleNotFoundError:
             print(
-                "The quantumsim file doesn't exist, so quantumsim cannot be used for simulating this benchmark")
+                "\nThe quantumsim file doesn't exist, so quantumsim cannot be used for simulating this benchmark")
 
     # def __enter__(self):
 
@@ -244,6 +244,10 @@ class Benchmark(object):
 
         delcopy(self.cp)
         delcopy(self.cp.replace(".qasm", "_error.qasm"))
+
+    def __str__(self):
+
+        return "\nQUANTUM BENCHMARK\n"+"\nAlgorithm: "+self.qasm_file_path+"\nNumber of qubits: "+self.N_qubits+"Number of experiment simulations "+self.N_exp
 
     def error_analysis(self, init_state_type, errprob, quantumsim=False):
 
