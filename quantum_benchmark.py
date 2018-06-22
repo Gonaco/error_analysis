@@ -247,7 +247,7 @@ class Benchmark(object):
 
     def __str__(self):
 
-        return "\nQUANTUM BENCHMARK\n"+"\nAlgorithm: "+self.qasm_file_path+"\nNumber of qubits: "+str(self.N_qubits)+"Number of experiment simulations "+str(self.N_exp)
+        return "\nQUANTUM BENCHMARK\n"+"\n\tAlgorithm: "+self.qasm_file_path+"\n\tNumber of qubits: "+str(self.N_qubits)+"\n\tNumber of experiment simulations "+str(self.N_exp)
 
     def error_analysis(self, init_state_type, errprob, quantumsim=False):
 
