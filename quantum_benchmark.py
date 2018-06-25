@@ -267,7 +267,7 @@ class Benchmark(object):
 
         return "\nQUANTUM BENCHMARK\n"+"\n\tAlgorithm: "+self.qasm_file_path+"\n\tNumber of qubits: "+str(self.N_qubits)+"\n\tNumber of experiment simulations "+str(self.N_exp)
 
-    def error_analysis(self, init_state_type, errprob, quantumsim=False):
+    def error_analysis(self, init_state_type, errprob, quantumsim=False, init_state=""):
 
         N_qubits = self.N_qubits
 
@@ -289,7 +289,31 @@ class Benchmark(object):
 
             graph(N_qubits, self.tomography_matrix)
 
+        # elif init_state_type == 1:
+
+        #     with open(INIT_QST_FILE, "w") as f:
+        #         norm_factor = 1 / np.sqrt(2**N_qubits)
+        #         for q in range(2**N_qubits):
+        #             f.write(str(norm_factor)+"0.0 |" +
+        #                     format(q, "0"+str(N_qubits)+"b")[::-1]+">\n")
+
+        #         self.simulate(errprob, quantumsim=quantumsim, initial_state=1)
+
+        # elif init_state == 2:
+
+        #     with open(INIT_QST_FILE, "w") as f:
+        #         norm_factor = []
+        #         for q in range(2**N_qubits):
+        #             f.write(
+        #                 str(norm_factor[q])+"0.0 |"+format(q, "0"+str(N_qubits)+"b")[::-1]+">\n")
+
+        #         self.simulate(errprob, quantumsim=quantumsim, initial_state=1)
+
         elif init_state_type == 1:
+
+            if init_state == "":
+
+                init_state = "1.0 0.0 |"+format(0, "0"+str(N_qubits)+"b")+">\n"
 
             with open(INIT_QST_FILE, "w") as f:
                 norm_factor = 1 / np.sqrt(2**N_qubits)
@@ -297,17 +321,8 @@ class Benchmark(object):
                     f.write(str(norm_factor)+"0.0 |" +
                             format(q, "0"+str(N_qubits)+"b")[::-1]+">\n")
 
-                self.simulate(errprob, quantumsim=quantumsim, initial_state=1)
-
-        elif init_state == 2:
-
-            with open(INIT_QST_FILE, "w") as f:
-                norm_factor = []
-                for q in range(2**N_qubits):
-                    f.write(
-                        str(norm_factor[q])+"0.0 |"+format(q, "0"+str(N_qubits)+"b")[::-1]+">\n")
-
-                self.simulate(errprob, quantumsim=quantumsim, initial_state=1)
+                self.simulate(errprob, quantumsim=quantumsim,
+                              initial_state=init_state)
 
         else:
 
