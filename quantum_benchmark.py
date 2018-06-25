@@ -380,7 +380,7 @@ class Benchmark(object):
 
                 q_state, measurement = self.qx_simulation(error_file)
 
-                measurement = measurement[::-1]
+                # measurement = measurement[::-1] # for quantumsim maybe?
 
                 # print(expected_q_state)
                 # print(q_state)
