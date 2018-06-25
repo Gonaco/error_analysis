@@ -98,7 +98,7 @@ def add_measurement(cp_path, N_qubits):
         f.writelines(measurements)
 
 
-def graph(N_qubits, matrix):
+def graph(N_qubits, matrix, file_name):
     """Draw a graph for the all input analysis
     """
 
@@ -159,7 +159,7 @@ def graph(N_qubits, matrix):
 
     fig.tight_layout()
 
-    plt.savefig("tomography_graph")
+    plt.savefig(file_name+"_tomography_graph")
 
     # Second plot. Heatmap
 
@@ -191,7 +191,7 @@ def graph(N_qubits, matrix):
     # plt.show()
     fig2.tight_layout()
 
-    plt.savefig("heatmap")
+    plt.savefig(file_name+"_heatmap")
 
 
 # Classes #################################################################
@@ -287,7 +287,8 @@ class Benchmark(object):
 
             print(self.tomography_matrix)
 
-            graph(N_qubits, self.tomography_matrix)
+            graph(N_qubits, self.tomography_matrix,
+                  self.qasm_file_path.replace(".qasm", ""))
 
         # elif init_state_type == 1:
 
