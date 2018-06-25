@@ -79,10 +79,23 @@ def addinit(ori_path, cp_path):
     """
 
     init = "\n.init\nload_state "+INIT_QST_FILE+"\n"
-    return add2qasm(ori_path, cp_path, "qubits \d+", init)
+    N_qubits = add2qasm(ori_path, cp_path, "qubits \d+", init)
+
+    add_measurement(cp_path, N_qubits)
+
+    return N_qubits
 
 
-def add_measurement(ori_path, cp_path, N_qubits):
+def add_measurement(cp_path, N_qubits):
+    """Appending the measurement to the end of the qasm file
+    """
+    with open(cp_path, "a") as f:
+        m_string = "   measure q"
+        measurements = ["\n"]
+        for q in range(N_qubits):
+            measurements.append(m_string+str(q)+"\n")
+
+        f.writelines(measurements)
 
 
 def graph(N_qubits, matrix):
