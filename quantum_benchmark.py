@@ -205,20 +205,11 @@ class Benchmark(object):
 
         self.qasm_file_path = qasm_file_path
         self.cp = "."+qasm_file_path+"~"
-        # self.conf_file_path = conf_file_path
-
-        # self.input_output = input_output
-        # # The input - output realtion is an array. The position number in the
-        # # array (i) is the number representing the binary input state, 10->2.
-        # # The value in the array is the expected output of that input.
 
         self.N_exp = N_exp
-        # self.N_qubits = N_qubits
-        # self.total_n_experiments = (2**N_qubits)*N_exp #?
-        # self.output_qs = [] #?
         self.output_registry = []
-        self.success_registry = []
-        self.fidelity_registry = []
+        self.success_registry = []  # Matrix storing the success
+        self.fidelity_registry = []  # Matrix storing the fidelity
         self.total_meas_err = 0
 
         # Initializing qasm copy
@@ -243,19 +234,6 @@ class Benchmark(object):
         except ModuleNotFoundError:
             print(
                 "\nThe quantumsim file doesn't exist, so quantumsim cannot be used for simulating this benchmark")
-
-    # def __enter__(self):
-
-    #     try:
-    #         addinit(self.qasm_file_path, self.cp)
-
-    #     except FileNotFoundError:
-    #         print(
-    #             "The QASM file does not exist or the path is incorrect." +
-    #             "\nThe Benchmark cannot be created")
-    #         raise
-
-    #     atexit.register(delcopy(self.cp))
 
     def __exit__(self):
         print("Deleting benchmark garbage")
@@ -290,26 +268,6 @@ class Benchmark(object):
             graph(N_qubits, self.tomography_matrix,
                   self.qasm_file_path.replace(".qasm", ""))
 
-        # elif init_state_type == 1:
-
-        #     with open(INIT_QST_FILE, "w") as f:
-        #         norm_factor = 1 / np.sqrt(2**N_qubits)
-        #         for q in range(2**N_qubits):
-        #             f.write(str(norm_factor)+"0.0 |" +
-        #                     format(q, "0"+str(N_qubits)+"b")[::-1]+">\n")
-
-        #         self.simulate(errprob, quantumsim=quantumsim, initial_state=1)
-
-        # elif init_state == 2:
-
-        #     with open(INIT_QST_FILE, "w") as f:
-        #         norm_factor = []
-        #         for q in range(2**N_qubits):
-        #             f.write(
-        #                 str(norm_factor[q])+"0.0 |"+format(q, "0"+str(N_qubits)+"b")[::-1]+">\n")
-
-        #         self.simulate(errprob, quantumsim=quantumsim, initial_state=1)
-
         elif init_state_type == 1:
 
             if init_state == "":
@@ -317,10 +275,11 @@ class Benchmark(object):
                 init_state = "1.0 0.0 |"+format(0, "0"+str(N_qubits)+"b")+">\n"
 
             with open(INIT_QST_FILE, "w") as f:
-                norm_factor = 1 / np.sqrt(2**N_qubits)
-                for q in range(2**N_qubits):
-                    f.write(str(norm_factor)+"0.0 |" +
-                            format(q, "0"+str(N_qubits)+"b")[::-1]+">\n")
+                f.write(init_state)
+                # norm_factor = 1 / np.sqrt(2**N_qubits)
+                # for q in range(2**N_qubits):
+                #     f.write(str(norm_factor)+"0.0 |" +
+                #             format(q, "0"+str(N_qubits)+"b")[::-1]+">\n")
 
                 self.simulate(errprob, quantumsim=quantumsim,
                               initial_state=init_state)
@@ -366,7 +325,6 @@ class Benchmark(object):
 
     def probability_of_success(self):
 
-        # return sum(self.success_registry)/self.total_n_experiments #?
         return sum(self.success_registry)/self.N_exp
 
     def simulate(self, errprob, quantumsim=False, initial_state=None):
@@ -418,8 +376,10 @@ class Benchmark(object):
                 self.fidelity_registry.append(
                     self.fidelity(expected_q_state, q_state))
 
-                # if fidelity_registry[i] - success_registry[i] != 0:
-                #     input("Fidelity and Success not equal")
+                # Errors while measuring
+                meas_errors = np.array(self.fidelity_registry) - \
+                    np.array(self.success_registry)
+                self.total_meas_err = np.count_nonzero(meas_errors != 0)
 
             return self.probability_of_success()
 
@@ -441,21 +401,6 @@ class Benchmark(object):
         q_state = self.output_quantum_state(qx.get_state())
 
         return q_state, measurement
-
-    # def quantumsim_simulation(self):
-    #     """ IS THIS CORRECT?? Run the quantumsim file """
-
-    #     # os.system(self.qasm_file_path.replace(...))
-    #     c = self.qsimc.c             # O como sea
-    #     sdm = sparsedm.SparseDM(c.get_qubit_names())
-    #     # SIMULATING
-    #     self.c.apply_to(sdm)
-
-    #     measurements = []
-    #     for i in range(self.N_qubits):
-    #         measurements.append(sdm.classical["m"+str(i)])
-
-    #     return measurements
 
     def quantumsim_simulation(self, error, init_state, expected_measurement):
 
