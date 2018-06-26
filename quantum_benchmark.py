@@ -207,7 +207,6 @@ class Benchmark(object):
         self.cp = "."+qasm_file_path+"~"
 
         self.N_exp = N_exp
-        self.output_registry = []
         self.success_registry = []  # Matrix storing the success
         self.fidelity_registry = []  # Matrix storing the fidelity
         self.total_meas_err = 0
@@ -405,7 +404,6 @@ class Benchmark(object):
     def quantumsim_simulation(self, error, init_state, expected_measurement):
 
         N_exp = self.N_exp
-        success_registry = []
 
         # CIRCUIT DECLARATION
         c = self.qsimc.circuit_function(10, 10, error, init_state)
@@ -436,10 +434,10 @@ class Benchmark(object):
             self.tomography_matrix[exp_m_int,
                                    m_int] = self.tomography_matrix[exp_m_int, m_int] + 1/N_exp
 
-            success_registry.append(1 if np.array_equal(
+            self.success_registry.append(1 if np.array_equal(
                 measurement, expected_measurement) else 0)
 
-        return self.probability_of_success(success_registry, N_exp), self.tomography_matrix
+        return self.probability_of_success(self.success_registry, N_exp), self.tomography_matrix
 
     def output_quantum_state(self, q_state):
         """ Defines the quantum state based on the output string of QX get_state() function """
