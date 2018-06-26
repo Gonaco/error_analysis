@@ -263,9 +263,12 @@ class Benchmark(object):
                     errprob, quantumsim, init_state)
 
             print(self.tomography_matrix)
-
-            graph(N_qubits, self.tomography_matrix,
-                  self.qasm_file_path.replace(".qasm", ""))
+            try:
+                graph(N_qubits, self.tomography_matrix,
+                      self.qasm_file_path.replace(".qasm", ""))
+            except MemoryError:
+                print(
+                    "Error while drawing the graph. MemoryError despite the matrix size")
 
         elif init_state_type == 1:
 
@@ -481,3 +484,11 @@ class Benchmark(object):
             return
 
         return np.around(f, decimals=5)
+
+    def mean_fidelity(self):
+
+        return np.mean(self.fidelity_registry)
+
+    def mean_success(self):
+
+        return np.mean(self.success_registry)
