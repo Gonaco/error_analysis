@@ -299,12 +299,15 @@ class Benchmark(object):
 
             print(self.tomography_matrix)
 
-            try:
-                just_heatmap(N_qubits, self.tomography_matrix,
-                             self.qasm_file_path.replace(".qasm", ""))
-            except MemoryError:
-                print(
-                    "Error while drawing the graph. MemoryError despite the matrix size")
+            if N_qubits < 5:
+                # It has no sense to see a bar graph or a heatmap of 1024 values or more
+
+                try:
+                    just_heatmap(N_qubits, self.tomography_matrix,
+                                 self.qasm_file_path.replace(".qasm", ""))
+                except MemoryError:
+                    print(
+                        "Error while drawing the graph. MemoryError despite the matrix size")
 
         elif init_state_type == 1:
 
