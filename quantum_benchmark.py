@@ -194,6 +194,41 @@ def graph(N_qubits, matrix, file_name):
     plt.savefig(file_name+"_heatmap")
 
 
+def just_heatmap(N_qubits, matrix, file_name):
+
+    axis = [format(i, "0"+str(N_qubits)+"b") for i in range(2**N_qubits)]
+
+    fig2 = plt.figure(figsize=(7, 7))
+    ax2 = fig2.add_subplot(111)
+
+    divider = make_axes_locatable(ax2)
+    cax = divider.append_axes("right", size="5%", pad=0.05)
+
+    im = ax2.imshow(matrix, cmap="jet")
+    # im = ax2.imshow(matrix, cmap=Cube1_20.mpl_colormap)
+
+    ax2.set_xticks(np.arange(2**N_qubits))
+    ax2.set_yticks(np.arange(2**N_qubits))
+    ax2.set_xticklabels(axis)
+    ax2.set_yticklabels(axis)
+
+    for i in range(2**N_qubits):
+        for j in range(2**N_qubits):
+            text = ax2.text(j, i, round(matrix[i, j], 2),
+                            ha="center", va="center", color="w")
+
+    ax2.set_xlabel("Expected Results (Correct)")
+    ax2.set_ylabel("Actual Results")
+    ax2.set_title("Prob. Success")
+
+    plt.colorbar(im, cax=cax)
+
+    # plt.show()
+    fig2.tight_layout()
+
+    plt.savefig(file_name+"_heatmap")
+
+
 # Classes #################################################################
 
 
@@ -264,14 +299,12 @@ class Benchmark(object):
 
             print(self.tomography_matrix)
 
-            if (self.N_qubits < 5):
-
-                try:
-                    graph(N_qubits, self.tomography_matrix,
-                          self.qasm_file_path.replace(".qasm", ""))
-                except MemoryError:
-                    print(
-                        "Error while drawing the graph. MemoryError despite the matrix size")
+            try:
+                just_heatmap(N_qubits, self.tomography_matrix,
+                             self.qasm_file_path.replace(".qasm", ""))
+            except MemoryError:
+                print(
+                    "Error while drawing the graph. MemoryError despite the matrix size")
 
         elif init_state_type == 1:
 
