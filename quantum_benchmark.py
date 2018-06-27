@@ -12,7 +12,7 @@ import qxelarator
 
 # GRAPHS ######################################################################
 
-import matplotlib
+nimport matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 plt.style.use('seaborn-white')
@@ -263,12 +263,15 @@ class Benchmark(object):
                     errprob, quantumsim, init_state)
 
             print(self.tomography_matrix)
-            try:
-                graph(N_qubits, self.tomography_matrix,
-                      self.qasm_file_path.replace(".qasm", ""))
-            except MemoryError:
-                print(
-                    "Error while drawing the graph. MemoryError despite the matrix size")
+
+            if (self.N_qubits < 5):
+
+                try:
+                    graph(N_qubits, self.tomography_matrix,
+                          self.qasm_file_path.replace(".qasm", ""))
+                except MemoryError:
+                    print(
+                        "Error while drawing the graph. MemoryError despite the matrix size")
 
         elif init_state_type == 1:
 
@@ -289,6 +292,13 @@ class Benchmark(object):
         else:
 
             print("\nError. The initial state is missing or is not 0 (all possible inputs), 1 (superosition state) or 2 (special superposition state)")
+
+    def draw_error_analysis(self):
+        try:
+            graph(N_qubits, self.tomography_matrix,
+                  self.qasm_file_path.replace(".qasm", ""))
+        except MemoryError:
+            print("Error while drawing the graph. MemoryError despite the matrix size")
 
     # def analysis(self, errprob, tomography_matrix=None, quantumsim=False, initial_state=None):
     #     """ It compares the correct result (expected) with the actual one (erroneous).
