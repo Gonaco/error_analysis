@@ -280,6 +280,11 @@ class Benchmark(object):
         return "\nQUANTUM BENCHMARK\n"+"\n\tAlgorithm: "+self.qasm_file_path+"\n\tNumber of qubits: "+str(self.N_qubits)+"\n\tNumber of experiment simulations "+str(self.N_exp)
 
     def error_analysis(self, init_state_type, errprob, quantumsim=False, init_state=""):
+        """
+        """
+
+        print("############ [Error Analysis] " +
+              self.qasm_file_path+" ############")
 
         N_qubits = self.N_qubits
 
@@ -331,7 +336,7 @@ class Benchmark(object):
 
     def draw_error_analysis(self):
         try:
-            graph(N_qubits, self.tomography_matrix,
+            graph(self.N_qubits, self.tomography_matrix,
                   self.qasm_file_path.replace(".qasm", ""))
         except MemoryError:
             print("Error while drawing the graph. MemoryError despite the matrix size")
