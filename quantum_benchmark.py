@@ -458,9 +458,10 @@ class Benchmark(object):
     def quantumsim_simulation(self, error, init_state, expected_measurement):
 
         N_exp = self.N_exp
+        N_qubits = self.N_qubits
 
         # CIRCUIT DECLARATION
-        c = self.qsimc.circuit_function(10, 10, error, init_state)
+        c = self.qsimc.circuit_function(3500, 1500, error, init_state)
 
         # SIMULATING
         sdm = sparsedm.SparseDM(c.get_qubit_names())
@@ -475,8 +476,11 @@ class Benchmark(object):
 
         for i in range(N_exp):
             c.apply_to(sdm)
-            measurement = np.array([sdm.classical["m2"],
-                                    sdm.classical["m1"], sdm.classical["m0"]], dtype=float)
+
+            for q in range(N_qubits):
+                measurements.append(sdm.classical["m"+str(q)])
+
+            measurement = np.array(measurements, dtype=float)
             print("Expected Measurement:")
             print(expected_measurement)
             print("Actual Measurement:")
@@ -535,6 +539,13 @@ class Benchmark(object):
             return
 
         return np.around(f, decimals=5)
+
+    # depth=0 is just for now, till I'm able to extract the depth of the benchmark
+    def quantum_volume(self, depth=0):
+        """ Quantum Volume calculation"""
+
+        # return min([self.N_qubits, depth])**2
+        return self.N_qubits * depth
 
     def mean_fidelity(self):
 
