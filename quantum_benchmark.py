@@ -256,9 +256,9 @@ class Benchmark(object):
                 "\nThe Benchmark cannot be created")
             raise
 
-        atexit.register(delcopy, cp="."+qasm_file_path+"~")
-        atexit.register(delcopy, cp="."+qasm_file_path.replace(
-            ".qasm", "_error.qasm")+"~")
+        # atexit.register(delcopy, cp="."+qasm_file_path+"~")
+        # atexit.register(delcopy, cp="."+qasm_file_path.replace(
+        #     ".qasm", "_error.qasm")+"~")
 
         self.tomography_matrix = np.zeros((2**self.N_qubits, 2**self.N_qubits))
 
