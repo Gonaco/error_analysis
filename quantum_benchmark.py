@@ -78,7 +78,7 @@ def addinit(ori_path, cp_path):
     """
     """
 
-    init = "\n.init\nload_state "+INIT_QST_FILE+"\n"
+    init = '\n.init\n    load_state "'+INIT_QST_FILE+'"\n'
     N_qubits = add2qasm(ori_path, cp_path, "qubits \d+", init)
 
     add_measurement(cp_path, N_qubits)
