@@ -44,60 +44,6 @@ def delcopy(cp):
     os.remove(cp)
 
 
-def add2qasm(ori_path, cp_path, before, after):
-    """Look for some regular expression in a file (before)
-    and add something new after it in a copy of this file
-    """
-
-    N_qubits = 0
-
-    with open(ori_path, "r") as i:
-        data = i.readlines()
-    with open(cp_path, "w") as o:
-        for line in data:
-
-            match = re.search("qubits (\d*)", line)
-            if match:
-                N_qubits = match[1]
-
-            if re.search(before, line):
-                o.write(line+"\n"+after)
-            else:
-                o.write(line)
-
-    return int(N_qubits)
-
-
-def add_error_model(ori_path, cp_path, errprob):
-
-    error_model = "error_model depolarizing_channel, " + str(errprob)
-    add2qasm(ori_path, cp_path, "qubits \d+", error_model)
-
-
-def addinit(ori_path, cp_path):
-    """
-    """
-
-    init = '\n.init\n    load_state "'+INIT_QST_FILE+'"\n'
-    N_qubits = add2qasm(ori_path, cp_path, "qubits \d+", init)
-
-    add_measurement(cp_path, N_qubits)
-
-    return N_qubits
-
-
-def add_measurement(cp_path, N_qubits):
-    """Appending the measurement to the end of the qasm file
-    """
-    with open(cp_path, "a") as f:
-        m_string = "   measure q"
-        measurements = ["\n"]
-        for q in range(N_qubits):
-            measurements.append(m_string+str(q)+"\n")
-
-        f.writelines(measurements)
-
-
 def graph(N_qubits, matrix, file_name):
     """Draw a graph for the all input analysis
     """
@@ -231,8 +177,210 @@ def just_heatmap(N_qubits, matrix, file_name):
 
 # Classes #################################################################
 
+class QASMReader(object):
 
-class Benchmark(object):
+    def __init__(self, file_path):
+
+        self.file_path = file_path
+        with open(file_path, "r") as i:
+            self.data = i.readlines()
+
+        self.N_qubits = 0
+        self.depth = 0
+        self.N_gates = 0
+
+    def save(self, output_path):
+
+        with open(output_path, "w") as o:
+            o.writelines(self.data)
+
+    def search(regex, line):
+
+        match = re.search(regex, line)
+        if match:
+            return match
+
+    def searchDepth(self, line):
+
+        self.N_qubits = int(self.search("# Total depth: (\d+)", line)[1])
+
+    def getDepth(self):
+
+        return self.depth
+
+    def searchN_qubits(self, line):
+
+        self.N_qubits = int(self.search("qubits (\d*)", line)[1])
+
+    def getN_Qubits(self):
+
+        return self.N_qubits
+
+    def searchN_gates(self, line):
+
+        self.N_qubits = int(self.search(
+            "# Total no. of quantum gates: (\d+)", line)[1])
+
+    def getN_Gates(self):
+
+        return self.N_gates
+
+    def extractInfo(self, line):
+
+        self.searchN_qubits(line)
+        self.searchDepth(line)
+        self.searchN_gates(lines)
+
+    def add2qasm(self, before, after):
+        """Look for some regular expression in a file (before)
+        and add something new after it in a copy of this file
+        """
+
+        for idx, line in enumerate(self.data):
+
+            extractInfo(line)
+
+            if re.search(before, line):
+                self.data[idx] = line+"\n"+after
+
+    def add_error_model(errprob):
+
+        error_model = "error_model depolarizing_channel, " + str(errprob)
+        self.add2qasm("qubits \d+", error_model)
+
+    def addinit(self):
+        """
+        """
+
+        init = '\n.init\n    load_state "'+INIT_QST_FILE+'"\n'
+        self.add2qasm("qubits \d+", init)
+
+        self.add_measurement()
+
+    def add_measurement(self):
+        """Appending the measurement to the end of the qasm file
+        """
+        m_string = "   measure q"
+        measurements = ["\n"]
+
+        for q in range(self.N_qubits):
+            measurements.append(m_string+str(q)+"\n")
+
+        self.data.append(measurements)
+
+    def cleaning_qwaits(self):
+
+        for idx, line in enumerate(self.data):
+
+            match = re.findall(r"qwait \d+", line)
+            # print(match)
+
+            if match:
+                self.data.pop(idx)
+
+
+class Analysis(object):
+
+    def __init__(self, algs_path, log_path, h5_path, config_file_path, scheduler, mapper, initial_placement, output_dir_name, init_type, error, simulator):
+
+        self.algs_path = algs_path
+        self.log_path = log_path
+        self.h5_path = h5_path
+        self.connection = sqlite3.connect("error_analysis.db")
+        self.cursor = connection.cursor()
+        self.config_file_path = config_file_path
+        self.scheduler = scheduler
+        self.mapper = mapper
+
+        self.initial_placement = initial_placement
+        self.output_dir_name = output_dir_name
+        self.init_type = init_type
+        self.error = error
+        self.simulator = simulator
+
+    def save_in_db(cursor, algorithm, N_sim, init_type, scheduler, mapper, initial_placement, error_rate, conf_file, prob_succs, mean_f, q_vol, exper_id, simulator):
+
+        if init_type == 0:
+            init_type = "all_states"
+        elif init_type == 1:
+            init_type = "ground_state"
+        else:
+            print("Init type ERROR. The init_type is not either 1 nor 0")
+            raise Exception("Init_TypeError")
+
+        if simulator:
+            simulator = "quantumsim"
+        else:
+            simulator = "qx"
+
+        format_str = "INSERT INTO Results (algorithm, N_sim, init_type, scheduler, mapper, initial_placement, error_rate, conf_file, prob_succs, mean_f, q_vol, simulator, exper_id) VALUES ('{algorithm}', {N_sim}, '{init_type}', '{scheduler}', '{mapper}', '{initial_placement}', {error_rate}, '{conf_file}', {prob_succs}, {mean_f}, {q_vol}, {simulator}, {exper_id});"
+
+        cursor.execute(format_str.format(algorithm=algorithm, N_sim=N_sim, init_type=init_type,
+                                         scheduler=scheduler, mapper=mapper, initial_placement=initial_placement, error_rate=error_rate, conf_file=conf_file, prob_succs=prob_succs, mean_f=mean_f, q_vol=q_vol, exper_id=exper_id, simulator=simulator))
+
+    def db_init_query(self):
+
+        new_experiment_query = "INSERT INTO Experiments (date, tom_mtrx_path, log_path) VALUES (datetime('now'),'" + \
+            self.h5_path+"', '"+self.log_path+"');"
+        self.cursor.execute(new_experiment_query)
+        self.connection.commit()
+
+        self.cursor.execute("SELECT last_insert_rowid() FROM Experiments;")
+        experiment_id = cursor.fetchone()[0]
+
+        return experiment_id
+
+    def db_interruption_query(self):
+
+        self.connection.commit()
+        self.connection.close()
+
+    def db_final_query(self):
+
+        self.cursor.execute("UPDATE Experiments SET fail = 0 WHERE id =" +
+                            str(experiment_id)+";")
+        self.connection.commit()
+        self.connection.close()
+
+    def analysis(self):
+
+        with h5py.File(h5_path, "w") as h5f:
+
+            experiment_id = self.db_init_query()
+
+            try:
+
+                for alg_path in algs_path:
+
+                    self.descripBench = DescripBench(alg_path)
+                    self.descripBench.compile(config_file_path)
+                    self.simBench = SimBench(qasm_file_path)
+
+            except:
+                self.db_interruption_query()
+                raise
+
+        self.db_final_query()
+
+
+class DescripBench(object):
+
+    def __init__(self, file_path):
+
+        self.openql = importlib.util.spec_from_file_location(
+            alg_path, filename)
+        self.openql_comp = importlib.util.module_from_spec(openql)
+
+    def compile(self, config_file_path, scheduler, mapper, ini):
+
+        self.openql.loader.exec_module(openql_comp)
+
+        try:
+            openql_comp.circuit(
+                config_file_path, scheduler, mapper, initial_placement, output_dir_name)
+
+
+class SimBench(object):
     """
     """
 
