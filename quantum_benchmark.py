@@ -252,8 +252,8 @@ class Benchmark(object):
 
         except FileNotFoundError:
             print(
-                "The QASM file does not exist or the path is incorrect." +
-                "\nThe Benchmark cannot be created")
+                "\nThe QASM file does not exist or the path is incorrect." +
+                "\nThe Benchmark cannot be created\n")
             raise
 
         # atexit.register(delcopy, cp="."+qasm_file_path+"~")
@@ -388,12 +388,15 @@ class Benchmark(object):
         if quantumsim:          # TODO
             # Quantumsim will be used as simulator
 
-            expected_q_state, expected_measurement = self.qx_simulation(
-                qasm_f_path)
+            # expected_q_state, expected_measurement = self.qx_simulation(
+            #     qasm_f_path)
+
+            expected_measurement = self.quantumsim_simulation(
+                errprob, initial_state)
 
             # return self.quantumsim_simulation()
 
-            return self.quantumsim_simulation(errprob, initial_state, N_exp, expected_measurement)
+            return self.quantumsim_simulation(errprob, initial_state, expected_measurement)
 
         else:
 
@@ -455,7 +458,7 @@ class Benchmark(object):
 
         return q_state, measurement
 
-    def quantumsim_simulation(self, error, init_state, expected_measurement):
+    def quantumsim_simulation(self, error, init_state, expected_measurement=False):
 
         N_exp = self.N_exp
         N_qubits = self.N_qubits
@@ -474,28 +477,42 @@ class Benchmark(object):
 
         # return np.array(measurements, dtype=float)
 
-        for i in range(N_exp):
+        if expected_measurement:
+
+            for i in range(N_exp):
+                c.apply_to(sdm)
+
+                for q in range(N_qubits):
+                    measurements.append(sdm.classical["m"+str(q)])
+
+                measurement = np.array(measurements, dtype=float)
+                print("Expected Measurement:")
+                print(expected_measurement)
+                print("Actual Measurement:")
+                print(measurement)
+
+                exp_m_int = int(''.join(str(int(e))
+                                        for e in expected_measurement.tolist()), 2)
+                m_int = int(''.join(str(int(e))
+                                    for e in measurement.tolist()), 2)
+                self.tomography_matrix[exp_m_int,
+                                       m_int] = self.tomography_matrix[exp_m_int, m_int] + 1/N_exp
+
+                self.success_registry.append(1 if np.array_equal(
+                    measurement, expected_measurement) else 0)
+
+            return self.probability_of_success(self.success_registry, N_exp), self.tomography_matrix
+
+        else:
+
             c.apply_to(sdm)
 
             for q in range(N_qubits):
                 measurements.append(sdm.classical["m"+str(q)])
 
             measurement = np.array(measurements, dtype=float)
-            print("Expected Measurement:")
-            print(expected_measurement)
-            print("Actual Measurement:")
-            print(measurement)
 
-            exp_m_int = int(''.join(str(int(e))
-                                    for e in expected_measurement.tolist()), 2)
-            m_int = int(''.join(str(int(e)) for e in measurement.tolist()), 2)
-            self.tomography_matrix[exp_m_int,
-                                   m_int] = self.tomography_matrix[exp_m_int, m_int] + 1/N_exp
-
-            self.success_registry.append(1 if np.array_equal(
-                measurement, expected_measurement) else 0)
-
-        return self.probability_of_success(self.success_registry, N_exp), self.tomography_matrix
+            return measurement
 
     def output_quantum_state(self, q_state):
         """ Defines the quantum state based on the output string of QX get_state() function """
