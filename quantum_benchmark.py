@@ -389,6 +389,8 @@ class Benchmark(object):
         if quantumsim:          # TODO
             # Quantumsim will be used as simulator
 
+            print("quantumsim time")
+
             # expected_q_state, expected_measurement = self.qx_simulation(
             #     qasm_f_path)
 
