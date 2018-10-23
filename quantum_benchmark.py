@@ -264,7 +264,8 @@ class Benchmark(object):
 
         # Initializing quantumsim
         try:
-            self.qsimc = __import__(qasm_file_path.replace(".qasm", ""))
+            self.qsimc = __import__(
+                qasm_file_path.replace(".qasm", "_quantumsim"))
         except ModuleNotFoundError:
             print(
                 "\nThe quantumsim file doesn't exist, so quantumsim cannot be used for simulating this benchmark")
