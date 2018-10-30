@@ -269,6 +269,7 @@ class Benchmark(object):
         except ModuleNotFoundError:
             print(
                 "\nThe quantumsim file doesn't exist, so quantumsim cannot be used for simulating this benchmark")
+            raise
 
     def __exit__(self):
         print("Deleting benchmark garbage")
