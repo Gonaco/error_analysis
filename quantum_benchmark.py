@@ -584,10 +584,12 @@ class SimBench(object):
 
         # Initializing quantumsim
         try:
-            self.qsimc = __import__(qasm_file_path.replace(".qasm", ""))
+            self.qsimc = __import__(
+                qasm_file_path.replace(".qasm", "_quantumsim").replace("_scheduled", ""))
         except ModuleNotFoundError:
             print(
                 "\nThe quantumsim file doesn't exist, so quantumsim cannot be used for simulating this benchmark")
+            # raise
 
     def __exit__(self):
         print("Deleting benchmark garbage")
@@ -708,6 +710,8 @@ class SimBench(object):
         if quantumsim:          # TODO
             # Quantumsim will be used as simulator
 
+            # print("quantumsim time")
+
             # expected_q_state, expected_measurement = self.qx_simulation(
             #     qasm_f_path)
 
@@ -778,26 +782,28 @@ class SimBench(object):
 
         return q_state, measurement
 
-    def quantumsim_simulation(self, error, init_state, expected_measurement=False):
+    def quantumsim_simulation(self, error, init_state, expected_measurement=False, meas_error=0.03):
 
         N_exp = self.N_exp
         N_qubits = self.N_qubits
 
-        # CIRCUIT DECLARATION
-        c = self.qsimc.circuit_function(3500, 1500, error, init_state)
-
-        # SIMULATING
-        sdm = sparsedm.SparseDM(c.get_qubit_names())
-
-        measurements = []
-
-        # c.apply_to(sdm)
-        # measurements = [sdm.classical["m0"],
-        #                 sdm.classical["m1"], sdm.classical["m2"]]
-
-        # return np.array(measurements, dtype=float)
-
         if expected_measurement:
+
+            # CIRCUIT DECLARATION
+            c = self.qsimc.circuit_function(
+                3500, 1500, error, meas_error, init_state)
+            # c = self.qsimc.circuit_function(error, meas_error, init_state)
+
+            # SIMULATING
+            sdm = sparsedm.SparseDM(c.get_qubit_names())
+
+            measurements = []
+
+            # c.apply_to(sdm)
+            # measurements = [sdm.classical["m0"],
+            #                 sdm.classical["m1"], sdm.classical["m2"]]
+
+            # return np.array(measurements, dtype=float)
 
             for i in range(N_exp):
                 c.apply_to(sdm)
@@ -824,6 +830,14 @@ class SimBench(object):
             return self.probability_of_success(self.success_registry, N_exp), self.tomography_matrix
 
         else:
+
+                                # CIRCUIT DECLARATION
+            c = self.qsimc.circuit_function(np.inf, np.inf, 0, 0, init_state)
+
+            # SIMULATING
+            sdm = sparsedm.SparseDM(c.get_qubit_names())
+
+            measurements = []
 
             c.apply_to(sdm)
 
