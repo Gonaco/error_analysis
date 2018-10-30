@@ -269,7 +269,7 @@ class Benchmark(object):
         except ModuleNotFoundError:
             print(
                 "\nThe quantumsim file doesn't exist, so quantumsim cannot be used for simulating this benchmark")
-            raise
+            # raise
 
     def __exit__(self):
         print("Deleting benchmark garbage")
@@ -390,7 +390,7 @@ class Benchmark(object):
         if quantumsim:          # TODO
             # Quantumsim will be used as simulator
 
-            print("quantumsim time")
+            # print("quantumsim time")
 
             # expected_q_state, expected_measurement = self.qx_simulation(
             #     qasm_f_path)
