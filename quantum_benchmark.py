@@ -178,6 +178,7 @@ def just_heatmap(N_qubits, matrix, file_name):
 # Classes #################################################################
 
 class QASMReader(object):
+    '''An object able to read and store information from a QASM file'''
 
     def __init__(self, file_path):
 
@@ -188,6 +189,7 @@ class QASMReader(object):
         self.N_qubits = 0
         self.depth = 0
         self.N_gates = 0
+        self.N_swaps = 0
 
     def save(self, output_path):
 
@@ -202,175 +204,167 @@ class QASMReader(object):
 
     def isQasm(filename):
 
-    if "qasm" in filename:
+        if "qasm" in filename:
 
-        return True
+            return True
 
+    def num_qubitsChecker(line, num_qubits):
 
-def num_qubitsChecker(line, num_qubits):
+        correction = line
 
-    correction = line
+        if "qubits" in line:
+            correction = "qubits {num_qubits}\n".format(num_qubits=num_qubits)
 
-    if "qubits" in line:
-        correction = "qubits {num_qubits}\n".format(num_qubits=num_qubits)
+            return correction
+        else:
 
-        return correction
-    else:
+            return False
 
-        return False
+    def bigQubitNum(line, biggest_number):
 
+        match = re.findall(r"q\[?(\d+)\]?", line)
 
-def bigQubitNum(line, biggest_number):
+        # print("\nmatch:")
+        # print(match)
 
-    match = re.findall(r"q\[?(\d+)\]?", line)
+        # print("\nmatch2int:")
+        # print(list(map(int, match)))
 
-    # print("\nmatch:")
-    # print(match)
+        if match:
+            '''The biggest qubit number between the biggest of all the qubit numbers in a line and the previous biggest number'''
+            biggest_number = max(max(list(map(int, match))), biggest_number)
 
-    # print("\nmatch2int:")
-    # print(list(map(int, match)))
+        return biggest_number
 
-    if match:
-        '''The biggest qubit number between the biggest of all the qubit numbers in a line and the previous biggest number'''
-        biggest_number = max(max(list(map(int, match))), biggest_number)
+    def algNameChecker(line):
 
-    return biggest_number
+        correction = doubleNameChecker(line)
 
+        return numberNameChecker(correction)
 
-def algNameChecker(line):
+    def doubleNameChecker(line):
 
-    correction = doubleNameChecker(line)
+        correction = line
+        before = r"(\..+)\..+$"
+        after = r"\1"
 
-    return numberNameChecker(correction)
-
-
-def doubleNameChecker(line):
-
-    correction = line
-    before = r"(\..+)\..+$"
-    after = r"\1"
-
-    c = re.sub(before, after, correction)
-
-    if c:
-        correction = c
-
-    return correction
-
-
-def numberNameChecker(line):
-
-    correction = line
-    before = r"^\.(\d.+)"
-    after = r".kernel_\1"
-
-    c = re.sub(before, after, correction)
-
-    if c:
-        correction = c
-
-    return correction
-
-
-def versionChecker(corrected):
-
-    # isVersion = False
-
-    for c in range(5):          # Look in the first 5 lines for the version line
-
-        if "version" in corrected[c]:
-            # isVersion = True
-            # break
-            return corrected
-
-    # if not isVersion:
-    #     corrected.insert(0, "version 2.0")
-
-    # print(corrected[0])
-
-    corrected.insert(0, "version 2.0\n\n")
-    # corrected.insert(0, "version 1.0\n\n")
-
-    return corrected
-
-
-def parenthesisChecker(line):
-
-    correction = line
-    before = r"q(\d+)"
-    after = r"q[\1]"
-
-    c = re.sub(before, after, correction)
-
-    if c:
-        correction = c
-
-    return correction
-
-
-def rotationGatesChecker(line):
-
-    correction = line
-    # There could be two different kind of rotations, + and - 90
-    before = [r"r([xy])(\d+) (q\[?\d+\]?)", r"([xy])m(\d+) (q\[?\d+\]?)"]
-    after = [r"r\1 \3, \2", r"r\1 \3, -\2"]
-
-    for i, b in enumerate(before):
-
-        c = re.sub(b, after[i], correction)
+        c = re.sub(before, after, correction)
 
         if c:
             correction = c
 
-    return correction
+        return correction
 
+    def numberNameChecker(line):
 
-def check_cQasm(filename):
+        correction = line
+        before = r"^\.(\d.+)"
+        after = r".kernel_\1"
 
-    print("\n\ncheck_cQasm {filename}\n".format(filename=filename))
+        c = re.sub(before, after, correction)
 
-    if not isQasm(filename):
+        if c:
+            correction = c
 
-        print("\nERROR. The file is not a QASM file. Please, use a cQASM file as input\n")
+        return correction
+
+    def versionChecker(corrected):
+
+        # isVersion = False
+
+        for c in range(5):          # Look in the first 5 lines for the version line
+
+            if "version" in corrected[c]:
+                # isVersion = True
+                # break
+                return corrected
+
+        # if not isVersion:
+        #     corrected.insert(0, "version 2.0")
+
+        # print(corrected[0])
+
+        corrected.insert(0, "version 2.0\n\n")
+        # corrected.insert(0, "version 1.0\n\n")
+
+        return corrected
+
+    def parenthesisChecker(line):
+
+        correction = line
+        before = r"q(\d+)"
+        after = r"q[\1]"
+
+        c = re.sub(before, after, correction)
+
+        if c:
+            correction = c
+
+        return correction
+
+    def rotationGatesChecker(line):
+
+        correction = line
+        # There could be two different kind of rotations, + and - 90
+        before = [r"r([xy])(\d+) (q\[?\d+\]?)", r"([xy])m(\d+) (q\[?\d+\]?)"]
+        after = [r"r\1 \3, \2", r"r\1 \3, -\2"]
+
+        for i, b in enumerate(before):
+
+            c = re.sub(b, after[i], correction)
+
+            if c:
+                correction = c
+
+        return correction
+
+    def check_cQasm(filename):
+
+        print("\n\ncheck_cQasm {filename}\n".format(filename=filename))
+
+        if not isQasm(filename):
+
+            print(
+                "\nERROR. The file is not a QASM file. Please, use a cQASM file as input\n")
+
+            return
+
+        backup = ""
+        corrected = []
+        biggest_number = 0
+
+        backup = self.data
+
+        for line in data:
+
+            line = algNameChecker(line)
+
+            line = parenthesisChecker(line)
+
+            line = rotationGatesChecker(line)
+
+            biggest_number = bigQubitNum(line, biggest_number)
+
+            corrected.append(line)
+
+        corrected = versionChecker(corrected)
+
+        try:
+
+            for idx, line in enumerate(corrected):
+                isLine = num_qubitsChecker(line, biggest_number+1)
+                if isLine:
+                    corrected[idx] = isLine
+                    break
+
+            f.writelines(corrected)
+
+        except:
+
+            f.writelines(backup)
+            raise
 
         return
-
-    backup = ""
-    corrected = []
-    biggest_number = 0
-
-    backup = self.data
-
-    for line in data:
-
-        line = algNameChecker(line)
-
-        line = parenthesisChecker(line)
-
-        line = rotationGatesChecker(line)
-
-        biggest_number = bigQubitNum(line, biggest_number)
-
-        corrected.append(line)
-
-    corrected = versionChecker(corrected)
-
-    try:
-
-        for idx, line in enumerate(corrected):
-            isLine = num_qubitsChecker(line, biggest_number+1)
-            if isLine:
-                corrected[idx] = isLine
-                break
-
-        f.writelines(corrected)
-
-    except:
-
-        f.writelines(backup)
-        raise
-
-    return
 
     def searchDepth(self, line):
 
@@ -452,6 +446,8 @@ def check_cQasm(filename):
 
 
 class Analysis(object):
+
+    '''Object that runs the error analysis of some benchmarks'''
 
     def __init__(self, algs_path, log_path, h5_path, config_file_path, scheduler, mapper, initial_placement, output_dir_name, init_type, error, simulator):
 
@@ -537,6 +533,8 @@ class Analysis(object):
 
 class DescripBench(object):
 
+    '''Object for taking care of the OpenQL benchmarks'''
+
     def __init__(self, file_path):
 
         self.openql = importlib.util.spec_from_file_location(
@@ -553,8 +551,8 @@ class DescripBench(object):
 
 
 class SimBench(object):
-    """
-    """
+
+    '''Class for simulating the Benchmark'''
 
     def __init__(self, qasm_file_path, N_exp=1000):
 
@@ -662,41 +660,6 @@ class SimBench(object):
                   self.qasm_file_path.replace(".qasm", ""))
         except MemoryError:
             print("Error while drawing the graph. MemoryError despite the matrix size")
-
-    # def analysis(self, errprob, tomography_matrix=None, quantumsim=False, initial_state=None):
-    #     """ It compares the correct result (expected) with the actual one (erroneous).
-    #     """
-
-    #     success_registry = []
-    #     fidelity_registry = []
-
-    #     # simulate without errors
-    #     expected_q_state, expected_measurement = self.simulate(False)
-
-    #     # simulate with errors several times
-
-    #     add_error_model(self.qasm_file_path, self.cp, errprob)
-
-    #     for i in range(self.N_exp):
-    #         q_state_e, meas_e = self.simulate(quantumsim)
-
-    #         # Check Success
-    #         self.succes_registry.append(
-    #             self.check_success(expected_measurement, meas_e))
-
-    #         # Fidelity
-    #         f = self.fidelity(expected_q_state, q_state_e)
-    #         self.fidelity_registry.append(f)
-
-    #         # Save Measures
-    #         self.output_registry.append(meas_e)
-
-    #     # Errors while measuring
-    #     meas_errors = np.array(self.fidelity_registry) - \
-    #         np.array(self.success_registry)
-    #     self.total_meas_err = np.count_nonzero(meas_errors != 0)
-
-        # self.output_qs.append(output_quantum_state_exp(self)) #?
 
     def probability_of_success(self):
 
