@@ -71,7 +71,7 @@ def add2qasm(ori_path, cp_path, before, after):
 def add_error_model(ori_path, cp_path, errprob):
 
     error_model = "error_model depolarizing_channel, " + str(errprob)
-    add2qasm(ori_path, cp_path, "qubits \d+", error_model)
+    add2qasm(ori_path, cp_path, "^qubits \d+", error_model)
 
 
 def addinit(ori_path, cp_path):
@@ -79,7 +79,7 @@ def addinit(ori_path, cp_path):
     """
 
     init = '\n.init\n    load_state "'+INIT_QST_FILE+'"\n'
-    N_qubits = add2qasm(ori_path, cp_path, "qubits \d+", init)
+    N_qubits = add2qasm(ori_path, cp_path, "^qubits \d+", init)
 
     add_measurement(cp_path, N_qubits)
 
