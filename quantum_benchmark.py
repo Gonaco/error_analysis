@@ -56,7 +56,7 @@ def add2qasm(ori_path, cp_path, before, after):
     with open(cp_path, "w") as o:
         for line in data:
 
-            match = re.search("qubits (\d*)", line)
+            match = re.search("^qubits (\d*)", line)
             if match:
                 N_qubits = match[1]
 
