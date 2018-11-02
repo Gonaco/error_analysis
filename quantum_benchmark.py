@@ -376,7 +376,7 @@ class QASMReader(object):
 
     def searchN_qubits(self, line):
 
-        self.N_qubits = int(self.search("qubits (\d*)", line)[1])
+        self.N_qubits = int(self.search("^qubits (\d*)", line)[1])
 
     def getN_Qubits(self):
 
@@ -412,14 +412,14 @@ class QASMReader(object):
     def add_error_model(errprob):
 
         error_model = "error_model depolarizing_channel, " + str(errprob)
-        self.add2qasm("qubits \d+", error_model)
+        self.add2qasm("^qubits \d+", error_model)
 
     def addinit(self):
         """
         """
 
         init = '\n.init\n    load_state "'+INIT_QST_FILE+'"\n'
-        self.add2qasm("qubits \d+", init)
+        self.add2qasm("^qubits \d+", init)
 
         self.add_measurement()
 
