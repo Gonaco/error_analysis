@@ -462,12 +462,12 @@ class Benchmark(object):
 
         return q_state, measurement
 
-    def quantumsim_simulation(self, error, init_state, expected_measurement=False, meas_error=0.03):
+    def quantumsim_simulation(self, error, init_state, expected_measurement=[], meas_error=0.03):
 
         N_exp = self.N_exp
         N_qubits = self.N_qubits
 
-        if expected_measurement.any():
+        if expected_measurement:
 
             # CIRCUIT DECLARATION
             c = self.qsimc.circuit_function(
