@@ -585,7 +585,7 @@ class Benchmark(object):
 
     def mean_fidelity(self):
 
-        return np.mean(self.fidelity_registry)
+        return np.mean(self.fidelity_registry) if self.fidelity_registry else -1
 
     def mean_success(self):
 
