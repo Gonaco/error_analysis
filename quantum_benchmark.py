@@ -860,7 +860,7 @@ class SimBench(object):
         return np.around(f, decimals=5)
 
     # depth=0 is just for now, till I'm able to extract the depth of the benchmark
-    def quantum_volume(self, depth=0):
+    def q_vol(self, depth=0):
         """ Quantum Volume calculation"""
 
         # return min([self.N_qubits, depth])**2
