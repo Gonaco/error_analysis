@@ -745,12 +745,12 @@ class SimBench(object):
 
         return q_state, measurement
 
-    def quantumsim_simulation(self, error, init_state, expected_measurement=[], meas_error=0.03):
+    def quantumsim_simulation(self, error, init_state, expected_measurement=np.array([]), meas_error=0.03):
 
         N_exp = self.N_exp
         N_qubits = self.N_qubits
 
-        if not expected_measurement:
+        if expected_measurement.size == 0:
 
                                 # CIRCUIT DECLARATION
             c = self.qsimc.circuit_function(np.inf, np.inf, 0, 0, init_state)
