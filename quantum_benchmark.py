@@ -750,7 +750,7 @@ class SimBench(object):
         N_exp = self.N_exp
         N_qubits = self.N_qubits
 
-        if expected_measurement:
+        if expected_measurement.any():
 
             # CIRCUIT DECLARATION
             c = self.qsimc.circuit_function(
