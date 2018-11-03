@@ -488,9 +488,14 @@ class Benchmark(object):
             for i in range(N_exp):
                 c.apply_to(sdm)
 
-                for q in range(N_qubits):
-                    if sdm.classical["m"+str(q)]:
-                        measurements.append(sdm.classical["m"+str(q)])
+                # for q in range(N_qubits):
+                #     if sdm.classical["m"+str(q)]:
+                #         measurements.append(sdm.classical["m"+str(q)])
+
+                for q, m in enumerate(sdm.classical):
+                    print("\nMeasurement ID: m"+q+"\n")
+                    print(m)
+                    measurements.append(m)
 
                 measurement = np.array(measurements, dtype=float)
                 print("Expected Measurement:")
@@ -522,9 +527,14 @@ class Benchmark(object):
 
             c.apply_to(sdm)
 
-            for q in range(N_qubits):
-                if sdm.classical["m"+str(q)]:
-                    measurements.append(sdm.classical["m"+str(q)])
+            # for q in range(N_qubits):
+            #     if sdm.classical["m"+str(q)]:
+            #         measurements.append(sdm.classical["m"+str(q)])
+
+            for q, m in enumerate(sdm.classical):
+                print("\nMeasurement ID: m"+q+"\n")
+                print(m)
+                measurements.append(m)
 
             measurement = np.array(measurements, dtype=float)
 
