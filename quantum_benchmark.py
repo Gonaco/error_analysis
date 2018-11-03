@@ -775,10 +775,9 @@ class SimBench(object):
                 #     if sdm.classical["m"+str(q)]:
                 #         measurements.append(sdm.classical["m"+str(q)])
 
-                for q, m in enumerate(sdm.classical):
-                    print("\nMeasurement ID: m"+str(q)+"\n")
-                    print(m)
-                    measurements.append(m)
+                for q in sdm.classical:
+                    if "m" in str(q):
+                        measurements.append(sdm.classical[str(q)])
 
                 measurement = np.array(measurements, dtype=float)
                 print("Expected Measurement:")
@@ -814,10 +813,9 @@ class SimBench(object):
             #     if sdm.classical["m"+str(q)]:
             #         measurements.append(sdm.classical["m"+str(q)])
 
-            for q, m in enumerate(sdm.classical):
-                print("\nMeasurement ID: m"+str(q)+"\n")
-                print(m)
-                measurements.append(m)
+            for q in sdm.classical:
+                if "m" in str(q):
+                    measurements.append(sdm.classical[str(q)])
 
             measurement = np.array(measurements, dtype=float)
 
