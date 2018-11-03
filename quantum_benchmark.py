@@ -530,7 +530,8 @@ class Benchmark(object):
                 self.success_registry.append(1 if np.array_equal(
                     measurement, expected_measurement) else 0)
 
-            return self.probability_of_success(self.success_registry, N_exp), self.tomography_matrix
+            # return self.probability_of_success(self.success_registry, N_exp), self.tomography_matrix
+            return self.probability_of_success(), self.tomography_matrix
 
     def output_quantum_state(self, q_state):
         """ Defines the quantum state based on the output string of QX get_state() function """
