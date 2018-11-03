@@ -489,7 +489,8 @@ class Benchmark(object):
                 c.apply_to(sdm)
 
                 for q in range(N_qubits):
-                    measurements.append(sdm.classical["m"+str(q)])
+                    if sdm.classical["m"+str(q)]:
+                        measurements.append(sdm.classical["m"+str(q)])
 
                 measurement = np.array(measurements, dtype=float)
                 print("Expected Measurement:")
