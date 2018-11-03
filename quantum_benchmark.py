@@ -498,19 +498,13 @@ class Benchmark(object):
                 3500, 1500, error, meas_error, init_state)
             # c = self.qsimc.circuit_function(error, meas_error, init_state)
 
-            # SIMULATING
-            sdm = sparsedm.SparseDM(c.get_qubit_names())
-
-            measurements = []
-
-            # c.apply_to(sdm)
-            # measurements = [sdm.classical["m0"],
-            #                 sdm.classical["m1"], sdm.classical["m2"]]
-
-            # return np.array(measurements, dtype=float)
-
             for i in range(N_exp):
+
+                # SIMULATING
+                sdm = sparsedm.SparseDM(c.get_qubit_names())
                 c.apply_to(sdm)
+
+                measurements = []
 
                 # for q in range(N_qubits):
                 #     if sdm.classical["m"+str(q)]:
