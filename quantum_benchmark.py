@@ -467,9 +467,33 @@ class Benchmark(object):
         N_exp = self.N_exp
         N_qubits = self.N_qubits
 
-        if expected_measurement:
+        if not expected_measurement:
 
-            # CIRCUIT DECLARATION
+                                # CIRCUIT DECLARATION
+            c = self.qsimc.circuit_function(np.inf, np.inf, 0, 0, init_state)
+
+            # SIMULATING
+            sdm = sparsedm.SparseDM(c.get_qubit_names())
+
+            measurements = []
+
+            c.apply_to(sdm)
+
+            # for q in range(N_qubits):
+            #     if sdm.classical["m"+str(q)]:
+            #         measurements.append(sdm.classical["m"+str(q)])
+
+            for q in sdm.classical:
+                if "m" in str(q):
+                    measurements.append(sdm.classical[str(q)])
+
+            measurement = np.array(measurements, dtype=float)
+
+            return measurement
+
+        else:
+
+                        # CIRCUIT DECLARATION
             c = self.qsimc.circuit_function(
                 3500, 1500, error, meas_error, init_state)
             # c = self.qsimc.circuit_function(error, meas_error, init_state)
@@ -513,30 +537,6 @@ class Benchmark(object):
                     measurement, expected_measurement) else 0)
 
             return self.probability_of_success(self.success_registry, N_exp), self.tomography_matrix
-
-        else:
-
-                                # CIRCUIT DECLARATION
-            c = self.qsimc.circuit_function(np.inf, np.inf, 0, 0, init_state)
-
-            # SIMULATING
-            sdm = sparsedm.SparseDM(c.get_qubit_names())
-
-            measurements = []
-
-            c.apply_to(sdm)
-
-            # for q in range(N_qubits):
-            #     if sdm.classical["m"+str(q)]:
-            #         measurements.append(sdm.classical["m"+str(q)])
-
-            for q in sdm.classical:
-                if "m" in str(q):
-                    measurements.append(sdm.classical[str(q)])
-
-            measurement = np.array(measurements, dtype=float)
-
-            return measurement
 
     def output_quantum_state(self, q_state):
         """ Defines the quantum state based on the output string of QX get_state() function """
