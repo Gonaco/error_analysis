@@ -776,7 +776,7 @@ class SimBench(object):
                 #         measurements.append(sdm.classical["m"+str(q)])
 
                 for q, m in enumerate(sdm.classical):
-                    print("\nMeasurement ID: m"+q+"\n")
+                    print("\nMeasurement ID: m"+str(q)+"\n")
                     print(m)
                     measurements.append(m)
 
@@ -815,7 +815,7 @@ class SimBench(object):
             #         measurements.append(sdm.classical["m"+str(q)])
 
             for q, m in enumerate(sdm.classical):
-                print("\nMeasurement ID: m"+q+"\n")
+                print("\nMeasurement ID: m"+str(q)+"\n")
                 print(m)
                 measurements.append(m)
 
