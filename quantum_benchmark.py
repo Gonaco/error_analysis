@@ -2,6 +2,8 @@ import numpy as np
 import os
 import atexit
 import re
+import importlib.util
+
 
 # Regular Expresion for extracting quantum state
 # https://regex101.com/r/VBkD3d/1
@@ -32,7 +34,18 @@ from quantumsim.circuit import Hadamard as h
 from quantumsim.circuit import RotateEuler as RotateEuler
 from quantumsim.circuit import ResetGate as ResetGate
 
+# DATABASE ####################################################################
+
+import h5py
+from datetime import datetime
+import sqlite3
+connection = sqlite3.connect("error_analysis.db")
+
 # CONSTANTS ###################################################################
+
+PURE_OPT = 0
+SCHED_OPT = 1
+MAPP_OPT = 2
 
 INIT_QST_FILE = "init_state.qst"
 
@@ -176,6 +189,183 @@ def just_heatmap(N_qubits, matrix, file_name):
 
 
 # Classes #################################################################
+
+class Analysis(object):
+
+    '''Object that runs the error analysis of some benchmarks'''
+
+    def __init__(self, algs_path, log_path, h5_path, config_file_path, scheduler, mapper, initial_placement, output_dir_name, init_type, error, simulator):
+
+        self.algs_path = algs_path
+        self.log_path = log_path
+        self.h5_path = h5_path
+        self.connection = sqlite3.connect("error_analysis.db")
+        self.cursor = connection.cursor()
+        self.config_file_path = config_file_path
+        self.scheduler = scheduler
+        self.mapper = mapper
+
+        self.initial_placement = initial_placement
+        self.output_dir_name = output_dir_name
+        self.init_type = init_type
+        self.error = error
+        self.simulator = simulator
+
+    def save_in_db(cursor, algorithm, N_sim, init_type, scheduler, mapper, initial_placement, error_rate, conf_file, prob_succs, mean_f, q_vol, exper_id, simulator):
+
+        if init_type == 0:
+            init_type = "all_states"
+        elif init_type == 1:
+            init_type = "ground_state"
+        else:
+            print("Init type ERROR. The init_type is not either 1 nor 0")
+            raise Exception("Init_TypeError")
+
+        if simulator:
+            simulator = "quantumsim"
+        else:
+            simulator = "qx"
+
+        format_str = "INSERT INTO Results (algorithm, N_sim, init_type, scheduler, mapper, initial_placement, error_rate, conf_file, prob_succs, mean_f, q_vol, simulator, exper_id) VALUES ('{algorithm}', {N_sim}, '{init_type}', '{scheduler}', '{mapper}', '{initial_placement}', {error_rate}, '{conf_file}', {prob_succs}, {mean_f}, {q_vol}, {simulator}, {exper_id});"
+
+        cursor.execute(format_str.format(algorithm=algorithm, N_sim=N_sim, init_type=init_type,
+                                         scheduler=scheduler, mapper=mapper, initial_placement=initial_placement, error_rate=error_rate, conf_file=conf_file, prob_succs=prob_succs, mean_f=mean_f, q_vol=q_vol, exper_id=exper_id, simulator=simulator))
+
+    def db_init_query(self):
+
+        new_experiment_query = "INSERT INTO Experiments (date, tom_mtrx_path, log_path) VALUES (datetime('now'),'" + \
+            self.h5_path+"', '"+self.log_path+"');"
+        self.cursor.execute(new_experiment_query)
+        self.connection.commit()
+
+        self.cursor.execute("SELECT last_insert_rowid() FROM Experiments;")
+        experiment_id = cursor.fetchone()[0]
+
+        return experiment_id
+
+    def db_interruption_query(self):
+
+        self.connection.commit()
+        self.connection.close()
+
+    def db_final_query(self):
+
+        self.cursor.execute("UPDATE Experiments SET fail = 0 WHERE id =" +
+                            str(experiment_id)+";")
+        self.connection.commit()
+        self.connection.close()
+
+    def analysis(self):
+
+        with h5py.File(h5_path, "w") as h5f:
+
+            experiment_id = self.db_init_query()
+
+            try:
+
+                for alg_path in algs_path:
+
+                    self.descripBench = DescripBench(alg_path)
+                    self.descripBench.compile(config_file_path)
+                    self.simBench = SimBench(qasm_file_path)
+
+            except:
+                self.db_interruption_query()
+                raise
+
+        self.db_final_query()
+
+
+class Benchmark(object):
+    '''The Benchmark class describes the benchmark and contains all its desciptions (OpenQL, cQASM and quantumsim)'''
+
+    def __init__(self, name, openql_file_path, config_file_path, scheduler="ALAP", mapper="minextendrc", initial_placement="no", N_exp=1000):
+
+        self.name = name
+
+        self.ql_descr = DescripBench(
+            openql_file_path, config_file_path, scheduler, mapper, initial_placement)
+        self.ql_descr.compile()
+
+        self.load_all_sim()
+
+    def load_all_sim(self):
+
+        self.cqasm_pure_p, self.cqasm_pure_d, self.cqasm_pure = self.load_sim(
+            openql_file_path, ".qasm", N_exp)
+
+        self.cqasm_sched_p, self.cqasm_sched_d, self.cqasm_sched = self.load_sim(
+            openql_file_path, "_scheduled.qasm", N_exp)
+
+        self.cqasm_mapped_p, self.cqasm_mapped_d, self.cqasm_mapped = self.load_sim(
+            openql_file_path, "_rcscheduler_out.qasm", N_exp)
+
+        self.quantumsim_sched_p, self.quantumsim_sched_d, self.quantumsim_sched = self.load_sim(
+            openql_file_path, "_quantumsim_.py", N_exp)
+
+        self.quantumsim_mapped_p, self.quantumsim_mapped_d, self.quantumsim_mapped = self.load_sim(
+            openql_file_path, "_quantumsim_mapped.py", N_exp)
+
+    def load_sim(self, openql_file_path, ext_aft, N_exp):
+
+        path = openql_file_path.replace(".py", ext_aft)
+        return path, QASMReader(path), SimBench(path, N_exp)
+
+    def getConfig(self):
+        return self.ql_descr.config
+
+    def getScheduler(self):
+        return self.ql_descr.scheduler
+
+    def getMapper(self):
+        return self.ql_descr.mapper
+
+    def getInitPlace(self):
+        return self.ql_descr.init_place
+
+    def getOutputDir(self):
+        return self.ql_descr.output_dir
+
+    def getN_Qubits(self, option):
+        if option == PURE_OPT:
+            return self.cqasm_pure_d.  # TODO
+        elif option == SCHED_OPT:
+            return self.cqasm_sched_d.  # TODO
+        elif option == MAPP_OPT:
+            return self.cqasm_mapped_d.  # TODO
+        raise Exception()
+        # return False
+
+    def getN_Gates(self, option):
+        if option == PURE_OPT:
+            return self.cqasm_pure_d.  # TODO
+        elif option == SCHED_OPT:
+            return self.cqasm_sched_d.  # TODO
+        elif option == MAPP_OPT:
+            return self.cqasm_mapped_d.  # TODO
+        raise Exception()
+        # return False
+
+    def getDepth(self, option):
+        if option == PURE_OPT:
+            return self.cqasm_pure_d.  # TODO
+        elif option == SCHED_OPT:
+            return self.cqasm_sched_d.  # TODO
+        elif option == MAPP_OPT:
+            return self.cqasm_mapped_d.  # TODO
+        raise Exception()
+        # return False
+
+    def getDepth(self, option):
+        if option == PURE_OPT:
+            return self.cqasm_pure_d.  # TODO
+        elif option == SCHED_OPT:
+            return self.cqasm_sched_d.  # TODO
+        elif option == MAPP_OPT:
+            return self.cqasm_mapped_d.  # TODO
+        raise Exception()
+        # return False
+
 
 class QASMReader(object):
     '''An object able to read and store information from a QASM file'''
@@ -445,118 +635,39 @@ class QASMReader(object):
                 self.data.pop(idx)
 
 
-class Analysis(object):
-
-    '''Object that runs the error analysis of some benchmarks'''
-
-    def __init__(self, algs_path, log_path, h5_path, config_file_path, scheduler, mapper, initial_placement, output_dir_name, init_type, error, simulator):
-
-        self.algs_path = algs_path
-        self.log_path = log_path
-        self.h5_path = h5_path
-        self.connection = sqlite3.connect("error_analysis.db")
-        self.cursor = connection.cursor()
-        self.config_file_path = config_file_path
-        self.scheduler = scheduler
-        self.mapper = mapper
-
-        self.initial_placement = initial_placement
-        self.output_dir_name = output_dir_name
-        self.init_type = init_type
-        self.error = error
-        self.simulator = simulator
-
-    def save_in_db(cursor, algorithm, N_sim, init_type, scheduler, mapper, initial_placement, error_rate, conf_file, prob_succs, mean_f, q_vol, exper_id, simulator):
-
-        if init_type == 0:
-            init_type = "all_states"
-        elif init_type == 1:
-            init_type = "ground_state"
-        else:
-            print("Init type ERROR. The init_type is not either 1 nor 0")
-            raise Exception("Init_TypeError")
-
-        if simulator:
-            simulator = "quantumsim"
-        else:
-            simulator = "qx"
-
-        format_str = "INSERT INTO Results (algorithm, N_sim, init_type, scheduler, mapper, initial_placement, error_rate, conf_file, prob_succs, mean_f, q_vol, simulator, exper_id) VALUES ('{algorithm}', {N_sim}, '{init_type}', '{scheduler}', '{mapper}', '{initial_placement}', {error_rate}, '{conf_file}', {prob_succs}, {mean_f}, {q_vol}, {simulator}, {exper_id});"
-
-        cursor.execute(format_str.format(algorithm=algorithm, N_sim=N_sim, init_type=init_type,
-                                         scheduler=scheduler, mapper=mapper, initial_placement=initial_placement, error_rate=error_rate, conf_file=conf_file, prob_succs=prob_succs, mean_f=mean_f, q_vol=q_vol, exper_id=exper_id, simulator=simulator))
-
-    def db_init_query(self):
-
-        new_experiment_query = "INSERT INTO Experiments (date, tom_mtrx_path, log_path) VALUES (datetime('now'),'" + \
-            self.h5_path+"', '"+self.log_path+"');"
-        self.cursor.execute(new_experiment_query)
-        self.connection.commit()
-
-        self.cursor.execute("SELECT last_insert_rowid() FROM Experiments;")
-        experiment_id = cursor.fetchone()[0]
-
-        return experiment_id
-
-    def db_interruption_query(self):
-
-        self.connection.commit()
-        self.connection.close()
-
-    def db_final_query(self):
-
-        self.cursor.execute("UPDATE Experiments SET fail = 0 WHERE id =" +
-                            str(experiment_id)+";")
-        self.connection.commit()
-        self.connection.close()
-
-    def analysis(self):
-
-        with h5py.File(h5_path, "w") as h5f:
-
-            experiment_id = self.db_init_query()
-
-            try:
-
-                for alg_path in algs_path:
-
-                    self.descripBench = DescripBench(alg_path)
-                    self.descripBench.compile(config_file_path)
-                    self.simBench = SimBench(qasm_file_path)
-
-            except:
-                self.db_interruption_query()
-                raise
-
-        self.db_final_query()
-
-
 class DescripBench(object):
 
     '''Object for taking care of the OpenQL benchmarks'''
 
-    def __init__(self, file_path):
+    def __init__(self, file_path, config_file_path, scheduler, mapper, initial_placement, output_dir_name):
+
+        self.file_path = file_path
+        self.config_file_path = config_file_path
+        self.scheduler = scheduler
+        self.mapper = mapper
+        self.init_place = initial_placement
+        self.output_dir = output_dir_name
 
         self.openql = importlib.util.spec_from_file_location(
-            alg_path, filename)
+            self.file_path.replace(".py", ""), self.file_path)
         self.openql_comp = importlib.util.module_from_spec(openql)
 
-    def compile(self, config_file_path, scheduler, mapper, ini):
+    def compile(self):
 
         self.openql.loader.exec_module(openql_comp)
 
         try:
-            openql_comp.circuit(
-                config_file_path, scheduler, mapper, initial_placement, output_dir_name)
+            self.openql_comp.circuit(
+                self.config_file_path, self.scheduler, self.mapper, self.init_place, self.output_dir_name)
 
 
 class SimBench(object):
 
     '''Class for simulating the Benchmark'''
 
-    def __init__(self, qasm_file_path, N_exp=1000):
+    def __init__(self, file_path, N_exp=1000):
 
-        self.qasm_file_path = qasm_file_path
+        self.qasm_file_path = file_path
         self.cp = "."+qasm_file_path+"~"
 
         self.N_exp = N_exp
