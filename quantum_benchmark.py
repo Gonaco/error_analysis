@@ -789,12 +789,12 @@ class SimBench(object):
             # expected_q_state, expected_measurement = self.qx_simulation(
             #     qasm_f_path)
 
-            expected_measurement = self.quantumsim_simulation(
+            expected_measurement, expected_q_state = self.quantumsim_simulation(
                 errprob, initial_state)
 
             # return self.quantumsim_simulation()
 
-            return self.quantumsim_simulation(errprob, initial_state, expected_measurement)
+            return self.quantumsim_simulation(errprob, initial_state, expected_measurement, expected_q_state)
 
         else:
 
@@ -856,7 +856,7 @@ class SimBench(object):
 
         return q_state, measurement
 
-    def quantumsim_simulation(self, error, init_state, expected_measurement=np.array([]), meas_error=0.03):
+    def quantumsim_simulation(self, error, init_state, expected_measurement=np.array([]), expected_q_state=0, meas_error=0.03):
 
         N_exp = self.N_exp
         N_qubits = self.N_qubits
@@ -882,8 +882,9 @@ class SimBench(object):
                     measurements.append(sdm.classical[str(q)])
 
             measurement = np.array(measurements, dtype=float)
+            expected_q_state = c.full_dm.dm.ravel()
 
-            return measurement
+            return measurement, expected_q_state
 
         else:
 
@@ -914,12 +915,17 @@ class SimBench(object):
                 print("Actual Measurement:")
                 print(measurement)
 
+                q_state = c.full_dm.dm.ravel()
+
                 exp_m_int = int(''.join(str(int(e))
                                         for e in expected_measurement.tolist()), 2)
                 m_int = int(''.join(str(int(e))
                                     for e in measurement.tolist()), 2)
                 self.tomography_matrix[exp_m_int,
                                        m_int] = self.tomography_matrix[exp_m_int, m_int] + 1/N_exp
+
+                self.fidelity_registry.append(
+                    np.dot(expected_q_state, q_state))
 
                 self.success_registry.append(1 if np.array_equal(
                     measurement, expected_measurement) else 0)
