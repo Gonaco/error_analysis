@@ -400,7 +400,7 @@ class Benchmark(object):
 
             # return self.quantumsim_simulation()
 
-            return self.quantumsim_simulation(errprob, initial_state, expected_measurement, expected_q_state)
+            return self.quantumsim_simulation(errprob, initial_state, expected_measurement, expected_q_state, errprob)
 
         else:
 
@@ -462,7 +462,7 @@ class Benchmark(object):
 
         return q_state, measurement
 
-    def quantumsim_simulation(self, error, init_state, expected_measurement=np.array([]), expected_q_state=0, meas_error=0.03):
+    def quantumsim_simulation(self, error, init_state, expected_measurement=np.array([]), expected_q_state=0, t1=3500, t2=1500, meas_error=0.03):
 
         N_exp = self.N_exp
         N_qubits = self.N_qubits
@@ -494,9 +494,9 @@ class Benchmark(object):
 
         else:
 
-                        # CIRCUIT DECLARATION
+            # CIRCUIT DECLARATION
             c = self.qsimc.circuit_function(
-                3500, 1500, error, meas_error, init_state)
+                t1, t2, error, meas_error, init_state)
             # c = self.qsimc.circuit_function(error, meas_error, init_state)
 
             for i in range(N_exp):
