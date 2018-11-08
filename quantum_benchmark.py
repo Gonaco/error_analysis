@@ -776,7 +776,7 @@ class SimBench(object):
 
         return sum(self.success_registry)/self.N_exp
 
-    def simulate(self, errprob, quantumsim=False, initial_state=None):
+    def simulate(self, errprob, quantumsim=False, initial_state=None, t1=3500, t2=1500, meas_error=0.03):
 
         N_exp = self.N_exp
         qasm_f_path = self.cp
@@ -794,7 +794,7 @@ class SimBench(object):
 
             # return self.quantumsim_simulation()
 
-            return self.quantumsim_simulation(errprob, initial_state, expected_measurement, expected_q_state)
+            return self.quantumsim_simulation(errprob, initial_state, expected_measurement, expected_q_state, t1, t2, meas_error)
 
         else:
 
