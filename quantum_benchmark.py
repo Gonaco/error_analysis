@@ -619,7 +619,7 @@ class _DescripBench(object):
 
         self.openql = importlib.util.spec_from_file_location(
             self.file_path.replace(".py", ""), self.file_path)
-        self.openql_comp = importlib.util.module_from_spec(openql)
+        self.openql_comp = importlib.util.module_from_spec(self.openql)
 
     def compile(self, N_exp):
 
