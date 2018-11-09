@@ -626,7 +626,7 @@ class _DescripBench(object):
         uniform_sched = "no"
         scheduler = self.scheduler
 
-        self.openql.loader.exec_module(openql_comp)
+        self.openql.loader.exec_module(self.openql_comp)
 
         if "uniform" in self.scheduler:
             uniform_sched = "yes"
