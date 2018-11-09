@@ -688,12 +688,12 @@ class _SimBench(object):
         self.fidelity_registry = []  # Matrix storing the fidelity
         self.total_meas_err = 0
 
-        if reader.isQasm():
+        if self.reader.isQasm():
             # Initializing qasm copy
 
             try:
-                reader.addinit()
-                reader.save(self.cp)
+                self.reader.addinit()
+                self.reader.save(self.cp)
 
             except FileNotFoundError:
                 print(
