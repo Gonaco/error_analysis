@@ -366,46 +366,41 @@ class _QASMReader(object):
         match = re.search(regex, line)
         if match:
             return match
+        return False
 
     def extractInfo(self, line):
 
-        try:
-
-            self.searchN_qubits(line)
-            self.searchDepth(line)
-            self.searchN_gates(line)
-            self.searchN_swaps(line)
-
-        except:
-
-            print("\n- ERROR. The file "+self.file_path +
-                  " has not all the information required for the analyisis\n\n")
-
-            raise
+        self.searchN_qubits(line)
+        self.searchDepth(line)
+        self.searchN_gates(line)
+        self.searchN_swaps(line)
 
     def searchDepth(self, line):
 
-        self.depth = int(self.search("# Total depth: (\d+)", line)[1])
+        # self.depth = int(self.search("# Total depth: (\d+)", line)[1])
+        if self.search("# Total depth: (\d+)", line):
+            self.depth = int(self.search("# Total depth: (\d+)", line)[1])
 
     def searchN_qubits(self, line):
 
-        N_qubits = self.search("^# Qubits used: (\d*)", line)
-
-        if not N_qubits:
-
-            N_qubits = self.search("^qubits (\d*)", line)
-
-        self.N_qubits = int(N_qubits[1])
+        if self.search("^# Qubits used: (\d*)", line):
+            self.N_qubits = int(self.search("^# Qubits used: (\d*)", line)[1])
 
     def searchN_gates(self, line):
 
-        self.N_gates = int(self.search(
-            "# Total no. of quantum gates: (\d+)", line)[1])
+        if self.search(
+                "# Total no. of quantum gates: (\d+)", line):
+
+            self.N_gates = int(self.search(
+                "# Total no. of quantum gates: (\d+)", line)[1])
 
     def searchN_swaps(self, line):
 
-        self.N_swaps = int(self.search(
-            "swaps added: (\d*)", line)[1])
+        if self.search(
+                "swaps added: (\d*)", line):
+
+            self.N_swaps = int(self.search(
+                "swaps added: (\d*)", line)[1])
 
     def addinit(self):
         """
