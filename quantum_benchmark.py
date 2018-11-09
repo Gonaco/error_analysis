@@ -279,7 +279,7 @@ class MappingAnalysis(object):
 class Benchmark(object):
     '''The Benchmark class describes the benchmark and contains all its desciptions (OpenQL, cQASM and quantumsim)'''
 
-    def __init__(self, openql_file_path, config_file_path, scheduler="ALAP", mapper="minextendrc", initial_placement="no", output_dir_name="benchmarks_exports", N_exp=1000):
+    def __init__(self, openql_file_path, config_file_path, scheduler="ALAP", mapper="minextendrc", initial_placement="no", output_dir_name=".", N_exp=1000):
 
         self.ql_descr = _DescripBench(
             openql_file_path, config_file_path, scheduler, mapper, initial_placement, output_dir_name)
@@ -636,7 +636,7 @@ class _DescripBench(object):
             self.openql_comp.circuit(
                 self.config_file_path, scheduler, uniform_sched, self.mapper, self.init_place, self.output_dir)
 
-            return _SimBench(self.file_path.replace(".py", ".qasm"), N_exp), _SimBench(self.file_path.replace(".py", "_scheduled.qasm"), N_exp), _SimBench(self.file_path.replace(".py", "_rcscheduler_out.qasm"), N_exp), _SimBench(self.file_path.replace(".py", "_quantumsim_.py"), N_exp), _SimBench(self.file_path.replace(".py", "_quantumsim_mapped.py"), N_exp)
+            return _SimBench(self.file_path.replace(".py", ".qasm"), N_exp, self.output_dir), _SimBench(self.file_path.replace(".py", "_scheduled.qasm"), N_exp, self.output_dir), _SimBench(self.file_path.replace(".py", "_rcscheduler_out.qasm"), N_exp, self.output_dir), _SimBench(self.file_path.replace(".py", "_quantumsim_.py"), N_exp, self.output_dir), _SimBench(self.file_path.replace(".py", "_quantumsim_mapped.py"), N_exp, self.output_dir)
 
         except TypeError:
             print("\nERROR. Configuration file has not all the required definitions." +
@@ -648,12 +648,12 @@ class _SimBench(object):
 
     '''Class for simulating the Benchmark'''
 
-    def __init__(self, file_path, N_exp=1000):
+    def __init__(self, file_path, N_exp=1000, out_dir="."):
 
         self.file_path = file_path
         self.cp = "."+file_path+"~"
 
-        self.reader = _QASMReader(file_path)
+        self.reader = _QASMReader(self.file_path)
         self.N_qubits = self.reader.N_qubits
         self.N_gates = self.reader.N_gates
         self.N_swaps = self.reader.N_swaps
