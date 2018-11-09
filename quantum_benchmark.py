@@ -636,7 +636,7 @@ class _DescripBench(object):
             self.openql_comp.circuit(
                 self.config_file_path, scheduler, uniform_sched, self.mapper, self.init_place, self.output_dir)
 
-            return _SimBench(openql_file_path.replace(".py", ".qasm"), N_exp), _SimBench(openql_file_path.replace(".py", "_scheduled.qasm"), N_exp), _SimBench(openql_file_path.replace(".py", "_rcscheduler_out.qasm"), N_exp), _SimBench(openql_file_path.replace(".py", "_quantumsim_.py"), N_exp), _SimBench(openql_file_path.replace(".py", "_quantumsim_mapped.py"), N_exp)
+            return _SimBench(self.file_path.replace(".py", ".qasm"), N_exp), _SimBench(self.file_path.replace(".py", "_scheduled.qasm"), N_exp), _SimBench(self.file_path.replace(".py", "_rcscheduler_out.qasm"), N_exp), _SimBench(self.file_path.replace(".py", "_quantumsim_.py"), N_exp), _SimBench(self.file_path.replace(".py", "_quantumsim_mapped.py"), N_exp)
 
         except TypeError:
             print("\nERROR. Configuration file has not all the required definitions." +
