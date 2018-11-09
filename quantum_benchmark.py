@@ -369,10 +369,19 @@ class _QASMReader(object):
 
     def extractInfo(self, line):
 
-        self.searchN_qubits(line)
-        self.searchDepth(line)
-        self.searchN_gates(line)
-        self.searchN_swaps(line)
+        try:
+
+            self.searchN_qubits(line)
+            self.searchDepth(line)
+            self.searchN_gates(line)
+            self.searchN_swaps(line)
+
+        except:
+
+            print("\n ERROR The file "+self.file_path +
+                  " has not all the information required for the analyisis\n\n")
+
+            raise
 
     def searchDepth(self, line):
 
@@ -380,7 +389,13 @@ class _QASMReader(object):
 
     def searchN_qubits(self, line):
 
-        self.N_qubits = int(self.search("^# Qubits used: (\d*)", line)[1])
+        N_qubits = int(self.search("^# Qubits used: (\d*)", line)[1])
+
+        if not N_qubits:
+
+            N_qubits = int(self.search("^qubits (\d*)", line)[1])
+
+        self.N_qubits = N_qubits
 
     def searchN_gates(self, line):
 
