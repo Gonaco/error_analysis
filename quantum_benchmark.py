@@ -488,7 +488,7 @@ class Benchmark(object):
                     measurements.append(sdm.classical[str(q)])
 
             measurement = np.array(measurements, dtype=float)
-            expected_q_state = c.full_dm.dm.ravel()
+            expected_q_state = sdm.full_dm.dm.ravel()
 
             return measurement, expected_q_state
 
@@ -521,7 +521,7 @@ class Benchmark(object):
                 print("Actual Measurement:")
                 print(measurement)
 
-                q_state = c.full_dm.dm.ravel()
+                q_state = sdm.full_dm.dm.ravel()
 
                 exp_m_int = int(''.join(str(int(e))
                                         for e in expected_measurement.tolist()), 2)
