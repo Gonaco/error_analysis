@@ -442,7 +442,7 @@ class _QASMReader(object):
 
     def isQasm(self):
 
-        if "qasm" in self.filename:
+        if "qasm" in self.file_path:
 
             return True
 
