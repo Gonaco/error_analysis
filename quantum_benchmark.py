@@ -279,7 +279,7 @@ class MappingAnalysis(object):
 class Benchmark(object):
     '''The Benchmark class describes the benchmark and contains all its desciptions (OpenQL, cQASM and quantumsim)'''
 
-    def __init__(self, openql_file_path, config_file_path, scheduler="ALAP", mapper="minextendrc", initial_placement="no", output_dir_name="benchmarks_exports" N_exp=1000):
+    def __init__(self, openql_file_path, config_file_path, scheduler="ALAP", mapper="minextendrc", initial_placement="no", output_dir_name="benchmarks_exports", N_exp=1000):
 
         self.ql_descr = _DescripBench(
             openql_file_path, config_file_path, scheduler, mapper, initial_placement, output_dir_name)
