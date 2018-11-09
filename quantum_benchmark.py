@@ -710,7 +710,7 @@ class SimBench(object):
 
         return "\nQUANTUM BENCHMARK\n"+"\n\tAlgorithm: "+self.qasm_file_path+"\n\tNumber of qubits: "+str(self.N_qubits)+"\n\tNumber of experiment simulations "+str(self.N_exp)
 
-    def error_analysis(self, init_state_type, errprob, quantumsim=False, init_state=""):
+    def error_analysis(self, init_state_type, errprob, quantumsim=False, init_state="", t1=3500, t2=1500, meas_error=0.03):
         """
         """
 
@@ -730,8 +730,12 @@ class SimBench(object):
                 init_state = format(q, "0"+str(N_qubits)+"b")
 
                 # prob_succ, tomography_matrix = analysis(N_qubits, tomography_matrix)
+
+                # prob_succ = self.simulate(
+                #     errprob, quantumsim, init_state)
+
                 prob_succ = self.simulate(
-                    errprob, quantumsim, init_state)
+                    errprob, quantumsim, init_state, t1, t2, meas_error)
 
             print(self.tomography_matrix)
 
@@ -758,8 +762,11 @@ class SimBench(object):
                 #     f.write(str(norm_factor)+"0.0 |" +
                 #             format(q, "0"+str(N_qubits)+"b")[::-1]+">\n")
 
+                # self.simulate(errprob, quantumsim=quantumsim,
+                #               initial_state=init_state)
+
                 self.simulate(errprob, quantumsim=quantumsim,
-                              initial_state=init_state)
+                              initial_state=init_state, t1=t1, t2=t2, meas_error=meas_error)
 
         else:
 
