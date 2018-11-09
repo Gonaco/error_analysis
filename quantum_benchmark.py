@@ -279,9 +279,9 @@ class MappingAnalysis(object):
 class Benchmark(object):
     '''The Benchmark class describes the benchmark and contains all its desciptions (OpenQL, cQASM and quantumsim)'''
 
-    def __init__(self, name, openql_file_path, config_file_path, scheduler="ALAP", mapper="minextendrc", initial_placement="no", N_exp=1000):
+    def __init__(self, openql_file_path, config_file_path, scheduler="ALAP", mapper="minextendrc", initial_placement="no", N_exp=1000):
 
-        self.ql_descr = DescripBench(
+        self.ql_descr = _DescripBench(
             openql_file_path, config_file_path, scheduler, mapper, initial_placement)
 
         self.cqasm_pure, self.cqasm_sched, self.cqasm_mapped, self.quantumsim_sched, self.quantumsim_mapped = self.ql_descr.compile(
