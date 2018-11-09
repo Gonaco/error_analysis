@@ -374,32 +374,47 @@ class _QASMReader(object):
 
     def searchDepth(self, line):
 
-        # self.depth = int(self.search("# Total depth: (\d+)", line)[1])
-        if self.search("# Total depth: (\d+)", line):
-            self.depth = int(self.search("# Total depth: (\d+)", line)[1])
+        a = self.search("# Total depth: (\d+)", line)
+        b = self.search("depth: (\d+)", line)
+
+        if a:
+            self.depth = int(a[1])
+        elif b:
+            self.depth = int(b[1])
 
     def searchN_qubits(self, line):
 
-        if self.search("^# Qubits used: (\d*)", line):
-            self.N_qubits = int(self.search("^# Qubits used: (\d*)", line)[1])
-        elif self.search("^qubits (\d*)", line):
-            self.N_qubits = int(self.search("^qubits (\d*)", line)[1])
+        a = self.search("^# Qubits used: (\d*)", line)
+        b = self.search("^qubits (\d*)", line)
+        c = self.search("qubits used: (\d*)", line)
+
+        if a:
+            self.N_qubits = int(a[1])
+        elif b:
+            self.N_qubits = int(b[1])
+        elif c:
+            self.N_qubits = int(c[1])
 
     def searchN_gates(self, line):
 
-        if self.search(
-                "# Total no. of quantum gates: (\d+)", line):
+        a = self.search(
+            "# Total no. of quantum gates: (\d+)", line)
+        b = self.search(
+            "quantum gates: (\d+)", line)
 
-            self.N_gates = int(self.search(
-                "# Total no. of quantum gates: (\d+)", line)[1])
+        if a:
+            self.N_gates = int(a[1])
+        elif b:
+            self.N_gates = int(b[1])
 
     def searchN_swaps(self, line):
 
-        if self.search(
-                "swaps added: (\d*)", line):
+        a = self.search(
+            "swaps added: (\d*)", line)
 
-            self.N_swaps = int(self.search(
-                "swaps added: (\d*)", line)[1])
+        if a:
+
+            self.N_swaps = int(a[1])
 
     def addinit(self):
         """
