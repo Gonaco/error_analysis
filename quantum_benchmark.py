@@ -363,10 +363,7 @@ class _QASMReader(object):
 
     def search(self, regex, line):
 
-        match = re.search(regex, line)
-        if match:
-            return match
-        return False
+        return re.search(regex, line)
 
     def extractInfo(self, line):
 
@@ -385,6 +382,8 @@ class _QASMReader(object):
 
         if self.search("^# Qubits used: (\d*)", line):
             self.N_qubits = int(self.search("^# Qubits used: (\d*)", line)[1])
+        elif self.search("^qubits (\d*)", line):
+            self.N_qubits = int(self.search("^qubits (\d*)", line)[1])
 
     def searchN_gates(self, line):
 
