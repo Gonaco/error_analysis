@@ -190,7 +190,7 @@ def just_heatmap(N_qubits, matrix, file_name):
 
 # Classes #################################################################
 
-class Analysis(object):
+class MappingAnalysis(object):
 
     '''Object that runs the error analysis of some benchmarks'''
 
@@ -234,7 +234,7 @@ class Analysis(object):
     def db_init_query(self):
 
         new_experiment_query = "INSERT INTO Experiments (date, tom_mtrx_path, log_path) VALUES (datetime('now'),'" + \
-            self.h5_path+"', '"+self.log_path+"');"
+                               self.h5_path+"', '"+self.log_path+"');"
         self.cursor.execute(new_experiment_query)
         self.connection.commit()
 
@@ -637,6 +637,11 @@ class _DescripBench(object):
                 self.config_file_path, scheduler, uniform_sched, self.mapper, self.init_place, self.output_dir_name)
 
             return _SimBench(openql_file_path.replace(".py", ".qasm"), N_exp), _SimBench(openql_file_path.replace(".py", "_scheduled.qasm"), N_exp), _SimBench(openql_file_path.replace(".py", "_rcscheduler_out.qasm"), N_exp), _SimBench(openql_file_path.replace(".py", "_quantumsim_.py"), N_exp), _SimBench(openql_file_path.replace(".py", "_quantumsim_mapped.py"), N_exp)
+
+        except TypeError:
+            print("\nERROR. Configuration file has not all the required definitions." +
+                  "\nIn the case of a non-defined gate, the output will be compiled and the result will have that gate")
+            raise
 
 
 class _SimBench(object):
