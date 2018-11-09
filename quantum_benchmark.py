@@ -681,7 +681,7 @@ class _SimBench(object):
         self.N_qubits = self.reader.N_qubits
         self.N_gates = self.reader.N_gates
         self.N_swaps = self.reader.N_swaps
-        self.N_depth = self.reader.N_depth
+        self.depth = self.reader.depth
 
         self.N_exp = N_exp
         self.success_registry = []  # Matrix storing the success
