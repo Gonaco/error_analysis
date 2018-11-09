@@ -389,13 +389,13 @@ class _QASMReader(object):
 
     def searchN_qubits(self, line):
 
-        N_qubits = self.search("^# Qubits used: (\d*)", line)[1]
+        N_qubits = self.search("^# Qubits used: (\d*)", line)
 
         if not N_qubits:
 
-            N_qubits = self.search("^qubits (\d*)", line)[1]
+            N_qubits = self.search("^qubits (\d*)", line)
 
-        self.N_qubits = int(N_qubits)
+        self.N_qubits = int(N_qubits[1])
 
     def searchN_gates(self, line):
 
