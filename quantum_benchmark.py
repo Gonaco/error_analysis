@@ -651,7 +651,7 @@ class _SimBench(object):
     def __init__(self, file_path, N_exp=1000):
 
         self.file_path = file_path
-        self.cp = "."+qasm_file_path+"~"
+        self.cp = "."+file_path+"~"
 
         self.reader = _QASMReader(file_path)
         self.N_qubits = self.reader.N_qubits
@@ -684,7 +684,7 @@ class _SimBench(object):
 
             try:
                 self.qsimc = __import__(
-                    qasm_file_path.replace(".py", ""))
+                    file_path.replace(".py", ""))
             except ModuleNotFoundError:
                 print(
                     "\nThe quantumsim file doesn't exist, so quantumsim cannot be used for simulating this benchmark")
