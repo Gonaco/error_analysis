@@ -265,9 +265,9 @@ class Analysis(object):
 
                 for alg_path in algs_path:
 
-                    self.descripBench = DescripBench(alg_path)
-                    self.descripBench.compile(config_file_path)
-                    self.simBench = SimBench(qasm_file_path)
+                    # self.descripBench = _DescripBench(alg_path)
+                    # self.descripBench.compile(config_file_path)
+                    # self.simBench = _SimBench(qasm_file_path)
 
             except:
                 self.db_interruption_query()
@@ -281,35 +281,11 @@ class Benchmark(object):
 
     def __init__(self, name, openql_file_path, config_file_path, scheduler="ALAP", mapper="minextendrc", initial_placement="no", N_exp=1000):
 
-        self.name = name
-
         self.ql_descr = DescripBench(
             openql_file_path, config_file_path, scheduler, mapper, initial_placement)
-        self.ql_descr.compile()
 
-        self.load_all_sim()
-
-    def load_all_sim(self):
-
-        self.cqasm_pure_p, self.cqasm_pure_d, self.cqasm_pure = self.load_sim(
-            openql_file_path, ".qasm", N_exp)
-
-        self.cqasm_sched_p, self.cqasm_sched_d, self.cqasm_sched = self.load_sim(
-            openql_file_path, "_scheduled.qasm", N_exp)
-
-        self.cqasm_mapped_p, self.cqasm_mapped_d, self.cqasm_mapped = self.load_sim(
-            openql_file_path, "_rcscheduler_out.qasm", N_exp)
-
-        self.quantumsim_sched_p, self.quantumsim_sched_d, self.quantumsim_sched = self.load_sim(
-            openql_file_path, "_quantumsim_.py", N_exp)
-
-        self.quantumsim_mapped_p, self.quantumsim_mapped_d, self.quantumsim_mapped = self.load_sim(
-            openql_file_path, "_quantumsim_mapped.py", N_exp)
-
-    def load_sim(self, openql_file_path, ext_aft, N_exp):
-
-        path = openql_file_path.replace(".py", ext_aft)
-        return path, QASMReader(path), SimBench(path, N_exp)
+        self.cqasm_pure, self.cqasm_sched, self.cqasm_mapped, self.quantumsim_sched, self.quantumsim_mapped = self.ql_descr.compile(
+            N_exp)
 
     def getConfig(self):
         return self.ql_descr.config
@@ -326,48 +302,48 @@ class Benchmark(object):
     def getOutputDir(self):
         return self.ql_descr.output_dir
 
-    def getN_Qubits(self, option):
+    def getN_qubits(self, option=-1):
         if option == PURE_OPT:
-            return self.cqasm_pure_d.  # TODO
+            return self.cqasm_pure.N_qubits
         elif option == SCHED_OPT:
-            return self.cqasm_sched_d.  # TODO
+            return self.cqasm_sched.N_qubits
         elif option == MAPP_OPT:
-            return self.cqasm_mapped_d.  # TODO
-        raise Exception()
-        # return False
+            return self.cqasm_mapped.N_qubits
+        else:
+            return [self.cqasm_pure.N_qubits, self.cqasm_sched.N_qubits, self.cqasm_mapped.N_qubits]
 
-    def getN_Gates(self, option):
+    def getN_gates(self, option=-1):
         if option == PURE_OPT:
-            return self.cqasm_pure_d.  # TODO
+            return self.cqasm_pure.N_gates
         elif option == SCHED_OPT:
-            return self.cqasm_sched_d.  # TODO
+            return self.cqasm_sched.N_gates
         elif option == MAPP_OPT:
-            return self.cqasm_mapped_d.  # TODO
-        raise Exception()
-        # return False
+            return self.cqasm_mapped.N_gates
+        else:
+            return [self.cqasm_pure.N_gates, self.cqasm_sched.N_gates, self.cqasm_mapped.N_gates]
 
-    def getDepth(self, option):
+    def getN_swaps(self, option=-1):
         if option == PURE_OPT:
-            return self.cqasm_pure_d.  # TODO
+            return self.cqasm_pure.N_swaps
         elif option == SCHED_OPT:
-            return self.cqasm_sched_d.  # TODO
+            return self.cqasm_sched.N_swaps
         elif option == MAPP_OPT:
-            return self.cqasm_mapped_d.  # TODO
-        raise Exception()
-        # return False
+            return self.cqasm_mapped.N_swaps
+        else:
+            return [self.cqasm_pure.N_swaps, self.cqasm_sched.N_swaps, self.cqasm_mapped.N_swaps]
 
-    def getDepth(self, option):
+    def getDepth(self, option=-1):
         if option == PURE_OPT:
-            return self.cqasm_pure_d.  # TODO
+            return self.cqasm_pure.depth
         elif option == SCHED_OPT:
-            return self.cqasm_sched_d.  # TODO
+            return self.cqasm_sched.depth
         elif option == MAPP_OPT:
-            return self.cqasm_mapped_d.  # TODO
-        raise Exception()
-        # return False
+            return self.cqasm_mapped.depth
+        else:
+            return [self.cqasm_pure.depth, self.cqasm_sched.depth, self.cqasm_mapped.depth]
 
 
-class QASMReader(object):
+class _QASMReader(object):
     '''An object able to read and store information from a QASM file'''
 
     def __init__(self, file_path):
@@ -376,139 +352,79 @@ class QASMReader(object):
         with open(file_path, "r") as i:
             self.data = i.readlines()
 
-        self.N_qubits = 0
-        self.depth = 0
-        self.N_gates = 0
-        self.N_swaps = 0
+        for idx, line in enumerate(self.data):
+
+            self.extractInfo(line)
 
     def save(self, output_path):
 
         with open(output_path, "w") as o:
             o.writelines(self.data)
 
-    def search(regex, line):
+    def search(self, regex, line):
 
         match = re.search(regex, line)
         if match:
             return match
 
-    def isQasm(filename):
+    def extractInfo(self, line):
 
-        if "qasm" in filename:
+        self.searchN_qubits(line)
+        self.searchDepth(line)
+        self.searchN_gates(line)
+        self.searchN_swaps(line)
+
+    def searchDepth(self, line):
+
+        self.depth = int(self.search("# Total depth: (\d+)", line)[1])
+
+    def searchN_qubits(self, line):
+
+        self.N_qubits = int(self.search("^# Qubits used: (\d*)", line)[1])
+
+    def searchN_gates(self, line):
+
+        self.N_gates = int(self.search(
+            "# Total no. of quantum gates: (\d+)", line)[1])
+
+    def searchN_swaps(self, line):
+
+        self.N_swaps = int(self.search(
+            "swaps added: (\d*)", line)[1])
+
+    def addinit(self):
+        """
+        """
+
+        init = '\n.init\n    load_state "'+INIT_QST_FILE+'"\n'
+        self.add2qasm("^qubits \d+", init)
+
+        # self.add_measurement()
+
+    def add2qasm(self, before, after):
+        """Look for some regular expression in a file (before)
+        and add something new after it in a copy of this file
+        """
+
+        for idx, line in enumerate(self.data):
+
+            if re.search(before, line):
+                self.data[idx] = line+"\n"+after
+
+    def add_error_model(self, errprob):
+
+        error_model = "error_model depolarizing_channel, " + str(errprob)
+        self.add2qasm("^qubits \d+", error_model)
+
+    def isQasm(self):
+
+        if "qasm" in self.filename:
 
             return True
 
-    def num_qubitsChecker(line, num_qubits):
+    # ------------ OLD STAFF
 
-        correction = line
-
-        if "qubits" in line:
-            correction = "qubits {num_qubits}\n".format(num_qubits=num_qubits)
-
-            return correction
-        else:
-
-            return False
-
-    def bigQubitNum(line, biggest_number):
-
-        match = re.findall(r"q\[?(\d+)\]?", line)
-
-        # print("\nmatch:")
-        # print(match)
-
-        # print("\nmatch2int:")
-        # print(list(map(int, match)))
-
-        if match:
-            '''The biggest qubit number between the biggest of all the qubit numbers in a line and the previous biggest number'''
-            biggest_number = max(max(list(map(int, match))), biggest_number)
-
-        return biggest_number
-
-    def algNameChecker(line):
-
-        correction = doubleNameChecker(line)
-
-        return numberNameChecker(correction)
-
-    def doubleNameChecker(line):
-
-        correction = line
-        before = r"(\..+)\..+$"
-        after = r"\1"
-
-        c = re.sub(before, after, correction)
-
-        if c:
-            correction = c
-
-        return correction
-
-    def numberNameChecker(line):
-
-        correction = line
-        before = r"^\.(\d.+)"
-        after = r".kernel_\1"
-
-        c = re.sub(before, after, correction)
-
-        if c:
-            correction = c
-
-        return correction
-
-    def versionChecker(corrected):
-
-        # isVersion = False
-
-        for c in range(5):          # Look in the first 5 lines for the version line
-
-            if "version" in corrected[c]:
-                # isVersion = True
-                # break
-                return corrected
-
-        # if not isVersion:
-        #     corrected.insert(0, "version 2.0")
-
-        # print(corrected[0])
-
-        corrected.insert(0, "version 2.0\n\n")
-        # corrected.insert(0, "version 1.0\n\n")
-
-        return corrected
-
-    def parenthesisChecker(line):
-
-        correction = line
-        before = r"q(\d+)"
-        after = r"q[\1]"
-
-        c = re.sub(before, after, correction)
-
-        if c:
-            correction = c
-
-        return correction
-
-    def rotationGatesChecker(line):
-
-        correction = line
-        # There could be two different kind of rotations, + and - 90
-        before = [r"r([xy])(\d+) (q\[?\d+\]?)", r"([xy])m(\d+) (q\[?\d+\]?)"]
-        after = [r"r\1 \3, \2", r"r\1 \3, -\2"]
-
-        for i, b in enumerate(before):
-
-            c = re.sub(b, after[i], correction)
-
-            if c:
-                correction = c
-
-        return correction
-
-    def check_cQasm(filename):
+    def check_cQasm(self, filename):
 
         print("\n\ncheck_cQasm {filename}\n".format(filename=filename))
 
@@ -556,62 +472,115 @@ class QASMReader(object):
 
         return
 
-    def searchDepth(self, line):
+    def num_qubitsChecker(self, line, num_qubits):
 
-        self.N_qubits = int(self.search("# Total depth: (\d+)", line)[1])
+        correction = line
 
-    def getDepth(self):
+        if "qubits" in line:
+            correction = "qubits {num_qubits}\n".format(num_qubits=num_qubits)
 
-        return self.depth
+            return correction
+        else:
 
-    def searchN_qubits(self, line):
+            return False
 
-        self.N_qubits = int(self.search("^qubits (\d*)", line)[1])
+    def bigQubitNum(self, line, biggest_number):
 
-    def getN_Qubits(self):
+        match = re.findall(r"q\[?(\d+)\]?", line)
 
-        return self.N_qubits
+        # print("\nmatch:")
+        # print(match)
 
-    def searchN_gates(self, line):
+        # print("\nmatch2int:")
+        # print(list(map(int, match)))
 
-        self.N_qubits = int(self.search(
-            "# Total no. of quantum gates: (\d+)", line)[1])
+        if match:
+            '''The biggest qubit number between the biggest of all the qubit numbers in a line and the previous biggest number'''
+            biggest_number = max(max(list(map(int, match))), biggest_number)
 
-    def getN_Gates(self):
+        return biggest_number
 
-        return self.N_gates
+    def algNameChecker(self, line):
 
-    def extractInfo(self, line):
+        correction = doubleNameChecker(line)
 
-        self.searchN_qubits(line)
-        self.searchDepth(line)
-        self.searchN_gates(lines)
+        return numberNameChecker(correction)
 
-    def add2qasm(self, before, after):
-        """Look for some regular expression in a file (before)
-        and add something new after it in a copy of this file
-        """
+    def doubleNameChecker(self, line):
 
-        for idx, line in enumerate(self.data):
+        correction = line
+        before = r"(\..+)\..+$"
+        after = r"\1"
 
-            extractInfo(line)
+        c = re.sub(before, after, correction)
 
-            if re.search(before, line):
-                self.data[idx] = line+"\n"+after
+        if c:
+            correction = c
 
-    def add_error_model(errprob):
+        return correction
 
-        error_model = "error_model depolarizing_channel, " + str(errprob)
-        self.add2qasm("^qubits \d+", error_model)
+    def numberNameChecker(self, line):
 
-    def addinit(self):
-        """
-        """
+        correction = line
+        before = r"^\.(\d.+)"
+        after = r".kernel_\1"
 
-        init = '\n.init\n    load_state "'+INIT_QST_FILE+'"\n'
-        self.add2qasm("^qubits \d+", init)
+        c = re.sub(before, after, correction)
 
-        self.add_measurement()
+        if c:
+            correction = c
+
+        return correction
+
+    def versionChecker(self, corrected):
+
+        # isVersion = False
+
+        for c in range(5):          # Look in the first 5 lines for the version line
+
+            if "version" in corrected[c]:
+                # isVersion = True
+                # break
+                return corrected
+
+        # if not isVersion:
+        #     corrected.insert(0, "version 2.0")
+
+        # print(corrected[0])
+
+        corrected.insert(0, "version 2.0\n\n")
+        # corrected.insert(0, "version 1.0\n\n")
+
+        return corrected
+
+    def parenthesisChecker(self, line):
+
+        correction = line
+        before = r"q(\d+)"
+        after = r"q[\1]"
+
+        c = re.sub(before, after, correction)
+
+        if c:
+            correction = c
+
+        return correction
+
+    def rotationGatesChecker(self, line):
+
+        correction = line
+        # There could be two different kind of rotations, + and - 90
+        before = [r"r([xy])(\d+) (q\[?\d+\]?)", r"([xy])m(\d+) (q\[?\d+\]?)"]
+        after = [r"r\1 \3, \2", r"r\1 \3, -\2"]
+
+        for i, b in enumerate(before):
+
+            c = re.sub(b, after[i], correction)
+
+            if c:
+                correction = c
+
+        return correction
 
     def add_measurement(self):
         """Appending the measurement to the end of the qasm file
@@ -635,7 +604,7 @@ class QASMReader(object):
                 self.data.pop(idx)
 
 
-class DescripBench(object):
+class _DescripBench(object):
 
     '''Object for taking care of the OpenQL benchmarks'''
 
@@ -652,53 +621,77 @@ class DescripBench(object):
             self.file_path.replace(".py", ""), self.file_path)
         self.openql_comp = importlib.util.module_from_spec(openql)
 
-    def compile(self):
+    def compile(self, N_exp):
+
+        uniform_sched = "no"
+        scheduler = self.scheduler
 
         self.openql.loader.exec_module(openql_comp)
 
+        if "uniform" in self.scheduler:
+            uniform_sched = "yes"
+            scheduler = "ASAP"
+
         try:
             self.openql_comp.circuit(
-                self.config_file_path, self.scheduler, self.mapper, self.init_place, self.output_dir_name)
+                self.config_file_path, scheduler, uniform_sched, self.mapper, self.init_place, self.output_dir_name)
+
+            return _SimBench(openql_file_path.replace(".py", ".qasm"), N_exp), _SimBench(openql_file_path.replace(".py", "_scheduled.qasm"), N_exp), _SimBench(openql_file_path.replace(".py", "_rcscheduler_out.qasm"), N_exp), _SimBench(openql_file_path.replace(".py", "_quantumsim_.py"), N_exp), _SimBench(openql_file_path.replace(".py", "_quantumsim_mapped.py"), N_exp)
 
 
-class SimBench(object):
+class _SimBench(object):
 
     '''Class for simulating the Benchmark'''
 
     def __init__(self, file_path, N_exp=1000):
 
-        self.qasm_file_path = file_path
+        self.file_path = file_path
         self.cp = "."+qasm_file_path+"~"
+
+        self.reader = _QASMReader(file_path)
+        self.N_qubits = self.reader.N_qubits
+        self.N_gates = self.reader.N_gates
+        self.N_swaps = self.reader.N_swaps
+        self.N_depth = self.reader.N_depth
 
         self.N_exp = N_exp
         self.success_registry = []  # Matrix storing the success
         self.fidelity_registry = []  # Matrix storing the fidelity
         self.total_meas_err = 0
 
-        # Initializing qasm copy
-        try:
-            self.N_qubits = addinit(qasm_file_path, self.cp)
+        if reader.isQasm():
+            # Initializing qasm copy
 
-        except FileNotFoundError:
-            print(
-                "\nThe QASM file does not exist or the path is incorrect." +
-                "\nThe Benchmark cannot be created\n")
-            raise
+            try:
+                reader.addinit()
+                reader.save(self.cp)
+
+            except FileNotFoundError:
+                print(
+                    "\nThe QASM file does not exist or the path is incorrect." +
+                    "\nThe Benchmark cannot be created\n")
+                raise
+
+            self.quantusim = False
+
+        else:
+            # Initializing quantumsim
+
+            try:
+                self.qsimc = __import__(
+                    qasm_file_path.replace(".py", ""))
+            except ModuleNotFoundError:
+                print(
+                    "\nThe quantumsim file doesn't exist, so quantumsim cannot be used for simulating this benchmark")
+                raise
+
+            self.quantusim = True
 
         # atexit.register(delcopy, cp="."+qasm_file_path+"~")
         # atexit.register(delcopy, cp="."+qasm_file_path.replace(
         #     ".qasm", "_error.qasm")+"~")
 
         self.tomography_matrix = np.zeros((2**self.N_qubits, 2**self.N_qubits))
-
-        # Initializing quantumsim
-        try:
-            self.qsimc = __import__(
-                qasm_file_path.replace(".qasm", "_quantumsim").replace("_scheduled", ""))
-        except ModuleNotFoundError:
-            print(
-                "\nThe quantumsim file doesn't exist, so quantumsim cannot be used for simulating this benchmark")
-            # raise
 
     def __exit__(self):
         print("Deleting benchmark garbage")
@@ -708,14 +701,14 @@ class SimBench(object):
 
     def __str__(self):
 
-        return "\nQUANTUM BENCHMARK\n"+"\n\tAlgorithm: "+self.qasm_file_path+"\n\tNumber of qubits: "+str(self.N_qubits)+"\n\tNumber of experiment simulations "+str(self.N_exp)
+        return "\nQUANTUM BENCHMARK\n"+"\n\tAlgorithm: "+self.file_path+"\n\tNumber of qubits: "+str(self.N_qubits)+"\n\tNumber of experiment simulations "+str(self.N_exp)
 
-    def error_analysis(self, init_state_type, errprob, quantumsim=False, init_state="", t1=3500, t2=1500, meas_error=0.03):
+    def error_analysis(self, init_state_type, errprob, init_state="", t1=3500, t2=1500, meas_error=0.03):
         """
         """
 
         print("############ [Error Analysis] " +
-              self.qasm_file_path+" ############")
+              self.file_path+" ############")
 
         N_qubits = self.N_qubits
 
@@ -729,13 +722,8 @@ class SimBench(object):
 
                 init_state = format(q, "0"+str(N_qubits)+"b")
 
-                # prob_succ, tomography_matrix = analysis(N_qubits, tomography_matrix)
-
-                # prob_succ = self.simulate(
-                #     errprob, quantumsim, init_state)
-
                 prob_succ = self.simulate(
-                    errprob, quantumsim, init_state, t1, t2, meas_error)
+                    errprob, self.quantumsim, init_state, t1, t2, meas_error)
 
             print(self.tomography_matrix)
 
@@ -744,7 +732,7 @@ class SimBench(object):
 
                 try:
                     just_heatmap(N_qubits, self.tomography_matrix,
-                                 self.qasm_file_path.replace(".qasm", ""))
+                                 self.file_path.replace(".qasm", ""))
                 except MemoryError:
                     print(
                         "Error while drawing the graph. MemoryError despite the matrix size")
@@ -765,7 +753,7 @@ class SimBench(object):
                 # self.simulate(errprob, quantumsim=quantumsim,
                 #               initial_state=init_state)
 
-                self.simulate(errprob, quantumsim=quantumsim,
+                self.simulate(errprob,
                               initial_state=init_state, t1=t1, t2=t2, meas_error=meas_error)
 
         else:
@@ -775,31 +763,24 @@ class SimBench(object):
     def draw_error_analysis(self):
         try:
             graph(self.N_qubits, self.tomography_matrix,
-                  self.qasm_file_path.replace(".qasm", ""))
+                  self.file_path.replace(".qasm", ""))
         except MemoryError:
-            print("Error while drawing the graph. MemoryError despite the matrix size")
+            print("\nError while drawing the graph. MemoryError despite the matrix size")
 
     def probability_of_success(self):
 
         return sum(self.success_registry)/self.N_exp
 
-    def simulate(self, errprob, quantumsim=False, initial_state=None, t1=3500, t2=1500, meas_error=0.03):
+    def simulate(self, errprob, initial_state=None, t1=3500, t2=1500, meas_error=0.03):
 
         N_exp = self.N_exp
         qasm_f_path = self.cp
 
-        if quantumsim:          # TODO
+        if self.quantumsim:          # TODO
             # Quantumsim will be used as simulator
-
-            # print("quantumsim time")
-
-            # expected_q_state, expected_measurement = self.qx_simulation(
-            #     qasm_f_path)
 
             expected_measurement, expected_q_state = self.quantumsim_simulation(
                 errprob, initial_state)
-
-            # return self.quantumsim_simulation()
 
             return self.quantumsim_simulation(errprob, initial_state, expected_measurement, expected_q_state, t1, t2, meas_error)
 
@@ -814,11 +795,6 @@ class SimBench(object):
             for i in range(N_exp):
 
                 q_state, measurement = self.qx_simulation(error_file)
-
-                # measurement = measurement[::-1] # for quantumsim maybe?
-
-                # print(expected_q_state)
-                # print(q_state)
 
                 print(expected_measurement)
                 print(measurement)
@@ -870,7 +846,7 @@ class SimBench(object):
 
         if expected_measurement.size == 0:
 
-                                # CIRCUIT DECLARATION
+            # CIRCUIT DECLARATION
             c = self.qsimc.circuit_function(np.inf, np.inf, 0, 0, init_state)
 
             # SIMULATING
