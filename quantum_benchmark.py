@@ -378,7 +378,7 @@ class _QASMReader(object):
 
         except:
 
-            print("\n ERROR The file "+self.file_path +
+            print("\n- ERROR. The file "+self.file_path +
                   " has not all the information required for the analyisis\n\n")
 
             raise
@@ -389,13 +389,13 @@ class _QASMReader(object):
 
     def searchN_qubits(self, line):
 
-        N_qubits = int(self.search("^# Qubits used: (\d*)", line)[1])
+        N_qubits = self.search("^# Qubits used: (\d*)", line)[1]
 
         if not N_qubits:
 
-            N_qubits = int(self.search("^qubits (\d*)", line)[1])
+            N_qubits = self.search("^qubits (\d*)", line)[1]
 
-        self.N_qubits = N_qubits
+        self.N_qubits = int(N_qubits)
 
     def searchN_gates(self, line):
 
