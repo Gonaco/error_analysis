@@ -687,8 +687,7 @@ class _SimBench(object):
             self.N_swaps = self.reader.N_swaps
             self.depth = self.reader.depth
         except AttributeError:
-            if not self.N_swaps:
-                self.N_swaps = -1
+            self.N_swaps = -1
 
         self.N_exp = N_exp
         self.success_registry = []  # Matrix storing the success
