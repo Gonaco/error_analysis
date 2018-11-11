@@ -674,8 +674,8 @@ class _SimBench(object):
 
     def __init__(self, file_path, N_exp=1000, out_dir="."):
 
-        self.file_path = file_path
-        self.cp = "."+file_path+"~"
+        self.file_path = os.path.join(out_dir, file_path)
+        self.cp = os.path.join(out_dir, "."+file_path+"~")
 
         self.reader = _QASMReader(self.file_path)
         self.N_qubits = self.reader.N_qubits
