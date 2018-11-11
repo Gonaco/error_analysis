@@ -715,7 +715,7 @@ class _SimBench(object):
             try:
                 qsim = importlib.util.spec_from_file_location(
                     file_path[1].replace(".py", ""), self.file_path)
-                self.qsimc = importlib.util.module_from_spec(spec)
+                self.qsimc = importlib.util.module_from_spec(qsim)
                 qsim.loader.exec_module(self.qsimc)
 
                 # self.qsimc = __import__(
