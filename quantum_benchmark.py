@@ -715,7 +715,7 @@ class _SimBench(object):
 
             try:
                 self.qsimc = __import__(
-                    file_path.replace(".py", ""))
+                    self.file_path.replace(".py", ""))
             except ModuleNotFoundError:
                 print(
                     "\nThe quantumsim file doesn't exist, so quantumsim cannot be used for simulating this benchmark")
