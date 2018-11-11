@@ -367,6 +367,13 @@ class _QASMReader(object):
 
     def extractInfo(self, line):
 
+        # Initilize as an error in case of not finding a value in the search
+        self.N_qubits = -1
+        self.depth = -1
+        self.N_gates = -1
+        self.N_swaps = -1
+
+        # Searhc for the info and store it
         self.searchN_qubits(line)
         self.searchDepth(line)
         self.searchN_gates(line)
