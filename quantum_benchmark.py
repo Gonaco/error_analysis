@@ -713,8 +713,14 @@ class _SimBench(object):
             # Initializing quantumsim
 
             try:
-                self.qsimc = __import__(
-                    self.file_path.replace(".py", ""))
+                qsim = importlib.util.spec_from_file_location(
+                    file_path[1].replace(".py", ""), self.file_path)
+                self.qsimc = importlib.util.module_from_spec(spec)
+                qsim.loader.exec_module(self.qsimc)
+
+                # self.qsimc = __import__(
+                #     self.file_path.replace(".py", ""))
+
             except ModuleNotFoundError:
                 print(
                     "\nThe quantumsim file doesn't exist, so quantumsim cannot be used for simulating this benchmark")
