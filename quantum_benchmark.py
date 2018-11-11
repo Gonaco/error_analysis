@@ -367,12 +367,6 @@ class _QASMReader(object):
 
     def extractInfo(self, line):
 
-        # Initilize as an error in case of not finding a value in the search
-        self.N_qubits = -1
-        self.depth = -1
-        self.N_gates = -1
-        self.N_swaps = -1
-
         # Searhc for the info and store it
         self.searchN_qubits(line)
         self.searchDepth(line)
@@ -686,10 +680,15 @@ class _SimBench(object):
         self.cp = os.path.join(file_path[0], out_dir, "."+file_path[1]+"~")
 
         self.reader = _QASMReader(self.file_path)
-        self.N_qubits = self.reader.N_qubits
-        self.N_gates = self.reader.N_gates
-        self.N_swaps = self.reader.N_swaps
-        self.depth = self.reader.depth
+
+        try:
+            self.N_qubits = self.reader.N_qubits
+            self.N_gates = self.reader.N_gates
+            self.N_swaps = self.reader.N_swaps
+            self.depth = self.reader.depth
+        except AttributeError:
+            if not self.N_swaps:
+                self.N_swaps = -1
 
         self.N_exp = N_exp
         self.success_registry = []  # Matrix storing the success
