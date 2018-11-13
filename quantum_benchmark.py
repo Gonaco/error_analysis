@@ -49,6 +49,9 @@ MAPP_OPT = 2
 
 INIT_QST_FILE = "init_state.qst"
 
+ALL_STAT = 0
+ONE_STAT = 1
+
 # FILE TREATMENT FUNCTIONS ####################################################
 
 
@@ -194,47 +197,51 @@ class MappingAnalysis(object):
 
     '''Object that runs the error analysis of some benchmarks'''
 
-    def __init__(self, algs_path, log_path, h5_path, config_file_path, scheduler, mapper, initial_placement, output_dir_name, init_type, error, simulator):
+    def __init__(self, benchmarks, db_path, log_path, h5_path, output_dir_name, init_type, error, simulator, t1, t2, meas_error):
 
-        self.algs_path = algs_path
+        self.connection = sqlite3.connect(db_path)
+        self.benchmarks = benchmarks
         self.log_path = log_path
         self.h5_path = h5_path
-        self.connection = sqlite3.connect("error_analysis.db")
-        self.cursor = connection.cursor()
-        self.config_file_path = config_file_path
-        self.scheduler = scheduler
-        self.mapper = mapper
-
-        self.initial_placement = initial_placement
-        self.output_dir_name = output_dir_name
+        self.cursor = self.connection.cursor()
         self.init_type = init_type
         self.error = error
         self.simulator = simulator
 
-    def save_in_db(cursor, algorithm, N_sim, init_type, scheduler, mapper, initial_placement, error_rate, conf_file, prob_succs, mean_f, q_vol, exper_id, simulator):
+    def save_in_db(self, benchmark, source, prob_succs, mean_f, q_vol):
 
-        if init_type == 0:
+        if self.init_type == 0:
             init_type = "all_states"
-        elif init_type == 1:
+        elif self.init_type == 1:
             init_type = "ground_state"
         else:
             print("Init type ERROR. The init_type is not either 1 nor 0")
             raise Exception("Init_TypeError")
 
-        if simulator:
+        if self.simulator:
             simulator = "quantumsim"
         else:
             simulator = "qx"
 
-        format_str = "INSERT INTO Results (algorithm, N_sim, init_type, scheduler, mapper, initial_placement, error_rate, conf_file, prob_succs, mean_f, q_vol, simulator, exper_id) VALUES ('{algorithm}', {N_sim}, '{init_type}', '{scheduler}', '{mapper}', '{initial_placement}', {error_rate}, '{conf_file}', {prob_succs}, {mean_f}, {q_vol}, {simulator}, {exper_id});"
+        format_str = "INSERT INTO Benchmarks (benchmark, source, N_swaps, depth, N_sim, init_type, scheduler, mapper, initial_placement, error_rate, conf_file) VALUES ('{name}', '{source}', {N_swaps}, {depth}, {N_sim}, '{init_type}', '{scheduler}', '{mapper}', '{initial_placement}', {error_rate}, '{conf_file}');"
 
-        cursor.execute(format_str.format(algorithm=algorithm, N_sim=N_sim, init_type=init_type,
-                                         scheduler=scheduler, mapper=mapper, initial_placement=initial_placement, error_rate=error_rate, conf_file=conf_file, prob_succs=prob_succs, mean_f=mean_f, q_vol=q_vol, exper_id=exper_id, simulator=simulator))
+        name, N_swaps, depth, N_sim, scheduler, mapper, initial_placement, conf_file = benchmark.getAll()
+
+        self.cursor.execute(format_str.format(name=name, N_swaps=N_swaps, depth=depth, N_sim=N_sim, init_type=self.init_type,
+                                              scheduler=scheduler, mapper=mapper, initial_placement=initial_placement, error_rate=self.error_rate, conf_file=conf_file))
+        self.connection.commit()
+        self.cursor.execute("SELECT last_insert_rowid() FROM Experiments;")
+        algorithm = cursor.fetchone()[0]
+
+        format_str = "INSERT INTO Results (algorithm, prob_succs, mean_f, q_vol, simulator, exper_id) VALUES ({prob_succs}, {mean_f}, {q_vol}, {simulator}, {exper_id});"
+
+        self.cursor.execute(format_str.format(algorithm=algorithm, prob_succs=prob_succs,
+                                              mean_f=mean_f, q_vol=q_vol, exper_id=self.exper_id, simulator=self.simulator))
 
     def db_init_query(self):
 
-        new_experiment_query = "INSERT INTO Experiments (date, tom_mtrx_path, log_path) VALUES (datetime('now'),'" + \
-                               self.h5_path+"', '"+self.log_path+"');"
+        new_experiment_query = "INSERT INTO Experiments (date, tom_mtrx_path, log_path) VALUES (datetime('now'),'" +
+            self.h5_path+"', '"+self.log_path+"');"
         self.cursor.execute(new_experiment_query)
         self.connection.commit()
 
@@ -255,15 +262,25 @@ class MappingAnalysis(object):
         self.connection.commit()
         self.connection.close()
 
+    def db_genesis(self):
+        '''Check wether the database exits or not and if it does not exist it creates it'''
+
     def analysis(self):
 
-        with h5py.File(h5_path, "w") as h5f:
+        with h5py.File(self.h5_path, "w") as h5f:
 
-            experiment_id = self.db_init_query()
+            self experiment_id = self.db_init_query()
 
             try:
 
-                for alg_path in algs_path:
+                for benchmark in self.benchmarks:
+
+                    if self.simulator:  # Quantumsim
+                        benchmark.quantumsim_mapped.error_analysis(
+                            self.init_type, error, init_state, t1, t2, meas_error)
+                    else:       # QX
+                        benchmark.cqasmm_mapped.error_analysis(
+                            self.init_type, error, init_state)
 
                     # self.descripBench = _DescripBench(alg_path)
                     # self.descripBench.compile(config_file_path)
@@ -279,8 +296,11 @@ class MappingAnalysis(object):
 class Benchmark(object):
     '''The Benchmark class describes the benchmark and contains all its desciptions (OpenQL, cQASM and quantumsim)'''
 
-    def __init__(self, openql_file_path, config_file_path, scheduler="ALAP", mapper="minextendrc", initial_placement="no", output_dir_name="benchmarks_exports", N_exp=1000):
+    def __init__(self, openql_file_path, source, config_file_path, scheduler="ALAP", mapper="minextendrc", initial_placement="no", output_dir_name="benchmarks_exports", N_exp=1000):
 
+        self.name = os.path.split(openql_file_path)[1]
+        self.source = source
+        self.N_exp = N_exp
         self.ql_descr = _DescripBench(
             openql_file_path, config_file_path, scheduler, mapper, initial_placement, output_dir_name)
 
@@ -288,7 +308,7 @@ class Benchmark(object):
             N_exp)
 
     def getConfig(self):
-        return self.ql_descr.config
+        return self.ql_descr.config_file_path
 
     def getScheduler(self):
         return self.ql_descr.scheduler
@@ -301,6 +321,9 @@ class Benchmark(object):
 
     def getOutputDir(self):
         return self.ql_descr.output_dir
+
+    def getSimBench(self):
+        return [self.cqasm_pure, self.cqasm_sched, self.cqasm_mapped, self.quantumsim_sched, self.quantumsim_mapped]
 
     def getN_qubits(self, option=-1):
         if option == PURE_OPT:
@@ -341,6 +364,10 @@ class Benchmark(object):
             return self.cqasm_mapped.depth
         else:
             return [self.cqasm_pure.depth, self.cqasm_sched.depth, self.cqasm_mapped.depth]
+
+    def getAll(self):
+
+        return self.name, self.source, self.cqasm_mapped.N_swaps, self.cqasm_mapped.depth self.N_exp, self.ql_descr.scheduler, self.ql_descr.mapper, self.ql_descr.init_place, self.ql_descr.config_file_path
 
 
 class _QASMReader(object):
@@ -1001,11 +1028,11 @@ class _SimBench(object):
         return np.around(f, decimals=5)
 
     # depth=0 is just for now, till I'm able to extract the depth of the benchmark
-    def q_vol(self, depth=0):
+    def q_vol(self):
         """ Quantum Volume calculation"""
 
         # return min([self.N_qubits, depth])**2
-        return self.N_qubits * depth
+        return self.N_qubits * self.depth
 
     def mean_fidelity(self):
 
