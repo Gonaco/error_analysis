@@ -261,7 +261,7 @@ class MappingAnalysis(object):
         '''Check wether the database exits or not and if it does not exist it creates it'''
 
         with open(SQL_FILE, "r") as sqlf:
-            self.cursor.executescript(sqlf)
+            self.cursor.executescript(sqlf.read())
             self.db_fill_benchmarks()
 
     def db_fill_benchmarks(self):
