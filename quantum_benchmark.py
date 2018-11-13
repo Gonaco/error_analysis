@@ -363,10 +363,10 @@ class MappingAnalysis(object):
 
                     if simulator:  # Quantumsim
                         benchmark.quantumsim_mapped.error_analysis(
-                            self.init_type, error, init_state, t1, t2, meas_err)
+                            self.init_type, err, t1, t2, meas_err)
                     else:       # QX
                         benchmark.cqasm_mapped.error_analysis(
-                            self.init_type, error, init_state)
+                            self.init_type, err)
 
                     p_s = benchmark.cqasm_mapped.mean_success()
                     mean_f = benchmark.cqasm_mapped.mean_fidelity()
@@ -859,7 +859,7 @@ class _SimBench(object):
 
         return "\nQUANTUM BENCHMARK\n"+"\n\tAlgorithm: "+self.file_path+"\n\tNumber of qubits: "+str(self.N_qubits)+"\n\tNumber of experiment simulations "+str(self.N_exp)
 
-    def error_analysis(self, init_state_type, errprob, init_state="", t1=3500, t2=1500, meas_error=0.03):
+    def error_analysis(self, init_state_type, errprob, t1=3500, t2=1500, meas_error=0.03, init_state=""):
         """
         """
 
