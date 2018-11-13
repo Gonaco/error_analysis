@@ -235,13 +235,13 @@ class MappingAnalysis(object):
 
     def db_init_query(self):
 
-        new_experiment_query = "INSERT INTO Experiments (date, tom_mtrx_path, log_path) VALUES (datetime('now'),'" +
+        new_experiment_query = "INSERT INTO Experiments (date, tom_mtrx_path, log_path) VALUES (datetime('now'),'" + \
             self.h5_path+"', '"+self.log_path+"');"
         self.cursor.execute(new_experiment_query)
         self.connection.commit()
 
         self.cursor.execute("SELECT last_insert_rowid() FROM Experiments;")
-        experiment_id = cursor.fetchone()[0]
+        experiment_id = self.cursor.fetchone()[0]
 
         return experiment_id
 
