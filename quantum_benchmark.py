@@ -271,7 +271,7 @@ class MappingAnalysis(object):
         self.connection.commit()
         if not self.cursor.fetchone()[0]:
             with open(CSV_BENCH_FILE, "r") as csvf:
-                dr = csv.DictReader(csv)
+                dr = csv.DictReader(csvf)
                 to_db = [(i['b'], i['s'], i['behaviour'],
                           i['q'], i['g']) for i in dr]
 
