@@ -46,6 +46,10 @@ import csv
 CURRENT_DIRECTORY = os.path.split(os.path.realpath(__file__))[0]
 SQL_FILE = os.path.join(CURRENT_DIRECTORY, "db_creation.sql")
 CSV_BENCH_FILE = os.path.join(CURRENT_DIRECTORY, "benchmarks_database.csv")
+H5_FILE = os.path.join(CURRENT_DIRECTORY, str(
+    datetime.now()).replace(" ", "_") + "_experiment_tomographies.h5")
+LOG_FILE = os.path.join(CURRENT_DIRECTORY, "log")
+
 
 PURE_OPT = 0
 SCHED_OPT = 1
@@ -201,7 +205,7 @@ class MappingAnalysis(object):
 
     '''Object that runs the error analysis of some benchmarks'''
 
-    def __init__(self, benchmarks, db_path, log_path, h5_path, init_type):
+    def __init__(self, benchmarks, db_path, init_type=ONE_STAT, log_path=LOG_FILE, h5_path=H5_FILE):
 
         self.connection = sqlite3.connect(db_path)
         self.benchmarks = benchmarks
