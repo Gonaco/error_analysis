@@ -1,6 +1,6 @@
 
 
-CREATE TABLE Benchmarks (
+CREATE TABLE IF NOT EXISTS Benchmarks (
        id INTEGER PRIMARY KEY AUTOINCREMENT,
        benchmark VARCHAR(100) NOT NULL,
        source VARCHAR(100) NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE Benchmarks (
 -- sqlite> .mode csv
 -- sqlite> .import test.csv foo
 
-CREATE TABLE Configurations (
+CREATE TABLE IF NOT EXISTS Configurations (
        id INTEGER PRIMARY KEY AUTOINCREMENT,
        conf_file VARCHAR(255) NOT NULL,
        scheduler VARCHAR(20) NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE Configurations (
        initial_placement VARCHAR(20) NOT NULL
 );
 
-CREATE TABLE HardwareBenchs (
+CREATE TABLE IF NOT EXISTS HardwareBenchs (
        id INTEGER PRIMARY KEY AUTOINCREMENT,
        benchmark INTEGER NOT NULL,
        configuration INTEGER NOT NULL,
@@ -40,16 +40,14 @@ CREATE TABLE HardwareBenchs (
        ON DELETE NO ACTION
 );
 
-CREATE TABLE Results (
+CREATE TABLE IF NOT EXISTS Results (
        id INTEGER PRIMARY KEY AUTOINCREMENT,
-       algorithm INT NOT NULL,
        prob_succs DOUBLE NOT NULL,
        mean_f DOUBLE NOT NULL,
-       q_vol INT NOT NULL,
-       exper_id INT NOT NULL
+       q_vol INT NOT NULL
        );
 
-CREATE TABLE Experiments (
+CREATE TABLE IF NOT EXISTS Experiments (
        id INTEGER PRIMARY KEY AUTOINCREMENT,
        date DATETIME NOT NULL,
        tom_mtrx_path VARCHAR(255) NOT NULL,
@@ -57,7 +55,7 @@ CREATE TABLE Experiments (
        log_path VARCHAR(255)
        );
 
-CREATE TABLE SimulationsInfo (
+CREATE TABLE IF NOT EXISTS SimulationsInfo (
        id INTEGER PRIMARY KEY AUTOINCREMENT,
        algorithm INT NOT NULL,       
        simulator VARCHAR(20) NOT NULL,
