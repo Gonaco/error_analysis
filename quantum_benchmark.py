@@ -201,7 +201,7 @@ class MappingAnalysis(object):
 
     '''Object that runs the error analysis of some benchmarks'''
 
-    def __init__(self, benchmarks, db_path, log_path, h5_path, output_dir_name, init_type):
+    def __init__(self, benchmarks, db_path, log_path, h5_path, init_type):
 
         self.connection = sqlite3.connect(db_path)
         self.benchmarks = benchmarks
@@ -261,7 +261,7 @@ class MappingAnalysis(object):
         '''Check wether the database exits or not and if it does not exist it creates it'''
 
         with open(SQL_FILE, "r") as sqlf:
-            self.cursorxecutescript(sqlf)
+            self.cursor.executescript(sqlf)
             self.db_fill_benchmarks()
 
     def db_fill_benchmarks(self):
@@ -349,7 +349,7 @@ class MappingAnalysis(object):
 
         self.cursor.execute(query)
 
-    def analyse(self, simulator, N_sim, err, t1, t2, meas_err):
+    def analyse(self, simulator, N_sim, err, t1=3500, t2=1500, meas_err=0.3):
 
         self.db_genesis()
 
