@@ -364,6 +364,9 @@ class MappingAnalysis(object):
 
                 for benchmark in self.benchmarks:
 
+                    benchmark.cqasm_mapped.N_exp = N_sim
+                    benchmark.quantumsim_mapped.N_exp = N_sim
+
                     if simulator:  # Quantumsim
                         benchmark.quantumsim_mapped.error_analysis(
                             self.init_type, err, t1, t2, meas_err)
