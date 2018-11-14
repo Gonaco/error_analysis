@@ -797,8 +797,8 @@ class _SimBench(object):
 
     '''Class for simulating the Benchmark'''
 
-    # success_registry = []  # Matrix storing the success
-    # fidelity_registry = []  # Matrix storing the fidelity
+    success_registry = []  # Matrix storing the success
+    fidelity_registry = []  # Matrix storing the fidelity
 
     def __init__(self, file_path, N_exp=1000, out_dir=""):
 
@@ -818,8 +818,8 @@ class _SimBench(object):
             self.N_swaps = -1
 
         self.N_exp = N_exp
-        self.success_registry = []  # Matrix storing the success
-        self.fidelity_registry = []  # Matrix storing the fidelity
+        # self.success_registry = []  # Matrix storing the success
+        # self.fidelity_registry = []  # Matrix storing the fidelity
         self.total_meas_err = 0
 
         if self.reader.isQasm():
