@@ -637,9 +637,9 @@ class _QASMReader(object):
 
     def algNameChecker(self, line):
 
-        correction = doubleNameChecker(line)
+        correction = self.doubleNameChecker(line)
 
-        return numberNameChecker(correction)
+        return self.numberNameChecker(correction)
 
     def doubleNameChecker(self, line):
 
