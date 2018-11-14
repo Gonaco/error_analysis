@@ -362,15 +362,18 @@ class MappingAnalysis(object):
 
             try:
 
-                for benchmark in self.benchmarks:
-
-                    benchmark.cqasm_mapped.N_exp = N_sim
-                    benchmark.quantumsim_mapped.N_exp = N_sim
+                for benchmark in self.benchmarks:                    
 
                     if simulator:  # Quantumsim
-                        benchmark.quantumsim_mapped.error_analysis(
+                        sim_bench = benchmark.getSimBench()
+                        sim_bench[4].N_exp= N_sim
+                        sim_bench[4].error_analysis(
                             self.init_type, err, t1, t2, meas_err)
+                        # benchmark.quantumsim_mapped.error_analysis(
+                        #     self.init_type, err, t1, t2, meas_err)
                     else:       # QX
+
+                        benchmark.cqasm_mapped.N_exp = N_sim                                            
                         benchmark.cqasm_mapped.error_analysis(
                             self.init_type, err)
 
@@ -797,9 +800,6 @@ class _SimBench(object):
 
     '''Class for simulating the Benchmark'''
 
-    success_registry = []  # Matrix storing the success
-    fidelity_registry = []  # Matrix storing the fidelity
-
     def __init__(self, file_path, N_exp=1000, out_dir=""):
 
         file_path = os.path.split(file_path)
@@ -809,17 +809,14 @@ class _SimBench(object):
 
         self.reader = _QASMReader(self.file_path)
 
-        try:
-            self.N_qubits = self.reader.N_qubits
-            self.N_gates = self.reader.N_gates
-            self.N_swaps = self.reader.N_swaps
-            self.depth = self.reader.depth
-        except AttributeError:
-            self.N_swaps = -1
+        self.N_qubits = self.reader.N_qubits
+        self.N_gates = self.reader.N_gates
+        self.N_swaps = self.reader.N_swaps
+        self.depth = self.reader.depth
 
         self.N_exp = N_exp
-        # self.success_registry = []  # Matrix storing the success
-        # self.fidelity_registry = []  # Matrix storing the fidelity
+        self.success_registry = []  # Matrix storing the success
+        self.fidelity_registry = []  # Matrix storing the fidelity
         self.total_meas_err = 0
 
         if self.reader.isQasm():
