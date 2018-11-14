@@ -567,51 +567,44 @@ class _QASMReader(object):
 
     # ------------ OLD STAFF
 
-    def check_cQasm(self, filename):
+    def check_cQasm(self):
 
-        print("\n\ncheck_cQasm {filename}\n".format(filename=filename))
+        print("\n\ncheck_cQasm {filename}\n".format(filename=self.file_path))
 
-        if not isQasm(filename):
+        if not self.isQasm(self.file_path):
 
             print(
                 "\nERROR. The file is not a QASM file. Please, use a cQASM file as input\n")
 
             return
 
-        backup = ""
         corrected = []
         biggest_number = 0
 
-        backup = self.data
+        # backup = self.data
 
-        for line in data:
+        for line in self.data:
 
-            line = algNameChecker(line)
+            line = self.algNameChecker(line)
 
-            line = parenthesisChecker(line)
+            line = self.parenthesisChecker(line)
 
-            line = rotationGatesChecker(line)
+            line = self.rotationGatesChecker(line)
 
-            biggest_number = bigQubitNum(line, biggest_number)
+            biggest_number = self.bigQubitNum(line, biggest_number)
 
             corrected.append(line)
 
-        corrected = versionChecker(corrected)
+        corrected = self.versionChecker(corrected)
 
-        try:
+        for idx, line in enumerate(corrected):
+            isLine = self.num_qubitsChecker(line, biggest_number+1)
+            if isLine:
+                corrected[idx] = isLine
+                break
 
-            for idx, line in enumerate(corrected):
-                isLine = num_qubitsChecker(line, biggest_number+1)
-                if isLine:
-                    corrected[idx] = isLine
-                    break
-
-            f.writelines(corrected)
-
-        except:
-
-            f.writelines(backup)
-            raise
+        self.data = corrected
+        self.save(self.path)
 
         return
 
@@ -950,7 +943,7 @@ class _SimBench(object):
                 qasm_f_path)
 
             error_file = qasm_f_path.replace(".qasm", "_error.qasm")
-            add_error_model(qasm_f_path, error_file, errprob)
+            self.reader.add_error_model(qasm_f_path, error_file, errprob)
 
             for i in range(N_exp):
 
@@ -999,7 +992,7 @@ class _SimBench(object):
 
         return q_state, measurement
 
-    def quantumsim_simulation(self, error, init_state, expected_measurement=np.array([]), expected_q_state=0, meas_error=0.03):
+    def quantumsim_simulation(self, error, init_state, expected_measurement=np.array([]), expected_q_state=0, t1=3500, t2=1500, meas_error=0.03):
 
         N_exp = self.N_exp
         N_qubits = self.N_qubits
