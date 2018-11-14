@@ -254,7 +254,7 @@ class MappingAnalysis(object):
         self.connection.commit()
         self.connection.close()
 
-    def db_final_query(self):
+    def db_final_query(self, experiment_id):
 
         self.cursor.execute("UPDATE Experiments SET fail = 0 WHERE id =" +
                             str(experiment_id)+";")
@@ -357,9 +357,9 @@ class MappingAnalysis(object):
 
         self.db_genesis()
 
-        with h5py.File(self.h5_path, "w") as h5f:
+        experiment_id = self.db_init_query()
 
-            experiment_id = self.db_init_query()
+        with h5py.File(self.h5_path, "w") as h5f:
 
             try:
 
@@ -382,7 +382,7 @@ class MappingAnalysis(object):
                 self.db_interruption_query()
                 raise
 
-        self.db_final_query()
+        self.db_final_query(experiment_id)
 
 
 class Benchmark(object):
@@ -816,8 +816,6 @@ class _SimBench(object):
         if self.reader.isQasm():
             # Initializing qasm copy
 
-            print("\n\t\tLoading cQASM")
-
             try:
                 self.reader.addinit()
                 self.reader.save(self.cp)
@@ -828,12 +826,10 @@ class _SimBench(object):
                     "\nThe Benchmark cannot be created\n")
                 raise
 
-            self.quantusim = False
+            self.quantumsim = False
 
         else:
             # Initializing quantumsim
-
-            print("\n\t\tLoading quantumsim")
 
             try:
                 qsim = importlib.util.spec_from_file_location(
@@ -849,7 +845,7 @@ class _SimBench(object):
                     "\nThe quantumsim file doesn't exist, so quantumsim cannot be used for simulating this benchmark")
                 raise
 
-            self.quantusim = True
+            self.quantumsim = True
 
         # atexit.register(delcopy, cp="."+qasm_file_path+"~")
         # atexit.register(delcopy, cp="."+qasm_file_path.replace(
