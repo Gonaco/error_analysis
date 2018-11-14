@@ -1124,4 +1124,4 @@ class _SimBench(object):
 
     def mean_success(self):
 
-        return np.mean(self.success_registry)
+        return np.mean(self.success_registry) if self.success_registry else -1
