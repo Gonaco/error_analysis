@@ -235,7 +235,7 @@ class MappingAnalysis(object):
         hw_id = self.db_insert_hwbench(benchmark, bench_id, config_id)
         result_id = self.db_insert_results(prob_succs, mean_f, q_vol)
         self.db_insert_simulations(hw_id, result_id, exper_id,
-                                   simulator, N_sim, err, t1, t2, meas_err, init_type)
+                                   sim_name, N_sim, err, t1, t2, meas_err, init_type)
 
     def db_init_query(self):
 
@@ -352,6 +352,32 @@ class MappingAnalysis(object):
             hwbench_id=hwbench_id, simulator=simulator, sim=N_sim, err=err, t1=t1, t2=t2, meas_err=meas_err, init_type=init_type, res_id=result_id, exper_id=exper_id)
 
         self.cursor.execute(query)
+
+    def db_read_hwbenchmarks(self):
+        '''Read the benchmarks with its exports based on its configurations'''
+
+        query = "SELECT Benchmarks.benchmark, source, behaviour, Benchmarks.N_qubits, Benchmarks.N_gates, conf_file, scheduler, mapper, initial_placement, HardwareBenchs.N_qubits, HardwareBenchs.N_gates, HardwareBenchs.N_swaps FROM HardwareBenchs LEFT JOIN Benchmarks ON HardwareBenchs.benchmark=Benchmarks.id LEFT JOIN Configurations ON configuration=Configurations.id;"
+        self.cursor.execute(query)
+        return self.cursor.fetchone()
+
+    def deb_read_simsinfo(self):
+
+        query = "SELECT HardwareBenchs.N_qubits, HardwareBenchs.N_gates, HardwareBenchs.N_swaps, simulator, N_sim, error_rate, t1, t2, meas_error, init_type, prob_succs, mean_f, q_vol, date, tom_mtrx_path, fail, log_path FROM SimulationsInfo LEFT JOIN HardwareBenchs ON algorithm=HardwareBenchs.id LEFT JOIN Results ON result=Results.id LEFT JOIN Experiments ON experiment=Experiments.id;"
+        self.cursor.execute(query)
+        return self.cursor.fetchone()
+
+    def db_read_main_info(self):
+        query = "SELECT Benchmarks.benchmark, Benchmarks.N_qubits, Benchmarks.N_gates, scheduler, mapper, initial_placement, HardwareBenchs.N_qubits, HardwareBenchs.N_gates, HardwareBenchs.N_swaps, simulator, N_sim, error_rate, t1, t2, meas_error, init_type, prob_succs, mean_f, q_vol, date, fail FROM SimulationsInfo LEFT JOIN HardwareBenchs ON algorithm=HardwareBenchs.id LEFT JOIN Results ON result=Results.id LEFT JOIN Experiments ON experiment=Experiments.id LEFT JOIN Benchmarks ON HardwareBenchs.benchmark=Benchmarks.id LEFT JOIN Configurations ON configuration=Configurations.id;"
+        self.cursor.execute(query)
+        return self.cursor.fetchone()
+        
+
+    def db_read_all(self):
+        '''Read all the values from the database'''
+
+        query = "SELECT Benchmarks.benchmark, source, behaviour, Benchmarks.N_qubits, Benchmarks.N_gates, conf_file, scheduler, mapper, initial_placement, HardwareBenchs.N_qubits, HardwareBenchs.N_gates, HardwareBenchs.N_swaps, simulator, N_sim, error_rate, t1, t2, meas_error, init_type, prob_succs, mean_f, q_vol, date, tom_mtrx_path, fail, log_path FROM SimulationsInfo LEFT JOIN HardwareBenchs ON algorithm=HardwareBenchs.id LEFT JOIN Results ON result=Results.id LEFT JOIN Experiments ON experiment=Experiments.id LEFT JOIN Benchmarks ON HardwareBenchs.benchmark=Benchmarks.id LEFT JOIN Configurations ON configuration=Configurations.id;"
+        self.cursor.execute(query)
+        return self.cursor.fetchone()
 
     def analyse(self, simulator, N_sim, err, t1=3500, t2=1500, meas_err=0.3):
 
