@@ -400,17 +400,21 @@ class MappingAnalysis(object):
                         sim_bench[4].N_exp = N_sim
                         sim_bench[4].error_analysis(
                             self.init_type, err, t1, t2, meas_err)
-                        # benchmark.quantumsim_mapped.error_analysis(
-                        #     self.init_type, err, t1, t2, meas_err)
+
+                        p_s = sim_bench[4].mean_success()
+                        mean_f = sim_bench[4].mean_fidelity()
+                        q_vol = sim_bench[4].q_vol()
+
                     else:       # QX
                         sim_bench = benchmark.getSimBench()
                         sim_bench[2].N_exp = N_sim
                         sim_bench[2].error_analysis(
                             self.init_type, err)
 
-                    p_s = benchmark.cqasm_mapped.mean_success()
-                    mean_f = benchmark.cqasm_mapped.mean_fidelity()
-                    q_vol = benchmark.cqasm_mapped.q_vol()
+                        p_s = sim_bench[2].mean_success()
+                        mean_f = sim_bench[2].mean_fidelity()
+                        q_vol = sim_bench[2].q_vol()
+                    
 
                     self.save_in_db(benchmark, simulator, N_sim, err, t1,
                                     t2, meas_err, p_s, mean_f, q_vol, experiment_id)
