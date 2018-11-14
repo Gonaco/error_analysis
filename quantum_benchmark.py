@@ -215,6 +215,10 @@ class MappingAnalysis(object):
         self.cursor = self.connection.cursor()
         self.init_type = init_type
 
+    def __exit__(self):
+
+        self.connection.close()
+
     def save_in_db(self, benchmark, simulator, N_sim, err, t1, t2, meas_err, prob_succs, mean_f, q_vol, exper_id):
 
         if self.init_type == ALL_STAT:
@@ -259,7 +263,7 @@ class MappingAnalysis(object):
         self.cursor.execute("UPDATE Experiments SET fail = 0 WHERE id =" +
                             str(experiment_id)+";")
         self.connection.commit()
-        self.connection.close()
+        # self.connection.close()
 
     def db_genesis(self):
         '''Check wether the database exits or not and if it does not exist it creates it'''
@@ -360,7 +364,7 @@ class MappingAnalysis(object):
         self.cursor.execute(query)
         return self.cursor.fetchone()
 
-    def deb_read_simsinfo(self):
+    def db_read_sim_info(self):
 
         query = "SELECT HardwareBenchs.N_qubits, HardwareBenchs.N_gates, HardwareBenchs.N_swaps, simulator, N_sim, error_rate, t1, t2, meas_error, init_type, prob_succs, mean_f, q_vol, date, tom_mtrx_path, fail, log_path FROM SimulationsInfo LEFT JOIN HardwareBenchs ON algorithm=HardwareBenchs.id LEFT JOIN Results ON result=Results.id LEFT JOIN Experiments ON experiment=Experiments.id;"
         self.cursor.execute(query)
