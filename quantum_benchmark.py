@@ -48,7 +48,8 @@ SQL_FILE = os.path.join(CURRENT_DIRECTORY, "db_creation.sql")
 CSV_BENCH_FILE = os.path.join(CURRENT_DIRECTORY, "benchmarks_database.csv")
 H5_FILE = os.path.join(CURRENT_DIRECTORY, str(
     datetime.now()).replace(" ", "_") + "_experiment_tomographies.h5")
-LOG_FILE = os.path.join(CURRENT_DIRECTORY, "log")
+# LOG_FILE = os.path.join(CURRENT_DIRECTORY, "log")
+LOG_FILE = "NO"
 
 
 PURE_OPT = 0
