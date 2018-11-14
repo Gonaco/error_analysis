@@ -286,7 +286,7 @@ class MappingAnalysis(object):
     def db_bench_id(self, benchmark):
         '''Search for the benchmark id from a name'''
 
-        str_form = "SELECT id FROM Benchmarks ON benchmark = '{name}'"
+        str_form = "SELECT id FROM Benchmarks WHERE benchmark = '{name}'"
         query = str_form.format(name=benchmark.name)
         self.cursor.execute(query)
         self.connection.commit()
