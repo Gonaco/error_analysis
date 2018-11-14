@@ -816,6 +816,8 @@ class _SimBench(object):
         if self.reader.isQasm():
             # Initializing qasm copy
 
+            print("\n\t\tLoading cQASM")
+
             try:
                 self.reader.addinit()
                 self.reader.save(self.cp)
@@ -830,6 +832,8 @@ class _SimBench(object):
 
         else:
             # Initializing quantumsim
+
+            print("\n\t\tLoading quantumsim")
 
             try:
                 qsim = importlib.util.spec_from_file_location(
