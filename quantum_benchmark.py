@@ -232,8 +232,7 @@ class MappingAnalysis(object):
         config_id = self.db_insert_config(benchmark)
         bench_id = self.db_bench_id(benchmark)
         hw_id = self.db_insert_hwbench(benchmark, bench_id, config_id)
-        result_id = self.db_insert_results(
-            benchmark, prob_succs, mean_f, q_vol)
+        result_id = self.db_insert_results(prob_succs, mean_f, q_vol)
         self.db_insert_simulations(hw_id, result_id, exper_id,
                                    simulator, N_sim, err, t1, t2, meas_err, init_type)
 
