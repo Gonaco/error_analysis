@@ -455,6 +455,17 @@ class Benchmark(object):
         else:
             return [self.cqasm_pure.depth, self.cqasm_sched.depth, self.cqasm_mapped.depth]
 
+    def getSimRegistries(self, option=-1):
+
+        if option == PURE_OPT:
+            return self.cqasm_pure.fidelity_registry, self.cqasm_pure.success_registry
+        elif option == SCHED_OPT:
+            return self.cqasm_sched.fidelity_registry, self.cqasm_sched.success_registry
+        elif option == MAPP_OPT:
+            return self.cqasm_mapped.fidelity_registry, self.cqasm_mapped.success_registry
+        else:
+            return option
+
     def getAll(self):
 
         return self.name, self.cqasm_mapped.N_swaps, self.cqasm_mapped.depth, self.N_exp, self.ql_descr.scheduler, self.ql_descr.mapper, self.ql_descr.init_place, self.ql_descr.config_file_path
@@ -782,6 +793,9 @@ class _DescripBench(object):
 class _SimBench(object):
 
     '''Class for simulating the Benchmark'''
+
+    # success_registry = []  # Matrix storing the success
+    # fidelity_registry = []  # Matrix storing the fidelity
 
     def __init__(self, file_path, N_exp=1000, out_dir=""):
 
