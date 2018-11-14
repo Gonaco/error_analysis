@@ -367,15 +367,15 @@ class MappingAnalysis(object):
 
                     if simulator:  # Quantumsim
                         sim_bench = benchmark.getSimBench()
-                        sim_bench[4].N_exp= N_sim
+                        sim_bench[4].N_exp = N_sim
                         sim_bench[4].error_analysis(
                             self.init_type, err, t1, t2, meas_err)
                         # benchmark.quantumsim_mapped.error_analysis(
                         #     self.init_type, err, t1, t2, meas_err)
                     else:       # QX
-
-                        benchmark.cqasm_mapped.N_exp = N_sim                                            
-                        benchmark.cqasm_mapped.error_analysis(
+                        sim_bench = benchmark.getSimBench()
+                        sim_bench[2].N_exp = N_sim
+                        sim_bench[2].error_analysis(
                             self.init_type, err)
 
                     p_s = benchmark.cqasm_mapped.mean_success()
