@@ -818,6 +818,10 @@ class _DescripBench(object):
             scheduler = "ASAP"
 
         try:
+            if os.path.isdir(self.output_dir):
+                print(
+                    "\n[WARNING] Directory already exists. The files will be overwritten")
+
             self.openql_comp.circuit(
                 self.config_file_path, scheduler, uniform_sched, self.mapper, self.init_place, self.output_dir)
 
