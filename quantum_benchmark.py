@@ -1070,9 +1070,10 @@ class _SimBench(object):
 
         else:
 
-                        # CIRCUIT DECLARATION
+            # CIRCUIT DECLARATION
             c = self.qsimc.circuit_function(
-                3500, 1500, error, meas_error, init_state)
+                t1, t2, error, meas_error, init_state)
+
             c.add_waiting_gates()
 
             for i in range(N_exp):
