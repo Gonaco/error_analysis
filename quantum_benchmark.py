@@ -434,7 +434,7 @@ class Benchmark(object):
             openql_file_path, config_file_path, scheduler, mapper, initial_placement, output_dir_name)
 
         self.cqasm_pure, self.cqasm_sched, self.cqasm_mapped, self.quantumsim_sched, self.quantumsim_mapped = self.ql_descr.compile(
-            N_exp)
+            self.N_exp)
 
     def getConfig(self):
         return self.ql_descr.config_file_path
