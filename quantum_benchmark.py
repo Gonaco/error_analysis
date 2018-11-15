@@ -821,6 +821,8 @@ class _DescripBench(object):
             if os.path.isdir(self.output_dir):
                 print(
                     "\n[WARNING] Directory already exists. The files will be overwritten")
+            else:
+                os.makedirs(self.output_dir)
 
             self.openql_comp.circuit(
                 self.config_file_path, scheduler, uniform_sched, self.mapper, self.init_place, self.output_dir)
