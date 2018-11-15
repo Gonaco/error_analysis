@@ -374,7 +374,6 @@ class MappingAnalysis(object):
         query = "SELECT Benchmarks.benchmark, Benchmarks.N_qubits, Benchmarks.N_gates, scheduler, mapper, initial_placement, HardwareBenchs.N_qubits, HardwareBenchs.N_gates, HardwareBenchs.N_swaps, simulator, N_sim, error_rate, t1, t2, meas_error, init_type, prob_succs, mean_f, q_vol, date, fail FROM SimulationsInfo LEFT JOIN HardwareBenchs ON algorithm=HardwareBenchs.id LEFT JOIN Results ON result=Results.id LEFT JOIN Experiments ON experiment=Experiments.id LEFT JOIN Benchmarks ON HardwareBenchs.benchmark=Benchmarks.id LEFT JOIN Configurations ON configuration=Configurations.id;"
         self.cursor.execute(query)
         return self.cursor.fetchone()
-        
 
     def db_read_all(self):
         '''Read all the values from the database'''
@@ -393,7 +392,7 @@ class MappingAnalysis(object):
 
             try:
 
-                for benchmark in self.benchmarks:                    
+                for benchmark in self.benchmarks:
 
                     if simulator:  # Quantumsim
                         sim_bench = benchmark.getSimBench()
@@ -414,7 +413,6 @@ class MappingAnalysis(object):
                         p_s = sim_bench[2].mean_success()
                         mean_f = sim_bench[2].mean_fidelity()
                         q_vol = sim_bench[2].q_vol()
-                    
 
                     self.save_in_db(benchmark, simulator, N_sim, err, t1,
                                     t2, meas_err, p_s, mean_f, q_vol, experiment_id)
@@ -428,10 +426,10 @@ class MappingAnalysis(object):
 class Benchmark(object):
     '''The Benchmark class describes the benchmark and contains all its desciptions (OpenQL, cQASM and quantumsim)'''
 
-    def __init__(self, openql_file_path, config_file_path, scheduler="ALAP", mapper="minextendrc", initial_placement="no", output_dir_name="benchmarks_exports", N_exp=1000):
+    def __init__(self, openql_file_path, config_file_path, scheduler="ALAP", mapper="minextendrc", initial_placement="no", output_dir_name="benchmarks_exports"):
 
         self.name = os.path.split(openql_file_path)[1].replace(".py", "")
-        self.N_exp = N_exp
+        self.N_exp = 1000
         self.ql_descr = _DescripBench(
             openql_file_path, config_file_path, scheduler, mapper, initial_placement, output_dir_name)
 
@@ -1075,7 +1073,7 @@ class _SimBench(object):
                         # CIRCUIT DECLARATION
             c = self.qsimc.circuit_function(
                 3500, 1500, error, meas_error, init_state)
-            # c = self.qsimc.circuit_function(error, meas_error, init_state)
+            c.add_waiting_gates()
 
             for i in range(N_exp):
 
