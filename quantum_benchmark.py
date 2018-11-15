@@ -1047,12 +1047,13 @@ class _SimBench(object):
     def quantumsim_simulation(self, error, init_state, expected_measurement=np.array([]), expected_q_state=0, t1=3500, t2=1500, meas_error=0.03):
 
         N_exp = self.N_exp
-        N_qubits = self.N_qubits
 
         if expected_measurement.size == 0:
 
             # CIRCUIT DECLARATION
             c = self.qsimc.circuit_function(np.inf, np.inf, 0, 0, init_state)
+
+            c.add_waiting_gates()
 
             # SIMULATING
             sdm = sparsedm.SparseDM(c.get_qubit_names())
@@ -1060,10 +1061,6 @@ class _SimBench(object):
             measurements = []
 
             c.apply_to(sdm)
-
-            # for q in range(N_qubits):
-            #     if sdm.classical["m"+str(q)]:
-            #         measurements.append(sdm.classical["m"+str(q)])
 
             for q in sdm.classical:
                 if "m" in str(q):
@@ -1089,10 +1086,6 @@ class _SimBench(object):
                 c.apply_to(sdm)
 
                 measurements = []
-
-                # for q in range(N_qubits):
-                #     if sdm.classical["m"+str(q)]:
-                #         measurements.append(sdm.classical["m"+str(q)])
 
                 for q in sdm.classical:
                     if "m" in str(q):
