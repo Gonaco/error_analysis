@@ -1054,6 +1054,7 @@ class _SimBench(object):
             c = self.qsimc.circuit_function(np.inf, np.inf, 0, 0, init_state)
 
             c.add_waiting_gates()
+            c.order()
 
             # SIMULATING
             sdm = sparsedm.SparseDM(c.get_qubit_names())
@@ -1078,6 +1079,7 @@ class _SimBench(object):
                 t1, t2, error, meas_error, init_state)
 
             c.add_waiting_gates()
+            c.order()
 
             for i in range(N_exp):
 
