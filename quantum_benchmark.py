@@ -1141,7 +1141,7 @@ class _SimBench(object):
 
         f = -1
 
-        if expected.ndim > 1:  # and actual.ndim > 1:?
+        if expected.ndim > 1:
             # Super hard calculation.
 
             print("Expected quantum mixed state detected.")
@@ -1149,10 +1149,12 @@ class _SimBench(object):
             rho = np.sqrt(expected)
             sigma = actual[:expected.shape[1], :expected.shape[0]]
 
-            if expected.shape == (1, 1):
-                f = np.sqrt(np.vdot(rho, np.vdot(sigma, rho)))
-            else:
-                f = np.trace(np.sqrt(np.vdot(rho, np.vdot(sigma, rho))))
+            # if expected.shape == (1, 1):
+            #     f = np.sqrt(np.dot(rho, np.dot(sigma, rho)))
+            # else:
+            #     f = np.trace(np.sqrt(np.dot(rho, np.dot(sigma, rho))))
+
+            f = np.trace(np.sqrt(np.dot(rho, np.dot(sigma, rho))))
 
         elif actual.ndim > 1:
             # Hard calculation
