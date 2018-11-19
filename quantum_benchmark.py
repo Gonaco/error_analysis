@@ -1147,7 +1147,7 @@ class _SimBench(object):
             print("Expected quantum mixed state detected.")
 
             rho = np.sqrt(expected)
-            f = np.trace(np.sqrt(rho*actual*rho))
+            f = np.trace(np.sqrt(np.vdot(rho, np.vdot(actual, rho))))
 
         elif actual.ndim > 1:
             # Hard calculation
