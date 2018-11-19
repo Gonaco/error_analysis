@@ -1068,7 +1068,8 @@ class _SimBench(object):
                     measurements.append(sdm.classical[str(q)])
 
             measurement = np.array(measurements, dtype=float)
-            expected_q_state = sdm.full_dm.dm.ravel()
+            # expected_q_state = sdm.full_dm.dm.ravel()
+            expected_q_state = sdm.full_dm.to_array()
 
             return measurement, expected_q_state
 
@@ -1099,7 +1100,7 @@ class _SimBench(object):
                 print("Actual Measurement:")
                 print(measurement)
 
-                q_state = sdm.full_dm.to_array().round(3)
+                q_state = sdm.full_dm.to_array()
 
                 exp_m_int = int(''.join(str(int(e))
                                         for e in expected_measurement.tolist()), 2)
