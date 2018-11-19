@@ -1069,7 +1069,7 @@ class _SimBench(object):
 
             measurement = np.array(measurements, dtype=float)
             # expected_q_state = sdm.full_dm.dm.ravel()
-            expected_q_state = sdm.full_dm.to_array()
+            expected_q_state = sdm.full_dm.to_array().round(3)
 
             return measurement, expected_q_state
 
@@ -1100,7 +1100,7 @@ class _SimBench(object):
                 print("Actual Measurement:")
                 print(measurement)
 
-                q_state = sdm.full_dm.to_array()
+                q_state = sdm.full_dm.to_array().round(3)
 
                 exp_m_int = int(''.join(str(int(e))
                                         for e in expected_measurement.tolist()), 2)
@@ -1150,7 +1150,7 @@ class _SimBench(object):
         elif actual.ndim > 1:
             # Hard calculation
 
-            f = np.sqrt(np.vdot(expected, np.dot(actual, expected)))
+            f = np.sqrt(np.vdot(expected, np.vdot(actual, expected)))
 
         else:
             # Simple calculation
