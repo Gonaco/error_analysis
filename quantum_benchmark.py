@@ -1099,7 +1099,7 @@ class _SimBench(object):
                 print("Actual Measurement:")
                 print(measurement)
 
-                q_state = sdm.full_dm.dm.ravel()
+                q_state = sdm.full_dm.to_array().round(3)
 
                 exp_m_int = int(''.join(str(int(e))
                                         for e in expected_measurement.tolist()), 2)
@@ -1109,7 +1109,7 @@ class _SimBench(object):
                                        m_int] = self.tomography_matrix[exp_m_int, m_int] + 1/N_exp
 
                 self.fidelity_registry.append(
-                    np.dot(expected_q_state, q_state))
+                    self.fidelity(expected_q_state, q_state))
 
                 self.success_registry.append(1 if np.array_equal(
                     measurement, expected_measurement) else 0)
@@ -1138,11 +1138,13 @@ class _SimBench(object):
 
         f = -1
 
-        if expected.ndim > 1:
+        if expected.ndim > 1:  # and actual.ndim > 1:?
             # Super hard calculation.
 
             print("Expected quantum mixed state detected.")
-            print("I'm not ready for this (T.T)")
+
+            rho = np.sqrt(expected)
+            f = np.trace(np.sqrt(rho*actual*rho))
 
         elif actual.ndim > 1:
             # Hard calculation
