@@ -1161,7 +1161,7 @@ class _SimBench(object):
             print("Error in the input dimensions. Fidelity not calculated")
             return
 
-        return np.around(f, decimals=5)
+        return np.around(f.real, decimals=5)
 
     # depth=0 is just for now, till I'm able to extract the depth of the benchmark
     def q_vol(self):
