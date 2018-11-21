@@ -841,7 +841,7 @@ class _SimBench(object):
 
     def __init__(self, file_path, N_exp=1000, out_dir=""):
 
-        file_path = os.path.split(file_path)
+        file_path = os.path.split(file_path.replace("-", "_"))
         self.file_path = os.path.join(file_path[0], out_dir, file_path[1])
         self.cp = os.path.join(
             file_path[0], out_dir, "."+file_path[1]+"~")
