@@ -919,6 +919,7 @@ class _SimBench(object):
         """
         """
 
+        t0 = time.time()
         print("############ [Error Analysis] " +
               self.file_path+" ############")
 
@@ -971,6 +972,9 @@ class _SimBench(object):
         else:
 
             print("\nError. The initial state is missing or is not 0 (all possible inputs), 1 (superosition state) or 2 (special superposition state)")
+
+        print("\n\nError analysis time (s):\n")
+        print(time.time() - t0)
 
     def draw_error_analysis(self):
         try:
