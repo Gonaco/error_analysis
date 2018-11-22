@@ -3,6 +3,7 @@ import os
 import atexit
 import re
 import importlib.util
+import time
 
 
 # Regular Expresion for extracting quantum state
@@ -432,9 +433,11 @@ class Benchmark(object):
         self.N_exp = 1000
         self.ql_descr = _DescripBench(
             openql_file_path, config_file_path, scheduler, mapper, initial_placement, output_dir_name)
+        t0 = time.time()
 
         self.cqasm_pure, self.cqasm_sched, self.cqasm_mapped, self.quantumsim_sched, self.quantumsim_mapped = self.ql_descr.compile(
             self.N_exp)
+        self.comp_t = time.time() - t0
 
     def getConfig(self):
         return self.ql_descr.config_file_path
@@ -508,6 +511,10 @@ class Benchmark(object):
     def getAll(self):
 
         return self.name, self.cqasm_mapped.N_swaps, self.cqasm_mapped.depth, self.N_exp, self.ql_descr.scheduler, self.ql_descr.mapper, self.ql_descr.init_place, self.ql_descr.config_file_path
+
+    def getComp_t(self):
+
+        return self.comp_t
 
 
 class _QASMReader(object):
