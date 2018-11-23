@@ -220,7 +220,7 @@ class MappingAnalysis(object):
 
         self.connection.close()
 
-    def save_in_db(self, benchmark, simulator, N_sim, err, t1, t2, meas_err, prob_succs, mean_f, q_vol, exper_id):
+    def save_in_db(self, benchmark, simulator, N_sim, err, t1, t2, meas_err, prob_succs, mean_f, std_f, q_vol, exper_id):
 
         if self.init_type == ALL_STAT:
             init_type = "all_states"
@@ -238,7 +238,7 @@ class MappingAnalysis(object):
         config_id = self.db_insert_config(benchmark)
         bench_id = self.db_bench_id(benchmark)
         hw_id = self.db_insert_hwbench(benchmark, bench_id, config_id)
-        result_id = self.db_insert_results(prob_succs, mean_f, q_vol)
+        result_id = self.db_insert_results(prob_succs, mean_f, std_f, q_vol)
         self.db_insert_simulations(hw_id, result_id, exper_id,
                                    sim_name, N_sim, err, t1, t2, meas_err, init_type)
 
@@ -270,6 +270,7 @@ class MappingAnalysis(object):
         '''Check wether the database exits or not and if it does not exist it creates it'''
 
         with open(SQL_FILE, "r") as sqlf:
+            x
             self.cursor.executescript(sqlf.read())
             self.db_fill_benchmarks()
 
@@ -317,11 +318,11 @@ class MappingAnalysis(object):
 
         return self.cursor.fetchone()[0]
 
-    def db_insert_results(self, p_s, f, q_vol):
+    def db_insert_results(self, p_s, f, std_f, q_vol):
         '''Insert results in the database'''
 
-        str_form = "INSERT INTO Results (prob_succs, mean_f, q_vol) VALUES ({p_s},{mean_f},{q_vol})"
-        query = str_form.format(p_s=p_s, mean_f=f, q_vol=q_vol)
+        str_form = "INSERT INTO Results (prob_succs, mean_f, std_f, q_vol) VALUES ({p_s},{mean_f},{std_f},{q_vol})"
+        query = str_form.format(p_s=p_s, mean_f=f, std_f=std_f, q_vol=q_vol)
 
         self.cursor.execute(query)
 
@@ -367,19 +368,19 @@ class MappingAnalysis(object):
 
     def db_read_sim_info(self):
 
-        query = "SELECT HardwareBenchs.N_qubits, HardwareBenchs.N_gates, HardwareBenchs.N_swaps, depth, simulator, N_sim, error_rate, t1, t2, meas_error, init_type, prob_succs, mean_f, q_vol, date, tom_mtrx_path, fail, log_path FROM SimulationsInfo LEFT JOIN HardwareBenchs ON algorithm=HardwareBenchs.id LEFT JOIN Results ON result=Results.id LEFT JOIN Experiments ON experiment=Experiments.id;"
+        query = "SELECT HardwareBenchs.N_qubits, HardwareBenchs.N_gates, HardwareBenchs.N_swaps, depth, simulator, N_sim, error_rate, t1, t2, meas_error, init_type, prob_succs, mean_f, std_f, q_vol, date, tom_mtrx_path, fail, log_path FROM SimulationsInfo LEFT JOIN HardwareBenchs ON algorithm=HardwareBenchs.id LEFT JOIN Results ON result=Results.id LEFT JOIN Experiments ON experiment=Experiments.id;"
         self.cursor.execute(query)
         return self.cursor.fetchone()
 
     def db_read_main_info(self):
-        query = "SELECT Benchmarks.benchmark, Benchmarks.N_qubits, Benchmarks.N_gates, scheduler, mapper, initial_placement, HardwareBenchs.N_qubits, HardwareBenchs.N_gates, HardwareBenchs.N_swaps, depth, simulator, N_sim, error_rate, t1, t2, meas_error, init_type, prob_succs, mean_f, q_vol, date, fail FROM SimulationsInfo LEFT JOIN HardwareBenchs ON algorithm=HardwareBenchs.id LEFT JOIN Results ON result=Results.id LEFT JOIN Experiments ON experiment=Experiments.id LEFT JOIN Benchmarks ON HardwareBenchs.benchmark=Benchmarks.id LEFT JOIN Configurations ON configuration=Configurations.id;"
+        query = "SELECT Benchmarks.benchmark, Benchmarks.N_qubits, Benchmarks.N_gates, scheduler, mapper, initial_placement, HardwareBenchs.N_qubits, HardwareBenchs.N_gates, HardwareBenchs.N_swaps, depth, simulator, N_sim, error_rate, t1, t2, meas_error, init_type, prob_succs, mean_f, std_f, q_vol, date, fail FROM SimulationsInfo LEFT JOIN HardwareBenchs ON algorithm=HardwareBenchs.id LEFT JOIN Results ON result=Results.id LEFT JOIN Experiments ON experiment=Experiments.id LEFT JOIN Benchmarks ON HardwareBenchs.benchmark=Benchmarks.id LEFT JOIN Configurations ON configuration=Configurations.id;"
         self.cursor.execute(query)
         return self.cursor.fetchone()
 
     def db_read_all(self):
         '''Read all the values from the database'''
 
-        query = "SELECT Benchmarks.benchmark, source, behaviour, Benchmarks.N_qubits, Benchmarks.N_gates, conf_file, scheduler, mapper, initial_placement, HardwareBenchs.N_qubits, HardwareBenchs.N_gates, HardwareBenchs.N_swaps, depth, simulator, N_sim, error_rate, t1, t2, meas_error, init_type, prob_succs, mean_f, q_vol, date, tom_mtrx_path, fail, log_path FROM SimulationsInfo LEFT JOIN HardwareBenchs ON algorithm=HardwareBenchs.id LEFT JOIN Results ON result=Results.id LEFT JOIN Experiments ON experiment=Experiments.id LEFT JOIN Benchmarks ON HardwareBenchs.benchmark=Benchmarks.id LEFT JOIN Configurations ON configuration=Configurations.id;"
+        query = "SELECT Benchmarks.benchmark, source, behaviour, Benchmarks.N_qubits, Benchmarks.N_gates, conf_file, scheduler, mapper, initial_placement, HardwareBenchs.N_qubits, HardwareBenchs.N_gates, HardwareBenchs.N_swaps, depth, simulator, N_sim, error_rate, t1, t2, meas_error, init_type, prob_succs, mean_f, std_f, q_vol, date, tom_mtrx_path, fail, log_path FROM SimulationsInfo LEFT JOIN HardwareBenchs ON algorithm=HardwareBenchs.id LEFT JOIN Results ON result=Results.id LEFT JOIN Experiments ON experiment=Experiments.id LEFT JOIN Benchmarks ON HardwareBenchs.benchmark=Benchmarks.id LEFT JOIN Configurations ON configuration=Configurations.id;"
         self.cursor.execute(query)
         return self.cursor.fetchone()
 
@@ -403,6 +404,7 @@ class MappingAnalysis(object):
 
                         p_s = sim_bench[4].mean_success()
                         mean_f = sim_bench[4].mean_fidelity()
+                        std_f = sim_bench[4].std_fidelity()
                         q_vol = sim_bench[4].q_vol()
 
                     else:       # QX
@@ -413,10 +415,11 @@ class MappingAnalysis(object):
 
                         p_s = sim_bench[2].mean_success()
                         mean_f = sim_bench[2].mean_fidelity()
+                        std_f = sim_bench[2].std_fidelity()
                         q_vol = sim_bench[2].q_vol()
 
                     self.save_in_db(benchmark, simulator, N_sim, err, t1,
-                                    t2, meas_err, p_s, mean_f, q_vol, experiment_id)
+                                    t2, meas_err, p_s, mean_f, std_f, q_vol, experiment_id)
             except:
                 self.db_interruption_query()
                 raise
@@ -1188,6 +1191,10 @@ class _SimBench(object):
     def mean_fidelity(self):
 
         return np.mean(self.fidelity_registry) if self.fidelity_registry else -1
+
+    def std_fidelity(self):
+
+        return np.std(self.fidelity_registry) if self.fidelity_registry else -1
 
     def mean_success(self):
 

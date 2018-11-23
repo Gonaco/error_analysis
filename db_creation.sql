@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS Results (
        id INTEGER PRIMARY KEY AUTOINCREMENT,
        prob_succs DOUBLE NOT NULL,
        mean_f DOUBLE NOT NULL,
+       std_f DOUBLE NOT NULL,
        q_vol INT NOT NULL
        );
 
