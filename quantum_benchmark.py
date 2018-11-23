@@ -270,7 +270,6 @@ class MappingAnalysis(object):
         '''Check wether the database exits or not and if it does not exist it creates it'''
 
         with open(SQL_FILE, "r") as sqlf:
-            x
             self.cursor.executescript(sqlf.read())
             self.db_fill_benchmarks()
 
@@ -994,12 +993,16 @@ class _SimBench(object):
 
         N_exp = self.N_exp
         qasm_f_path = self.cp
+        t0 = time.time()
 
         if self.quantumsim:          # TODO
             # Quantumsim will be used as simulator
 
             expected_measurement, expected_q_state = self.quantumsim_simulation(
                 errprob, initial_state)
+
+            print("\n\n\t\Simulation time (s):\n")
+            print(time.time() - t0)
 
             return self.quantumsim_simulation(errprob, initial_state, expected_measurement, expected_q_state, t1, t2, meas_error)
 
@@ -1036,6 +1039,9 @@ class _SimBench(object):
                 meas_errors = np.array(self.fidelity_registry) - \
                     np.array(self.success_registry)
                 self.total_meas_err = np.count_nonzero(meas_errors != 0)
+
+            print("\n\n\t\Simulation time (s):\n")
+            print(time.time() - t0)
 
             return self.probability_of_success()
 

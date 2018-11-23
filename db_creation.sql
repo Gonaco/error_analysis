@@ -45,7 +45,8 @@ CREATE TABLE IF NOT EXISTS Results (
        prob_succs DOUBLE NOT NULL,
        mean_f DOUBLE NOT NULL,
        std_f DOUBLE NOT NULL,
-       q_vol INT NOT NULL
+       q_vol INT NOT NULL-- ,
+       -- map_t DOUBLE NOT NULL
        );
 
 CREATE TABLE IF NOT EXISTS Experiments (
