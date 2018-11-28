@@ -429,17 +429,26 @@ class MappingAnalysis(object):
 class Benchmark(object):
     '''The Benchmark class describes the benchmark and contains all its desciptions (OpenQL, cQASM and quantumsim)'''
 
-    def __init__(self, openql_file_path, config_file_path, output_dir_name, scheduler="ALAP", mapper="minextendrc", initial_placement="no"):
+    def __init__(self, openql_file_path, config_file_path, output_dir_name, scheduler="ALAP", mapper="minextendrc", initial_placement="no", comp=True):
 
         self.name = os.path.split(openql_file_path)[1].replace(".py", "")
         self.N_exp = 1000
         self.ql_descr = _DescripBench(
             openql_file_path, config_file_path, scheduler, mapper, initial_placement, output_dir_name)
-        t0 = time.time()
 
-        self.cqasm_pure, self.cqasm_sched, self.cqasm_mapped, self.quantumsim_sched, self.quantumsim_mapped = self.ql_descr.compile(
-            self.N_exp)
-        self.comp_t = time.time() - t0
+        if comp:
+            t0 = time.time()
+            self.cqasm_pure, self.cqasm_sched, self.cqasm_mapped, self.quantumsim_sched, self.quantumsim_mapped = self.ql_descr.compile(
+                self.N_exp)
+            self.comp_t = time.time() - t0
+
+    def load(self, cqasm_pure, cqasm_sched, cqasm_mapped, quantumsim_sched, quantumsim_mapped):
+
+        self.cqasm_pure = cqasm_pure
+        self.cqasm_sched = cqasm_sched
+        self.cqasm_mapped = cqasm_mapped
+        self.quantumsim_sched = quantumsim_sched
+        self.quantumsim_mapped = quantumsim_mapped
 
     def getConfig(self):
         return self.ql_descr.config_file_path
