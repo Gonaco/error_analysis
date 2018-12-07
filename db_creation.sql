@@ -9,13 +9,6 @@ CREATE TABLE IF NOT EXISTS Benchmarks (
        N_gates INT NOT NULL
 );
 
--- LOAD BENCHMARKS
-
--- sqlite> .mode csv
--- sqlite> .import test.csv foo
-.mode csv
-.import benchmarks_database.csv Benchmarks
-
 CREATE TABLE IF NOT EXISTS Configurations (
        id INTEGER PRIMARY KEY AUTOINCREMENT,
        conf_file VARCHAR(255) NOT NULL,
