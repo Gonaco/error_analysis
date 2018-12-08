@@ -431,7 +431,8 @@ class Benchmark(object):
 
     def __init__(self, openql_file_path, config_file_path, output_dir_name, scheduler="ALAP", mapper="minextendrc", initial_placement="no", comp=True):
 
-        self.name = os.path.split(openql_file_path)[1].replace(".py", "")
+        self.name = os.path.split(openql_file_path)[
+            1].replace(".py", "").replace("-", "_")
         self.N_exp = 1000
         self.ql_descr = _DescripBench(
             openql_file_path, config_file_path, scheduler, mapper, initial_placement, output_dir_name)
