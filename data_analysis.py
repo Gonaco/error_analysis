@@ -33,7 +33,7 @@ def extract_db_main_info(db_path):
 for i in range(4):
 
     db_path = "~/qbench/mapping_benchmarks/simple_benchs_smart_fast/simple_benchs_smart_fast{i}.db".format(
-        i=i)
+        i=i+1)
 
     bench_info = extract_db_main_info(db_path)
     print(bench_info)
