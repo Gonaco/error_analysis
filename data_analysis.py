@@ -27,9 +27,10 @@ def store_db_main_info(N_gates, N_swaps, depth, prob_succs, mean_f, q_vol):
     return data_frame
 
 
-# def plot_relation(data):
-#     plt.scatter(data1, data2)
-#     plt.savefig("")
+def plot_relation(y, x, save_name):
+    plt.scatter(x, y)
+    plt.savefig(save_name)
+
 
 def clean_data_frame(data_frame):
     # I use Quantum Volume as the harder variable to be randomly repeated
@@ -66,6 +67,7 @@ print("\n\t-- Correlation between Fidelity and:")
 
 print("\n- # of Gates:")
 f_g_corr = pearsonr(df_cl.mean_f, df_cl.N_gates)
+plot_relation(df_cl.mean_f, df_cl.N_gates, "f_g")
 print(f_g_corr)
 
 print("\n- # of Swaps:")
