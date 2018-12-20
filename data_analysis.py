@@ -30,6 +30,7 @@ def store_db_main_info(N_gates, N_swaps, depth, prob_succs, mean_f, q_vol):
 def plot_relation(y, x, save_name):
     plt.scatter(x, y)
     plt.savefig(save_name)
+    plt.clf()
 
 
 def clean_data_frame(data_frame):
