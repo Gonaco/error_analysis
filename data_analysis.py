@@ -62,6 +62,42 @@ data_frame = store_db_main_info(
     N_gates, N_swaps, depth, prob_succs, mean_f, q_vol)
 df_cl = clean_data_frame(data_frame)
 
+print("\n\t-- Correlation between Fidelity and:")
+
+print("\n- Fidelity:")
+f_f_corr = pearsonr(df_cl.mean_f, df_cl.mean_f)
+print(f_f_corr)
+
+print("\n- # of Gates:")
 f_g_corr = pearsonr(df_cl.mean_f, df_cl.N_gates)
 print(f_g_corr)
-# pearsonr(x, y)
+
+print("\n- # of Swaps:")
+f_s_corr = pearsonr(df_cl.mean_f, df_cl.N_swaps)
+print(f_s_corr)
+
+print("\n- Depth:")
+f_d_corr = pearsonr(df_cl.mean_f, df_cl.depth)
+print(f_d_corr)
+
+print("\n- Quantum Volume:")
+f_q_corr = pearsonr(df_cl.mean_f, df_cl.N_gates)
+print(f_q_corr)
+
+print("\n\n\t-- Correlation between Probability of Success and:")
+
+print("\n- # of Gates:")
+ps_g_corr = pearsonr(df_cl.prob_succs, df_cl.N_gates)
+print(ps_g_corr)
+
+print("\n- # of Swaps:")
+ps_s_corr = pearsonr(df_cl.prob_succs, df_cl.N_swaps)
+print(ps_s_corr)
+
+print("\n- Depth:")
+ps_d_corr = pearsonr(df_cl.prob_succs, df_cl.depth)
+print(ps_d_corr)
+
+print("\n- Quantum Volume:")
+ps_q_corr = pearsonr(df_cl.prob_succs, df_cl.N_gates)
+print(ps_q_corr)
