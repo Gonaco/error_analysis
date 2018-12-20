@@ -72,30 +72,37 @@ print(f_g_corr)
 
 print("\n- # of Swaps:")
 f_s_corr = pearsonr(df_cl.mean_f, df_cl.N_swaps)
+plot_relation(df_cl.mean_f, df_cl.N_swaps, "f_s")
 print(f_s_corr)
 
 print("\n- Depth:")
 f_d_corr = pearsonr(df_cl.mean_f, df_cl.depth)
+plot_relation(df_cl.mean_f, df_cl.depth, "f_d")
 print(f_d_corr)
 
 print("\n- Quantum Volume:")
 f_q_corr = pearsonr(df_cl.mean_f, df_cl.N_gates)
+plot_relation(df_cl.mean_f, df_cl.depth, "f_q")
 print(f_q_corr)
 
 print("\n\n\t-- Correlation between Probability of Success and:")
 
 print("\n- # of Gates:")
 ps_g_corr = pearsonr(df_cl.prob_succs, df_cl.N_gates)
+plot_relation(df_cl.prob_succs, df_cl.N_gates, "ps_g")
 print(ps_g_corr)
 
 print("\n- # of Swaps:")
 ps_s_corr = pearsonr(df_cl.prob_succs, df_cl.N_swaps)
+plot_relation(df_cl.prob_succs, df_cl.N_swaps, "ps_s")
 print(ps_s_corr)
 
 print("\n- Depth:")
 ps_d_corr = pearsonr(df_cl.prob_succs, df_cl.depth)
+plot_relation(df_cl.prob_succs, df_cl.depth, "ps_d")
 print(ps_d_corr)
 
 print("\n- Quantum Volume:")
 ps_q_corr = pearsonr(df_cl.prob_succs, df_cl.N_gates)
+plot_relation(df_cl.prob_succs, df_cl.N_gates, "ps_q")
 print(ps_q_corr)
