@@ -33,7 +33,7 @@ def store_db_main_info(N_gates, N_swaps, depth, prob_succs, mean_f, q_vol):
 
 def clean_data_frame(data_frame):
     # I use Quantum Volume as the harder variable to be randomly repeated
-    data_frame.drop_duplicates(subset=['v_q'], keep='first')
+    data_frame.drop_duplicates(subset=['q_vol'], keep='first')
     return data_frame
 
 
