@@ -31,9 +31,11 @@ def store_db_main_info(N_gates, N_swaps, depth, prob_succs, mean_f, q_vol):
 #     plt.scatter(data1, data2)
 #     plt.savefig("")
 
-# def clean_data_frame(data_frame):
-#     # I use Quantum Volume as the harder variable to be randomly repeated
-#     data_frame.drop_duplicates(subset=['v_q'], keep='first')
+def clean_data_frame(data_frame):
+    # I use Quantum Volume as the harder variable to be randomly repeated
+    data_frame.drop_duplicates(subset=['v_q'], keep='first')
+    return data_frame
+
 
 N_gates = []
 N_swaps = []
@@ -45,7 +47,7 @@ q_vol = []
 for i in range(5):
 
     db_path = "/home/dmorenomanzano/qbench/mapping_benchmarks/simple_benchs_smart_fast{i}.db".format(
-        i=i+1 if i > 0 else "")
+        i=i if i > 0 else "")
 
     bench_info = extract_db_main_info(db_path)
     for b_i in bench_info:
@@ -58,5 +60,8 @@ for i in range(5):
 
 data_frame = store_db_main_info(
     N_gates, N_swaps, depth, prob_succs, mean_f, q_vol)
+df_cl = clean_data_frame(data_frame)
 
+f_g_corr = pearsonr(df_cl.mean_f, df_cl.N_gates)
+print(f_g_corr)
 # pearsonr(x, y)
