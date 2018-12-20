@@ -56,9 +56,7 @@ for i in range(5):
         mean_f.append(b_i[4])
         q_vol.append(b_i[5])
 
-    data_frame = store_db_main_info(
-        N_gates, N_swaps, depth, prob_succs, mean_f, q_vol)
+data_frame = store_db_main_info(
+    N_gates, N_swaps, depth, prob_succs, mean_f, q_vol)
 
-    print(data_frame)
-
-    # pearsonr(x, y)
+# pearsonr(x, y)
