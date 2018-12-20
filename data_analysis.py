@@ -44,7 +44,7 @@ q_vol = []
 
 for i in range(5):
 
-    db_path = "~/qbench/mapping_benchmarks/simple_benchs_smart_fast{i}.db".format(
+    db_path = "/home/dmorenomanzano/qbench/mapping_benchmarks/simple_benchs_smart_fast{i}.db".format(
         i=i+1 if i > 0 else "")
 
     bench_info = extract_db_main_info(db_path)
