@@ -64,10 +64,6 @@ df_cl = clean_data_frame(data_frame)
 
 print("\n\t-- Correlation between Fidelity and:")
 
-print("\n- Fidelity:")
-f_f_corr = pearsonr(df_cl.mean_f, df_cl.mean_f)
-print(f_f_corr)
-
 print("\n- # of Gates:")
 f_g_corr = pearsonr(df_cl.mean_f, df_cl.N_gates)
 print(f_g_corr)
