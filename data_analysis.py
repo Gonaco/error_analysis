@@ -27,8 +27,12 @@ def store_db_main_info(N_gates, N_swaps, depth, prob_succs, mean_f, q_vol):
     return data_frame
 
 
-def plot_relation(y, x, save_name):
+def plot_relation(y, x, save_name, ylabel, xlabel):
+    # fig = plt.figure()
     plt.scatter(x, y)
+    # fig.suptitle('test title', fontsize=20)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
     plt.savefig(save_name)
     plt.clf()
 
@@ -68,42 +72,44 @@ print("\n\t-- Correlation between Fidelity and:")
 
 print("\n- # of Gates:")
 f_g_corr = pearsonr(df_cl.mean_f, df_cl.N_gates)
-plot_relation(df_cl.mean_f, df_cl.N_gates, "f_g")
+plot_relation(df_cl.mean_f, df_cl.N_gates, "f_g", "fidelity", "# of gates")
 print(f_g_corr)
 
 print("\n- # of Swaps:")
 f_s_corr = pearsonr(df_cl.mean_f, df_cl.N_swaps)
-plot_relation(df_cl.mean_f, df_cl.N_swaps, "f_s")
+plot_relation(df_cl.mean_f, df_cl.N_swaps, "f_s", "fidelity", "# of swaps")
 print(f_s_corr)
 
 print("\n- Depth:")
 f_d_corr = pearsonr(df_cl.mean_f, df_cl.depth)
-plot_relation(df_cl.mean_f, df_cl.depth, "f_d")
+plot_relation(df_cl.mean_f, df_cl.depth, "f_d", "fidelity", "depth")
 print(f_d_corr)
 
 print("\n- Quantum Volume:")
 f_q_corr = pearsonr(df_cl.mean_f, df_cl.N_gates)
-plot_relation(df_cl.mean_f, df_cl.depth, "f_q")
+plot_relation(df_cl.mean_f, df_cl.q_vol, "f_q", "fidelity", "V_Q")
 print(f_q_corr)
 
 print("\n\n\t-- Correlation between Probability of Success and:")
 
 print("\n- # of Gates:")
 ps_g_corr = pearsonr(df_cl.prob_succs, df_cl.N_gates)
-plot_relation(df_cl.prob_succs, df_cl.N_gates, "ps_g")
+plot_relation(df_cl.prob_succs, df_cl.N_gates,
+              "ps_g", "prob. success", "# of gates")
 print(ps_g_corr)
 
 print("\n- # of Swaps:")
 ps_s_corr = pearsonr(df_cl.prob_succs, df_cl.N_swaps)
-plot_relation(df_cl.prob_succs, df_cl.N_swaps, "ps_s")
+plot_relation(df_cl.prob_succs, df_cl.N_swaps,
+              "ps_s", "prob. success", "# of swaps")
 print(ps_s_corr)
 
 print("\n- Depth:")
 ps_d_corr = pearsonr(df_cl.prob_succs, df_cl.depth)
-plot_relation(df_cl.prob_succs, df_cl.depth, "ps_d")
+plot_relation(df_cl.prob_succs, df_cl.depth, "ps_d", "prob. success", "depth")
 print(ps_d_corr)
 
 print("\n- Quantum Volume:")
 ps_q_corr = pearsonr(df_cl.prob_succs, df_cl.N_gates)
-plot_relation(df_cl.prob_succs, df_cl.N_gates, "ps_q")
+plot_relation(df_cl.prob_succs, df_cl.q_vol, "ps_q", "prob. success", "V_Q")
 print(ps_q_corr)
