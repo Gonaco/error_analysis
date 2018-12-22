@@ -53,6 +53,9 @@ def data_analysis(t1):
     mean_f = []
     q_vol = []
 
+    print("\n\tAnalysis For Decoherence Time = "+t1)
+    print("\n\t-------------------------------")
+
     for i in range(5):
 
         db_path = "/home/dmorenomanzano/qbench/mapping_benchmarks/simple_benchs_smart_fast{i}.db".format(
