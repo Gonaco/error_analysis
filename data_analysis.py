@@ -45,6 +45,7 @@ def clean_data_frame(data_frame):
 
 def data_analysis(t1):
 
+    t1 = str(t1)
     N_gates = []
     N_swaps = []
     depth = []
@@ -80,17 +81,18 @@ def data_analysis(t1):
 
     print("\n- # of Swaps:")
     f_s_corr = pearsonr(df_cl.mean_f, df_cl.N_swaps)
-    plot_relation(df_cl.mean_f, df_cl.N_swaps, "f_s", "fidelity", "# of swaps")
+    plot_relation(df_cl.mean_f, df_cl.N_swaps,
+                  "f_s_"+t1, "fidelity", "# of swaps")
     print(f_s_corr)
 
     print("\n- Depth:")
     f_d_corr = pearsonr(df_cl.mean_f, df_cl.depth)
-    plot_relation(df_cl.mean_f, df_cl.depth, "f_d", "fidelity", "depth")
+    plot_relation(df_cl.mean_f, df_cl.depth, "f_d_"+t1, "fidelity", "depth")
     print(f_d_corr)
 
     print("\n- Quantum Volume:")
     f_q_corr = pearsonr(df_cl.mean_f, df_cl.N_gates)
-    plot_relation(df_cl.mean_f, df_cl.q_vol, "f_q", "fidelity", "V_Q")
+    plot_relation(df_cl.mean_f, df_cl.q_vol, "f_q_"+t1, "fidelity", "V_Q")
     print(f_q_corr)
 
     print("\n\n\t-- Correlation between Probability of Success and:")
@@ -98,23 +100,27 @@ def data_analysis(t1):
     print("\n- # of Gates:")
     ps_g_corr = pearsonr(df_cl.prob_succs, df_cl.N_gates)
     plot_relation(df_cl.prob_succs, df_cl.N_gates,
-                  "ps_g", "prob. success", "# of gates")
+                  "ps_g_"+t1, "prob. success", "# of gates")
     print(ps_g_corr)
 
     print("\n- # of Swaps:")
     ps_s_corr = pearsonr(df_cl.prob_succs, df_cl.N_swaps)
     plot_relation(df_cl.prob_succs, df_cl.N_swaps,
-                  "ps_s", "prob. success", "# of swaps")
+                  "ps_s_"+t1, "prob. success", "# of swaps")
     print(ps_s_corr)
 
     print("\n- Depth:")
     ps_d_corr = pearsonr(df_cl.prob_succs, df_cl.depth)
     plot_relation(df_cl.prob_succs, df_cl.depth,
-                  "ps_d", "prob. success", "depth")
+                  "ps_d_"+t1, "prob. success", "depth")
     print(ps_d_corr)
 
     print("\n- Quantum Volume:")
     ps_q_corr = pearsonr(df_cl.prob_succs, df_cl.N_gates)
     plot_relation(df_cl.prob_succs, df_cl.q_vol,
-                  "ps_q", "prob. success", "V_Q")
+                  "ps_q_"+t1, "prob. success", "V_Q")
     print(ps_q_corr)
+
+
+data_analysis("3000")
+data_analysis("1000")
