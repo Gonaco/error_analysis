@@ -9,13 +9,13 @@ from scipy.stats import pearsonr
 import pandas as pd
 
 
-def extract_db_main_info(db_path):
+def extract_decoher_info(db_path, t1):
 
     connection = sqlite3.connect(db_path)
     cursor = connection.cursor()
 
-    query = "SELECT DISTINCT HardwareBenchs.N_gates, HardwareBenchs.N_swaps, depth, prob_succs, mean_f, q_vol FROM SimulationsInfo LEFT JOIN HardwareBenchs ON algorithm=HardwareBenchs.id LEFT JOIN Results ON result=Results.id LEFT JOIN Experiments ON experiment=Experiments.id LEFT JOIN Benchmarks ON HardwareBenchs.benchmark=Benchmarks.id LEFT JOIN Configurations ON configuration=Configurations.id WHERE SimulationsInfo.t1 = 3000;"
-    cursor.execute(query)
+    query = "SELECT DISTINCT HardwareBenchs.N_gates, HardwareBenchs.N_swaps, depth, prob_succs, mean_f, q_vol FROM SimulationsInfo LEFT JOIN HardwareBenchs ON algorithm=HardwareBenchs.id LEFT JOIN Results ON result=Results.id LEFT JOIN Experiments ON experiment=Experiments.id LEFT JOIN Benchmarks ON HardwareBenchs.benchmark=Benchmarks.id LEFT JOIN Configurations ON configuration=Configurations.id WHERE SimulationsInfo.t1 = {t1};"
+    cursor.execute(query.format(t1=t1))
     return cursor.fetchall()
 
 
@@ -43,73 +43,78 @@ def clean_data_frame(data_frame):
     return data_frame
 
 
-N_gates = []
-N_swaps = []
-depth = []
-prob_succs = []
-mean_f = []
-q_vol = []
+def data_analysis(t1):
 
-for i in range(5):
+    N_gates = []
+    N_swaps = []
+    depth = []
+    prob_succs = []
+    mean_f = []
+    q_vol = []
 
-    db_path = "/home/dmorenomanzano/qbench/mapping_benchmarks/simple_benchs_smart_fast{i}.db".format(
-        i=i if i > 0 else "")
+    for i in range(5):
 
-    bench_info = extract_db_main_info(db_path)
-    for b_i in bench_info:
-        N_gates.append(b_i[0])
-        N_swaps.append(b_i[1])
-        depth.append(b_i[2])
-        prob_succs.append(b_i[3])
-        mean_f.append(b_i[4])
-        q_vol.append(b_i[5])
+        db_path = "/home/dmorenomanzano/qbench/mapping_benchmarks/simple_benchs_smart_fast{i}.db".format(
+            i=i if i > 0 else "")
 
-data_frame = store_db_main_info(
-    N_gates, N_swaps, depth, prob_succs, mean_f, q_vol)
-df_cl = clean_data_frame(data_frame)
+        bench_info = extract_decoher_info(db_path, t1)
+        for b_i in bench_info:
+            N_gates.append(b_i[0])
+            N_swaps.append(b_i[1])
+            depth.append(b_i[2])
+            prob_succs.append(b_i[3])
+            mean_f.append(b_i[4])
+            q_vol.append(b_i[5])
 
-print("\n\t-- Correlation between Fidelity and:")
+    data_frame = store_db_main_info(
+        N_gates, N_swaps, depth, prob_succs, mean_f, q_vol)
+    df_cl = clean_data_frame(data_frame)
 
-print("\n- # of Gates:")
-f_g_corr = pearsonr(df_cl.mean_f, df_cl.N_gates)
-plot_relation(df_cl.mean_f, df_cl.N_gates, "f_g", "fidelity", "# of gates")
-print(f_g_corr)
+    print("\n\t-- Correlation between Fidelity and:")
 
-print("\n- # of Swaps:")
-f_s_corr = pearsonr(df_cl.mean_f, df_cl.N_swaps)
-plot_relation(df_cl.mean_f, df_cl.N_swaps, "f_s", "fidelity", "# of swaps")
-print(f_s_corr)
+    print("\n- # of Gates:")
+    f_g_corr = pearsonr(df_cl.mean_f, df_cl.N_gates)
+    plot_relation(df_cl.mean_f, df_cl.N_gates,
+                  "f_g_"+t1, "fidelity", "# of gates")
+    print(f_g_corr)
 
-print("\n- Depth:")
-f_d_corr = pearsonr(df_cl.mean_f, df_cl.depth)
-plot_relation(df_cl.mean_f, df_cl.depth, "f_d", "fidelity", "depth")
-print(f_d_corr)
+    print("\n- # of Swaps:")
+    f_s_corr = pearsonr(df_cl.mean_f, df_cl.N_swaps)
+    plot_relation(df_cl.mean_f, df_cl.N_swaps, "f_s", "fidelity", "# of swaps")
+    print(f_s_corr)
 
-print("\n- Quantum Volume:")
-f_q_corr = pearsonr(df_cl.mean_f, df_cl.N_gates)
-plot_relation(df_cl.mean_f, df_cl.q_vol, "f_q", "fidelity", "V_Q")
-print(f_q_corr)
+    print("\n- Depth:")
+    f_d_corr = pearsonr(df_cl.mean_f, df_cl.depth)
+    plot_relation(df_cl.mean_f, df_cl.depth, "f_d", "fidelity", "depth")
+    print(f_d_corr)
 
-print("\n\n\t-- Correlation between Probability of Success and:")
+    print("\n- Quantum Volume:")
+    f_q_corr = pearsonr(df_cl.mean_f, df_cl.N_gates)
+    plot_relation(df_cl.mean_f, df_cl.q_vol, "f_q", "fidelity", "V_Q")
+    print(f_q_corr)
 
-print("\n- # of Gates:")
-ps_g_corr = pearsonr(df_cl.prob_succs, df_cl.N_gates)
-plot_relation(df_cl.prob_succs, df_cl.N_gates,
-              "ps_g", "prob. success", "# of gates")
-print(ps_g_corr)
+    print("\n\n\t-- Correlation between Probability of Success and:")
 
-print("\n- # of Swaps:")
-ps_s_corr = pearsonr(df_cl.prob_succs, df_cl.N_swaps)
-plot_relation(df_cl.prob_succs, df_cl.N_swaps,
-              "ps_s", "prob. success", "# of swaps")
-print(ps_s_corr)
+    print("\n- # of Gates:")
+    ps_g_corr = pearsonr(df_cl.prob_succs, df_cl.N_gates)
+    plot_relation(df_cl.prob_succs, df_cl.N_gates,
+                  "ps_g", "prob. success", "# of gates")
+    print(ps_g_corr)
 
-print("\n- Depth:")
-ps_d_corr = pearsonr(df_cl.prob_succs, df_cl.depth)
-plot_relation(df_cl.prob_succs, df_cl.depth, "ps_d", "prob. success", "depth")
-print(ps_d_corr)
+    print("\n- # of Swaps:")
+    ps_s_corr = pearsonr(df_cl.prob_succs, df_cl.N_swaps)
+    plot_relation(df_cl.prob_succs, df_cl.N_swaps,
+                  "ps_s", "prob. success", "# of swaps")
+    print(ps_s_corr)
 
-print("\n- Quantum Volume:")
-ps_q_corr = pearsonr(df_cl.prob_succs, df_cl.N_gates)
-plot_relation(df_cl.prob_succs, df_cl.q_vol, "ps_q", "prob. success", "V_Q")
-print(ps_q_corr)
+    print("\n- Depth:")
+    ps_d_corr = pearsonr(df_cl.prob_succs, df_cl.depth)
+    plot_relation(df_cl.prob_succs, df_cl.depth,
+                  "ps_d", "prob. success", "depth")
+    print(ps_d_corr)
+
+    print("\n- Quantum Volume:")
+    ps_q_corr = pearsonr(df_cl.prob_succs, df_cl.N_gates)
+    plot_relation(df_cl.prob_succs, df_cl.q_vol,
+                  "ps_q", "prob. success", "V_Q")
+    print(ps_q_corr)
