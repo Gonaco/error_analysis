@@ -43,36 +43,7 @@ def clean_data_frame(data_frame):
     return data_frame
 
 
-def data_analysis(t1):
-
-    t1 = str(t1)
-    N_gates = []
-    N_swaps = []
-    depth = []
-    prob_succs = []
-    mean_f = []
-    q_vol = []
-
-    print("\n\tAnalysis For Decoherence Time = "+t1)
-    print("\n\t-------------------------------")
-
-    for i in range(5):
-
-        db_path = "/home/dmorenomanzano/qbench/mapping_benchmarks/simple_benchs_smart_fast{i}.db".format(
-            i=i if i > 0 else "")
-
-        bench_info = extract_decoher_info(db_path, t1)
-        for b_i in bench_info:
-            N_gates.append(b_i[0])
-            N_swaps.append(b_i[1])
-            depth.append(b_i[2])
-            prob_succs.append(b_i[3])
-            mean_f.append(b_i[4])
-            q_vol.append(b_i[5])
-
-    data_frame = store_db_main_info(
-        N_gates, N_swaps, depth, prob_succs, mean_f, q_vol)
-    df_cl = clean_data_frame(data_frame)
+def general_results(df_cl, t1):
 
     print("\n\t-- Correlation between Fidelity and:")
 
@@ -123,6 +94,68 @@ def data_analysis(t1):
     plot_relation(df_cl.prob_succs, df_cl.q_vol,
                   "ps_q_"+t1, "prob. success", "V_Q")
     print(ps_q_corr)
+
+
+def fidelity_diff(df_cl):
+
+    f_diff_array = []
+
+    for row in df_cl.rows:
+
+        if row["N_swaps"] == 0:
+            no_map_entr = row["mean_f"]
+        else:
+            f_diff_array.append(no_map_entr - row["mean_f"])
+
+    return f_diff_array
+
+
+def two_q_gates_analysis(df_cl, t1):
+
+    f_diff_array = fidelity_diff(df_cl)
+
+    print("\n\t-- Correlation between the decrement in Fidelity and # of SWAPS")
+
+    f_s_corr = pearsonr(df_cl.mean_f, f_diff_array)
+    plot_relation(df_cl.mean_f, f_diff_array,
+                  "f_s_2qg_"+t1, "decrement in fidelity", "# of SWAPS")
+    print(f_s_corr)
+
+
+def data_analysis(t1):
+
+    t1 = str(t1)
+    N_gates = []
+    N_swaps = []
+    depth = []
+    prob_succs = []
+    mean_f = []
+    q_vol = []
+
+    print("\n\tAnalysis For Decoherence Time = "+t1)
+    print("\n\t-------------------------------")
+
+    for i in range(5):
+
+        db_path = "/home/dmorenomanzano/qbench/mapping_benchmarks/simple_benchs_smart_fast{i}.db".format(
+            i=i if i > 0 else "")
+
+        bench_info = extract_decoher_info(db_path, t1)
+        for b_i in bench_info:
+            N_gates.append(b_i[0])
+            N_swaps.append(b_i[1])
+            depth.append(b_i[2])
+            prob_succs.append(b_i[3])
+            mean_f.append(b_i[4])
+            q_vol.append(b_i[5])
+
+    data_frame = store_db_main_info(
+        N_gates, N_swaps, depth, prob_succs, mean_f, q_vol)
+    df_cl = clean_data_frame(data_frame)
+
+    general_results(df_cl, t1)
+
+    two_q_gates_analysis(df_cl, t1)
 
 
 data_analysis("3000")
