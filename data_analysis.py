@@ -101,7 +101,7 @@ def fidelity_diff(df_cl):
     f_diff_array = []
     N_swaps = []
 
-    for index, row in df_cl.iterrows:
+    for index, row in df_cl.iterrows():
 
         if row["N_swaps"] == 0:
             no_map_entr = row["mean_f"]
