@@ -99,25 +99,27 @@ def general_results(df_cl, t1):
 def fidelity_diff(df_cl):
 
     f_diff_array = []
+    N_swaps = []
 
-    for row in df_cl.rows:
+    for index, row in df_cl.iterrows:
 
         if row["N_swaps"] == 0:
             no_map_entr = row["mean_f"]
         else:
             f_diff_array.append(no_map_entr - row["mean_f"])
+            N_swaps.append(row["N_swaps"])
 
-    return f_diff_array
+    return f_diff_array, N_swaps
 
 
 def two_q_gates_analysis(df_cl, t1):
 
-    f_diff_array = fidelity_diff(df_cl)
+    f_diff_array, N_swaps = fidelity_diff(df_cl)
 
     print("\n\t-- Correlation between the decrement in Fidelity and # of SWAPS")
 
-    f_s_corr = pearsonr(df_cl.mean_f, f_diff_array)
-    plot_relation(df_cl.mean_f, f_diff_array,
+    f_s_corr = pearsonr(f_diff_array, N_swaps)
+    plot_relation(f_diff_array, N_swaps,
                   "f_s_2qg_"+t1, "decrement in fidelity", "# of SWAPS")
     print(f_s_corr)
 
