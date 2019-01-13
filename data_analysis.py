@@ -46,8 +46,8 @@ def plot_relation(y, x, save_name, ylabel, xlabel, degree=1):
     # Fitting line (regression)
     a, b = np.polyfit(x, y, deg=degree)
 
-    def line(point): return a*point + b
-    plt.plot(point, line(point), lw=2.5, c="k", label="fit line")
+    point = np.array([min(x), max(x)])
+    plt.plot(point, a*point + b, lw=2.5, c="k", label="fit line")
 
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
