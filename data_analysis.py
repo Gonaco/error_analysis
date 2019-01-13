@@ -48,7 +48,7 @@ def fit_polynomial(x, y, degree):
     for p in range(len(param)):
         f = f + param[p]*point**p
 
-    return f
+    return point, f
 
 
 def plot_relation(y, x, save_name, ylabel, xlabel):
@@ -57,7 +57,7 @@ def plot_relation(y, x, save_name, ylabel, xlabel):
     # fig.suptitle('test title', fontsize=20)
 
     # Fitting line (regression)
-    f = fit_polynomial(x, y, 2)
+    point, f = fit_polynomial(x, y, 2)
 
     plt.plot(point, f, lw=2.5, c="k", label="fit line")
 
