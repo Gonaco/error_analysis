@@ -84,7 +84,7 @@ def general_results(df_cl, t1, meas_error):
     print(f_d_corr)
 
     print("\n- Quantum Volume:")
-    f_q_corr = pearsonr(df_cl.mean_f, df_cl.N_gates)
+    f_q_corr = pearsonr(df_cl.mean_f, df_cl.q_vol)
     plot_relation(df_cl.mean_f, df_cl.q_vol, "f_q_" +
                   t1+"_"+meas_error, "fidelity", "V_Q")
     print(f_q_corr)
@@ -110,7 +110,7 @@ def general_results(df_cl, t1, meas_error):
     print(ps_d_corr)
 
     print("\n- Quantum Volume:")
-    ps_q_corr = pearsonr(df_cl.prob_succs, df_cl.N_gates)
+    ps_q_corr = pearsonr(df_cl.prob_succs, df_cl.q_vol)
     plot_relation(df_cl.prob_succs, df_cl.q_vol,
                   "ps_q_"+t1+"_"+meas_error, "prob. success", "V_Q")
     print(ps_q_corr)
