@@ -38,10 +38,17 @@ def store_db_main_info(N_gates, N_swaps, depth, prob_succs, mean_f, q_vol):
     return data_frame
 
 
-def plot_relation(y, x, save_name, ylabel, xlabel):
+def plot_relation(y, x, save_name, ylabel, xlabel, degree=1):
     # fig = plt.figure()
     plt.scatter(x, y)
     # fig.suptitle('test title', fontsize=20)
+
+    # Fitting line (regression)
+    a, b = np.polyfit(x, y, deg=degree)
+
+    def line(point): return a*x + b
+    plt.plot(point, line(point), lw=2.5, c="k", label="fit line")
+
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.savefig(save_name)
