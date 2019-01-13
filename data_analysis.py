@@ -38,16 +38,28 @@ def store_db_main_info(N_gates, N_swaps, depth, prob_succs, mean_f, q_vol):
     return data_frame
 
 
+def fit_polynomial(x, y, degree):
+
+    param = np.polyfit(x, y, deg=degree)
+
+    point = np.arange(min(x), max(x), 10)
+
+    f = 0
+    for p in range(len(param)):
+        f = f + param[p]*point**p
+
+    return f
+
+
 def plot_relation(y, x, save_name, ylabel, xlabel):
     # fig = plt.figure()
     plt.scatter(x, y)
     # fig.suptitle('test title', fontsize=20)
 
     # Fitting line (regression)
-    a, b = np.polyfit(x, y, deg=2)
+    f = fit_polynomial(x, y, 2)
 
-    point = np.array([min(y), max(y)])
-    plt.plot(point, a*point + b, lw=2.5, c="k", label="fit line")
+    plt.plot(point, f, lw=2.5, c="k", label="fit line")
 
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
