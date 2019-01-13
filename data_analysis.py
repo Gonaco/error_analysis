@@ -178,6 +178,8 @@ def data_analysis(t1, meas_error):
         N_gates, N_swaps, depth, prob_succs, mean_f, q_vol)
     df_cl = clean_data_frame(data_frame)
 
+    meas_error = meas_error.replace(".", "-")
+
     general_results(df_cl, t1, meas_error)
 
     two_q_gates_analysis(df_cl, t1, meas_error)
