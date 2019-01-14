@@ -9,6 +9,7 @@ from scipy.stats import pearsonr
 import pandas as pd
 
 from sklearn import linear_model
+from sklearn.svm import SVR
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 
@@ -88,7 +89,7 @@ def fit_polynomial(x, y, degree):
     return point, f
 
 
-def regression(x, y):
+def linear_regression(x, y):
 
     X_train, X_test, y_train, y_test = train_test_split(
         np.array(x), np.array(y), test_size=0.33)
@@ -117,6 +118,18 @@ def regression(x, y):
     return X_test, y_pred
 
 
+def svm_regression(x, y):
+
+    svr_rbf = SVR(kernel='rbf', C=1e3, gamma=0.1)
+    svr_lin = SVR(kernel='linear', C=1e3)
+    svr_poly = SVR(kernel='poly', C=1e3, degree=2)
+    y_rbf = svr_rbf.fit(x, y).predict(x)
+    y_lin = svr_lin.fit(x, y).predict(x)
+    y_poly = svr_poly.fit(x, y).predict(x)
+
+    return y_rbf, y_lin, y_poly
+
+
 def plot_relation(y, x, save_name, ylabel, xlabel):
     # fig = plt.figure()
     plt.scatter(x, y)
@@ -125,8 +138,14 @@ def plot_relation(y, x, save_name, ylabel, xlabel):
     # Fitting line (regression)
     # point, f = fit_polynomial(x, y, 1)
     # plt.plot(point, f, lw=2.5, c="k", label="fit line")
-    X_test, y_pred = regression(x, y)
-    plt.plot(X_test, y_pred, linewidth=3, label="fit line")
+
+    X_test, y_pred = linear_regression(x, y)
+    plt.plot(X_test, y_pred, linewidth=3, label="fit line (linear regression)")
+
+    y_rbf, y_lin, y_poly = svm_regression(x, y)
+    plt.plot(x, y_rbf, color='navy', lw=3, label='RBF model')
+    plt.plot(x, y_lin, color='c', lw=3, label='Linear model')
+    plt.plot(x, y_poly, color='orange', lw=3, label='Polynomial model')
 
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
