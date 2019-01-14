@@ -7,7 +7,10 @@ plt.style.use('seaborn-white')
 
 from scipy.stats import pearsonr
 import pandas as pd
-import statsmodels.formula.api as sm
+
+from sklearn import linear_model
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.model_selection import train_test_split
 
 two_q_gates = [21,
                107,
@@ -85,6 +88,30 @@ def fit_polynomial(x, y, degree):
     return point, f
 
 
+def regression(x, y):
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        x, y, test_size=0.33)
+
+    regr = linear_model.LinearRegression()
+
+    # Train the model using the training sets
+    regr.fit(X_train, y_train)
+
+    # Make predictions using the testing set
+    y_pred = regr.predict(X_test)
+
+    # The coefficients
+    print('Coefficients: \n', regr.coef_)
+    # The mean squared error
+    print("Mean squared error: %.2f" %
+          mean_squared_error(y_test, y_pred))
+    # Explained variance score: 1 is perfect prediction
+    print('Variance score: %.2f' % r2_score(y_test, y_pred))
+
+    return X_test, y_pred
+
+
 def plot_relation(y, x, save_name, ylabel, xlabel):
     # fig = plt.figure()
     plt.scatter(x, y)
@@ -93,10 +120,8 @@ def plot_relation(y, x, save_name, ylabel, xlabel):
     # Fitting line (regression)
     # point, f = fit_polynomial(x, y, 1)
     # plt.plot(point, f, lw=2.5, c="k", label="fit line")
-
-    model = sm.OLS(y, sm.add_constant(x))
-    results = model.fit()
-    plt.scatter(x, results.fittedvalues, "r")
+    X_test, y_pred = regression(x, y)
+    plt.plot(X_test, y_pred, linewidth=3, label="fit line")
 
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
