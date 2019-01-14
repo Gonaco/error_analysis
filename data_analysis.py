@@ -91,7 +91,12 @@ def fit_polynomial(x, y, degree):
 def regression(x, y):
 
     X_train, X_test, y_train, y_test = train_test_split(
-        x, y, test_size=0.33)
+        np.array(x), np.array(y), test_size=0.33)
+
+    X_train = X_train.reshape(-1, 1)
+    X_test = X_test.reshape(-1, 1)
+    y_train = y_train.reshape(-1, 1)
+    y_test = y_test.reshape(-1, 1)
 
     regr = linear_model.LinearRegression()
 
