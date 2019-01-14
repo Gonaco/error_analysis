@@ -8,6 +8,38 @@ plt.style.use('seaborn-white')
 from scipy.stats import pearsonr
 import pandas as pd
 
+two_q_gates = [21,
+               107,
+               121,
+               33,
+               40,
+               38,
+               16,
+               2,
+               5,
+               2,
+               31,
+               142,
+               5,
+               11,
+               100,
+               22,
+               96,
+               75,
+               233,
+               12,
+               198,
+               58,
+               31,
+               15,
+               326,
+               326,
+               1773,
+               1263,
+               1650,
+               6,
+               5]
+
 
 def extract_decoher_info(db_path, t1):
 
@@ -42,11 +74,12 @@ def fit_polynomial(x, y, degree):
 
     param = np.polyfit(x, y, deg=degree)
 
-    point = np.arange(min(x), max(x), 10)
+    # point = np.arange(min(x), max(x), len(x)/degree)
+    point = np.array([min(x), max(x)])
 
     f = 0
     for p in range(len(param)):
-        f = f + param[p]*point**p
+        f = f + param[p]*point**(len(param)-p)
 
     return point, f
 
@@ -57,9 +90,11 @@ def plot_relation(y, x, save_name, ylabel, xlabel):
     # fig.suptitle('test title', fontsize=20)
 
     # Fitting line (regression)
-    point, f = fit_polynomial(x, y, 2)
+    # point, f = fit_polynomial(x, y, 1)
+    # plt.plot(point, f, lw=2.5, c="k", label="fit line")
 
-    plt.plot(point, f, lw=2.5, c="k", label="fit line")
+    model = pd.ols(y=y, x=x)
+    plt.scatter(y=model.y_fitted.values, x=x)
 
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
