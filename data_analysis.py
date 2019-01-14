@@ -7,6 +7,7 @@ plt.style.use('seaborn-white')
 
 from scipy.stats import pearsonr
 import pandas as pd
+import statsmodels.formula.api as sm
 
 two_q_gates = [21,
                107,
@@ -93,8 +94,8 @@ def plot_relation(y, x, save_name, ylabel, xlabel):
     # point, f = fit_polynomial(x, y, 1)
     # plt.plot(point, f, lw=2.5, c="k", label="fit line")
 
-    model = pd.ols(y=y, x=x)
-    plt.scatter(y=model.y_fitted.values, x=x)
+    model = sm.ols(y=y, x=x).fit()
+    plt.scatter(x, model.fittedvalues, "r")
 
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
