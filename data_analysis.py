@@ -94,8 +94,9 @@ def plot_relation(y, x, save_name, ylabel, xlabel):
     # point, f = fit_polynomial(x, y, 1)
     # plt.plot(point, f, lw=2.5, c="k", label="fit line")
 
-    model = sm.ols(y=y, x=x).fit()
-    plt.scatter(x, model.fittedvalues, "r")
+    model = sm.OLS(y, sm.add_constant(x))
+    results = model.fit()
+    plt.scatter(x, results.fittedvalues, "r")
 
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
