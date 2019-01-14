@@ -120,6 +120,9 @@ def linear_regression(x, y):
 
 def svm_regression(x, y):
 
+    x = np.array(x).reshape(-1, 1)
+    y = np.array(y).reshape(-1, 1)
+
     svr_rbf = SVR(kernel='rbf', C=1e3, gamma=0.1)
     svr_lin = SVR(kernel='linear', C=1e3)
     svr_poly = SVR(kernel='poly', C=1e3, degree=2)
