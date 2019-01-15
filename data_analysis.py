@@ -256,13 +256,13 @@ def two_q_gates_f_diff_analysis(df_cl, t1, meas_error):
 
 def two_q_gates_analysis(df_cl, t1, meas_error):
 
-    f_mean = df_cl.f_mean
+    mean_f = df_cl.mean_f
     N_two_qg = df_cl.N_two_qg
 
     print("\n\t-- Correlation between Fidelity and # of two-qubit gates")
 
-    f_tqg_corr = pearsonr(f_mean, N_two_qg)
-    plot_relation(f_mean, N_two_qg,
+    f_tqg_corr = pearsonr(mean_f, N_two_qg)
+    plot_relation(mean_f, N_two_qg,
                   "f_2qg_"+t1+"_"+meas_error, "mean fidelity", "# of two-qubit gates")
     print(f_tqg_corr)
 
