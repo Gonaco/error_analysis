@@ -13,37 +13,46 @@ from sklearn.svm import SVR
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 
-two_q_gates = [21,
-               107,
-               121,
-               33,
-               40,
-               38,
-               16,
-               2,
-               5,
-               2,
-               31,
-               142,
-               5,
-               11,
-               100,
-               22,
-               96,
-               75,
-               233,
-               12,
-               198,
-               58,
-               31,
-               15,
-               326,
-               326,
-               1773,
-               1263,
-               1650,
-               6,
-               5]
+two_q_gates = {
+    "4gt11_82": 18,
+    "4gt12_v1_89": 100,
+    "4gt4_v0_72": 113,
+    "4mod5_bdd_287": 31,
+    "4mod5_v0_20": 10,
+    "alu_bdd_288": 38,
+    "alu_v0_27": 17,
+    "benstein_vazirani_15b_secret_128": 1,
+    "cnt3_5_179": 85,
+    "cuccaroAdder_1b": 5,
+    "cuccaroMultiplier_1b": 2,
+    "decod24_bdd_294": 32,
+    "decod24_enable_126": 149,
+    "graycode6_47": 5,
+    "ham3_102": 11,
+    "hwb4_49": 107,
+    "ising_model_10": 90,
+    "miller_11": 23,
+    "mini_alu_167": 126,
+    "mini_alu_305": 77,
+    "mod10_176": 78,
+    "mod5adder_127": 239,
+    "mod5d1_63": 13,
+    "mod8_10_177": 196,
+    "one_two_three_v1_99": 59,
+    "one_two_three_v3_101": 32,
+    "qft_10": 90,
+    "rd32_v0_66": 16,
+    "sf_274": 336,
+    "sf_276": 336,
+    "shor_15": 1788,
+    "sqrt8_260": 1314,
+    "squar5_261": 869,
+    "square_root_7": 3089,
+    "sym6_145": 1701,
+    "sym6_316": 123,
+    "vbeAdder_2b": 6,
+    "xor5_254": 5
+}
 
 
 def extract_decoher_info(db_path, t1):
@@ -51,7 +60,7 @@ def extract_decoher_info(db_path, t1):
     connection = sqlite3.connect(db_path)
     cursor = connection.cursor()
 
-    query = "SELECT DISTINCT HardwareBenchs.N_gates, HardwareBenchs.N_swaps, depth, prob_succs, mean_f, q_vol FROM SimulationsInfo LEFT JOIN HardwareBenchs ON algorithm=HardwareBenchs.id LEFT JOIN Results ON result=Results.id LEFT JOIN Experiments ON experiment=Experiments.id LEFT JOIN Benchmarks ON HardwareBenchs.benchmark=Benchmarks.id LEFT JOIN Configurations ON configuration=Configurations.id WHERE SimulationsInfo.t1 = {t1} AND initial_placement='no' AND Benchmarks.N_gates < 3888;"
+    query = "SELECT DISTINCT HardwareBenchs.N_gates, HardwareBenchs.N_swaps, depth, prob_succs, mean_f, q_vol, Benchmarks.benchmark FROM SimulationsInfo LEFT JOIN HardwareBenchs ON algorithm=HardwareBenchs.id LEFT JOIN Results ON result=Results.id LEFT JOIN Experiments ON experiment=Experiments.id LEFT JOIN Benchmarks ON HardwareBenchs.benchmark=Benchmarks.id LEFT JOIN Configurations ON configuration=Configurations.id WHERE SimulationsInfo.t1 = {t1} AND initial_placement='no' AND Benchmarks.N_gates < 3888;"
     cursor.execute(query.format(t1=t1))
     return cursor.fetchall()
 
@@ -62,14 +71,14 @@ def extract_info(db_path, t1, meas_error):
     cursor = connection.cursor()
 
     # NO INITIAL PLACEMENT IS TO AVOID FOR NOW THE ERROR OF INITIAL PLACEMENTS AND THE NUMBER OF GATES TO AVOID THE ALGORITHM SYM6
-    query = "SELECT DISTINCT HardwareBenchs.N_gates, HardwareBenchs.N_swaps, depth, prob_succs, mean_f, q_vol FROM SimulationsInfo LEFT JOIN HardwareBenchs ON algorithm=HardwareBenchs.id LEFT JOIN Results ON result=Results.id LEFT JOIN Experiments ON experiment=Experiments.id LEFT JOIN Benchmarks ON HardwareBenchs.benchmark=Benchmarks.id LEFT JOIN Configurations ON configuration=Configurations.id WHERE SimulationsInfo.t1 = {t1} AND meas_error = {meas_error} AND initial_placement='no' AND Benchmarks.N_gates < 3888;"
+    query = "SELECT DISTINCT HardwareBenchs.N_gates, HardwareBenchs.N_swaps, depth, prob_succs, mean_f, q_vol, Benchmarks.benchmark FROM SimulationsInfo LEFT JOIN HardwareBenchs ON algorithm=HardwareBenchs.id LEFT JOIN Results ON result=Results.id LEFT JOIN Experiments ON experiment=Experiments.id LEFT JOIN Benchmarks ON HardwareBenchs.benchmark=Benchmarks.id LEFT JOIN Configurations ON configuration=Configurations.id WHERE SimulationsInfo.t1 = {t1} AND meas_error = {meas_error} AND initial_placement='no' AND Benchmarks.N_gates < 3888;"
     cursor.execute(query.format(t1=t1, meas_error=meas_error))
     return cursor.fetchall()
 
 
-def store_db_main_info(N_gates, N_swaps, depth, prob_succs, mean_f, q_vol):
+def store_db_main_info(N_gates, N_two_qg, N_swaps, depth, prob_succs, mean_f, q_vol):
 
-    data_frame = pd.DataFrame({"N_gates": N_gates, "N_swaps": N_swaps, "depth": depth,
+    data_frame = pd.DataFrame({"N_gates": N_gates, "N_two_qg": N_two_qg, "N_swaps": N_swaps, "depth": depth,
                                "prob_succs": prob_succs, "mean_f": mean_f, "q_vol": q_vol})
 
     return data_frame
@@ -233,7 +242,7 @@ def fidelity_diff(df_cl):
     return f_diff_array, N_swaps
 
 
-def two_q_gates_analysis(df_cl, t1, meas_error):
+def two_q_gates_f_diff_analysis(df_cl, t1, meas_error):
 
     f_diff_array, N_swaps = fidelity_diff(df_cl)
 
@@ -243,6 +252,19 @@ def two_q_gates_analysis(df_cl, t1, meas_error):
     plot_relation(f_diff_array, N_swaps,
                   "f_s_2qg_"+t1+"_"+meas_error, "decrement in fidelity", "# of SWAPS")
     print(f_s_corr)
+
+
+def two_q_gates_analysis(df_cl, t1, meas_error):
+
+    f_mean = df_cl.f_mean
+    N_two_qg = df_cl.N_two_qg
+
+    print("\n\t-- Correlation between Fidelity and # of two-qubit gates")
+
+    f_tqg_corr = pearsonr(f_mean, N_two_qg)
+    plot_relation(f_mean, N_two_qg,
+                  "f_2qg_"+t1+"_"+meas_error, "mean fidelity", "# of two-qubit gates")
+    print(f_tqg_corr)
 
 
 def data_analysis(t1, meas_error):
@@ -255,6 +277,7 @@ def data_analysis(t1, meas_error):
     prob_succs = []
     mean_f = []
     q_vol = []
+    N_two_qg = []
 
     print("\n\tAnalysis For Decoherence Time = " +
           t1+" and Error Measurement = "+meas_error)
@@ -274,9 +297,10 @@ def data_analysis(t1, meas_error):
             prob_succs.append(b_i[3])
             mean_f.append(b_i[4])
             q_vol.append(b_i[5])
+            N_two_qg.append(two_q_gates[b_i[6]]+b_i[1])
 
     data_frame = store_db_main_info(
-        N_gates, N_swaps, depth, prob_succs, mean_f, q_vol)
+        N_gates, N_two_qg, N_swaps, depth, prob_succs, mean_f, q_vol)
     df_cl = clean_data_frame(data_frame)
 
     meas_error = meas_error.replace(".", "_")
