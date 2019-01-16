@@ -258,6 +258,7 @@ def two_q_gates_analysis(df_cl, t1, meas_error):
 
     mean_f = df_cl.mean_f
     N_two_qg = df_cl.N_two_qg
+    prob_succs = df_cl.prob_succs
 
     print("\n\t-- Correlation between Fidelity and # of two-qubit gates")
 
@@ -265,6 +266,37 @@ def two_q_gates_analysis(df_cl, t1, meas_error):
     plot_relation(mean_f, N_two_qg,
                   "f_2qg_"+t1+"_"+meas_error, "mean fidelity", "# of two-qubit gates")
     print(f_tqg_corr)
+
+    print("\n\t-- Correlation between Probability of Success and # of two-qubit gates")
+
+    ps_tqg_corr = pearsonr(prob_succs, N_two_qg)
+    plot_relation(prob_succs, N_two_qg,
+                  "ps_2qg_"+t1+"_"+meas_error, "Prob. success", "# of two-qubit gates")
+    print(ps_tqg_corr)
+
+
+def swap_proportion_analysis(df_cl, t1, meas_error):
+
+    N_gates = df_cl.N_gates
+    N_swaps = df_cl.N_swaps
+    mean_f = df_cl.mean_f
+    prob_succs = df_cl.prob_succs
+
+    swaps_proportion = N_swaps/N_gates
+
+    print("\n\t-- Correlation between Fidelity and the proportion of SWAPs")
+
+    f_tqg_corr = pearsonr(mean_f, swaps_proportion)
+    plot_relation(mean_f, swaps_proportion,
+                  "f_sprop_"+t1+"_"+meas_error, "mean fidelity", "proportion of swaps")
+    print(f_tqg_corr)
+
+    print("\n\t-- Correlation between Probability of Success and the proportion of swaps")
+
+    ps_tqg_corr = pearsonr(prob_succs, swaps_proportion)
+    plot_relation(prob_succs, swaps_proportion,
+                  "ps_sprop_"+t1+"_"+meas_error, "Prob. success", "proportion of swaps")
+    print(ps_tqg_corr)
 
 
 def data_analysis(t1, meas_error):
@@ -308,6 +340,8 @@ def data_analysis(t1, meas_error):
     general_results(df_cl, t1, meas_error)
 
     two_q_gates_analysis(df_cl, t1, meas_error)
+
+    swap_proportion_analysis(df_cl, t1, meas_error)
 
 
 data_analysis("3000", "0.005")
