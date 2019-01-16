@@ -1013,7 +1013,8 @@ class _SimBench(object):
                 qasm_f_path)
 
             error_file = qasm_f_path.replace(".qasm", "_error.qasm")
-            self.reader.add_error_model(qasm_f_path, error_file, errprob)
+            # self.reader.add_error_model(qasm_f_path, error_file, errprob)
+            self.reader.add_error_model(errprob)
 
             for i in range(N_exp):
 
