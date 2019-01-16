@@ -338,10 +338,10 @@ def fidelity_bar_plot(df_cl, t1, meas_error):
     df_mapper = df_mapper[df_mapper["benchmark"].isin(
         benchmark_selection_corr_ps_f)]
 
-    ax = df_mapper.bar(x="benchmark", y="fidelity")
-
-    ax.savefig("bar_plot_test.png")
-    ax.clf()
+    ax = df_mapper.plot.bar(x="benchmark", y="mean_f")
+    fig = ax.get_figure()
+    fig.savefig("bar_plot_test.png")
+    fig.clf()
 
 
 def data_analysis(t1, meas_error):
@@ -396,5 +396,5 @@ def data_analysis(t1, meas_error):
 
 
 data_analysis("3000", "0.005")
-data_analysis("1000", "0.005")
-data_analysis("3000", "0")
+# data_analysis("1000", "0.005")
+# data_analysis("3000", "0")
