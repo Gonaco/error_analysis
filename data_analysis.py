@@ -55,12 +55,19 @@ two_q_gates = {
 }
 
 
+benchmark_selection_corr_ps_f = ["graycode6_47",
+                                 "sf_274",
+                                 "4gt11_82"
+                                 "xor5_254",
+                                 "4mod5_v0_20"]
+
+
 def extract_decoher_info(db_path, t1):
 
     connection = sqlite3.connect(db_path)
     cursor = connection.cursor()
 
-    query = "SELECT DISTINCT HardwareBenchs.N_gates, HardwareBenchs.N_swaps, depth, prob_succs, mean_f, q_vol, Benchmarks.benchmark FROM SimulationsInfo LEFT JOIN HardwareBenchs ON algorithm=HardwareBenchs.id LEFT JOIN Results ON result=Results.id LEFT JOIN Experiments ON experiment=Experiments.id LEFT JOIN Benchmarks ON HardwareBenchs.benchmark=Benchmarks.id LEFT JOIN Configurations ON configuration=Configurations.id WHERE SimulationsInfo.t1 = {t1} AND initial_placement='no' AND Benchmarks.N_gates < 3888;"
+    query = "SELECT DISTINCT HardwareBenchs.N_gates, HardwareBenchs.N_swaps, depth, prob_succs, mean_f, q_vol, Benchmarks.benchmark, mapper FROM SimulationsInfo LEFT JOIN HardwareBenchs ON algorithm=HardwareBenchs.id LEFT JOIN Results ON result=Results.id LEFT JOIN Experiments ON experiment=Experiments.id LEFT JOIN Benchmarks ON HardwareBenchs.benchmark=Benchmarks.id LEFT JOIN Configurations ON configuration=Configurations.id WHERE SimulationsInfo.t1 = {t1} AND initial_placement='no' AND Benchmarks.N_gates < 3888;"
     cursor.execute(query.format(t1=t1))
     return cursor.fetchall()
 
@@ -71,15 +78,15 @@ def extract_info(db_path, t1, meas_error):
     cursor = connection.cursor()
 
     # NO INITIAL PLACEMENT IS TO AVOID FOR NOW THE ERROR OF INITIAL PLACEMENTS AND THE NUMBER OF GATES TO AVOID THE ALGORITHM SYM6
-    query = "SELECT DISTINCT HardwareBenchs.N_gates, HardwareBenchs.N_swaps, depth, prob_succs, mean_f, q_vol, Benchmarks.benchmark FROM SimulationsInfo LEFT JOIN HardwareBenchs ON algorithm=HardwareBenchs.id LEFT JOIN Results ON result=Results.id LEFT JOIN Experiments ON experiment=Experiments.id LEFT JOIN Benchmarks ON HardwareBenchs.benchmark=Benchmarks.id LEFT JOIN Configurations ON configuration=Configurations.id WHERE SimulationsInfo.t1 = {t1} AND meas_error = {meas_error} AND initial_placement='no' AND Benchmarks.N_gates < 3888;"
+    query = "SELECT DISTINCT HardwareBenchs.N_gates, HardwareBenchs.N_swaps, depth, prob_succs, mean_f, q_vol, Benchmarks.benchmark, mapper FROM SimulationsInfo LEFT JOIN HardwareBenchs ON algorithm=HardwareBenchs.id LEFT JOIN Results ON result=Results.id LEFT JOIN Experiments ON experiment=Experiments.id LEFT JOIN Benchmarks ON HardwareBenchs.benchmark=Benchmarks.id LEFT JOIN Configurations ON configuration=Configurations.id WHERE SimulationsInfo.t1 = {t1} AND meas_error = {meas_error} AND initial_placement='no' AND Benchmarks.N_gates < 3888;"
     cursor.execute(query.format(t1=t1, meas_error=meas_error))
     return cursor.fetchall()
 
 
-def store_db_main_info(N_gates, N_two_qg, N_swaps, depth, prob_succs, mean_f, q_vol):
+def store_db_main_info(N_gates, N_two_qg, N_swaps, depth, prob_succs, mean_f, q_vol, mapper):
 
     data_frame = pd.DataFrame({"N_gates": N_gates, "N_two_qg": N_two_qg, "N_swaps": N_swaps, "depth": depth,
-                               "prob_succs": prob_succs, "mean_f": mean_f, "q_vol": q_vol})
+                               "prob_succs": prob_succs, "mean_f": mean_f, "q_vol": q_vol, "mapper": mapper})
 
     return data_frame
 
@@ -242,9 +249,26 @@ def fidelity_diff(df_cl):
     return f_diff_array, N_swaps
 
 
+def prb_succs_diff(df_cl):
+
+    ps_diff_array = []
+    N_swaps = []
+
+    for index, row in df_cl.iterrows():
+
+        if row["N_swaps"] == 0:
+            no_map_entr = row["prob_succs"]
+        else:
+            ps_diff_array.append(no_map_entr - row["prob_succs"])
+            N_swaps.append(row["N_swaps"])
+
+    return ps_diff_array, N_swaps
+
+
 def two_q_gates_f_diff_analysis(df_cl, t1, meas_error):
 
     f_diff_array, N_swaps = fidelity_diff(df_cl)
+    ps_diff_array, N_swaps = prb_succs_diff(df_cl)
 
     print("\n\t-- Correlation between the decrement in Fidelity and # of SWAPS")
 
@@ -252,6 +276,13 @@ def two_q_gates_f_diff_analysis(df_cl, t1, meas_error):
     plot_relation(f_diff_array, N_swaps,
                   "f_s_2qg_"+t1+"_"+meas_error, "decrement in fidelity", "# of SWAPS")
     print(f_s_corr)
+
+    print("\n\t-- Correlation between the decrement in Prob. Success and # of SWAPS")
+
+    ps_s_corr = pearsonr(ps_diff_array, N_swaps)
+    plot_relation(ps_diff_array, N_swaps,
+                  "ps_s_2qg_"+t1+"_"+meas_error, "decrement in fidelity", "# of SWAPS")
+    print(ps_s_corr)
 
 
 def two_q_gates_analysis(df_cl, t1, meas_error):
@@ -299,6 +330,12 @@ def swap_proportion_analysis(df_cl, t1, meas_error):
     print(ps_tqg_corr)
 
 
+def fidelity_bar_plot(df_cl, t1, meas_error):
+
+    df_mapper = df_cl["mapper"] == "minextendrc"
+    df_mapper.describe()
+
+
 def data_analysis(t1, meas_error):
 
     t1 = str(t1)
@@ -329,7 +366,7 @@ def data_analysis(t1, meas_error):
             prob_succs.append(b_i[3])
             mean_f.append(b_i[4])
             q_vol.append(b_i[5])
-            N_two_qg.append(two_q_gates[b_i[6]]+b_i[1])
+            N_two_qg.append(two_q_gates[b_i[6]]+3*b_i[1])
 
     data_frame = store_db_main_info(
         N_gates, N_two_qg, N_swaps, depth, prob_succs, mean_f, q_vol)
@@ -337,11 +374,13 @@ def data_analysis(t1, meas_error):
 
     meas_error = meas_error.replace(".", "_")
 
-    general_results(df_cl, t1, meas_error)
+    # general_results(df_cl, t1, meas_error)
 
-    two_q_gates_analysis(df_cl, t1, meas_error)
+    # two_q_gates_analysis(df_cl, t1, meas_error)
 
-    swap_proportion_analysis(df_cl, t1, meas_error)
+    # swap_proportion_analysis(df_cl, t1, meas_error)
+
+    fidelity_bar_plot(df_cl, t1, meas_error)
 
 
 data_analysis("3000", "0.005")
