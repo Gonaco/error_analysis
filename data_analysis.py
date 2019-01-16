@@ -83,10 +83,10 @@ def extract_info(db_path, t1, meas_error):
     return cursor.fetchall()
 
 
-def store_db_main_info(N_gates, N_two_qg, N_swaps, depth, prob_succs, mean_f, q_vol, mapper):
+def store_db_main_info(N_gates, N_two_qg, N_swaps, depth, prob_succs, mean_f, q_vol, mapper, benchmark):
 
     data_frame = pd.DataFrame({"N_gates": N_gates, "N_two_qg": N_two_qg, "N_swaps": N_swaps, "depth": depth,
-                               "prob_succs": prob_succs, "mean_f": mean_f, "q_vol": q_vol, "mapper": mapper})
+                               "prob_succs": prob_succs, "mean_f": mean_f, "q_vol": q_vol, "mapper": mapper, "benchmark": benchmark})
 
     return data_frame
 
@@ -332,8 +332,14 @@ def swap_proportion_analysis(df_cl, t1, meas_error):
 
 def fidelity_bar_plot(df_cl, t1, meas_error):
 
-    df_mapper = df_cl["mapper"] == "minextendrc"
-    df_mapper.describe()
+    df_mapper = df_cl[df_cl["mapper"] ==
+                      "minextendrc" & df_cl["mapper"] == "no"]
+    df_mapper.sort_values(by=["benchmark"])
+
+    df_mapper = df_mapper[df_mapper["benchmark"].isin(
+        benchmark_selection_corr_ps_f)]
+
+    print(df_mapper.describe())
 
 
 def data_analysis(t1, meas_error):
@@ -348,6 +354,7 @@ def data_analysis(t1, meas_error):
     q_vol = []
     N_two_qg = []
     mapper = []
+    benchmark = []
 
     print("\n\tAnalysis For Decoherence Time = " +
           t1+" and Error Measurement = "+meas_error)
@@ -369,9 +376,10 @@ def data_analysis(t1, meas_error):
             q_vol.append(b_i[5])
             N_two_qg.append(two_q_gates[b_i[6]]+3*b_i[1])
             mapper.append(b_i[7])
+            benchmark.append(b_i[6])
 
     data_frame = store_db_main_info(
-        N_gates, N_two_qg, N_swaps, depth, prob_succs, mean_f, q_vol, mapper)
+        N_gates, N_two_qg, N_swaps, depth, prob_succs, mean_f, q_vol, mapper, benchmark)
     df_cl = clean_data_frame(data_frame)
 
     meas_error = meas_error.replace(".", "_")
