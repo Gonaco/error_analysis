@@ -347,6 +347,7 @@ def data_analysis(t1, meas_error):
     mean_f = []
     q_vol = []
     N_two_qg = []
+    mapper = []
 
     print("\n\tAnalysis For Decoherence Time = " +
           t1+" and Error Measurement = "+meas_error)
@@ -367,9 +368,10 @@ def data_analysis(t1, meas_error):
             mean_f.append(b_i[4])
             q_vol.append(b_i[5])
             N_two_qg.append(two_q_gates[b_i[6]]+3*b_i[1])
+            mapper.append(b_i[5])
 
     data_frame = store_db_main_info(
-        N_gates, N_two_qg, N_swaps, depth, prob_succs, mean_f, q_vol)
+        N_gates, N_two_qg, N_swaps, depth, prob_succs, mean_f, q_vol, mapper)
     df_cl = clean_data_frame(data_frame)
 
     meas_error = meas_error.replace(".", "_")
