@@ -525,8 +525,8 @@ def data_analysis(t1, meas_error):
     diff_f_ps_swap_percentage(df_cl, t1, meas_error)
 
 
-param = [["3000", "0.005"], ["1000", "0.005"]]
-# param = [["3000", "0.005"], ["3000", "0"]]
+# param = [["3000", "0.005"], ["1000", "0.005"]]
+param = [["3000", "0.005"], ["3000", "0"]]
 figf, axf = plt.subplots()
 figps, axps = plt.subplots()
 figfps, axfps = plt.subplots()
