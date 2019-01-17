@@ -150,9 +150,9 @@ def svm_regression(x, y):
     return y_poly
 
 
-def plot_relation(y, x, save_name, ylabel, xlabel):
+def plot_relation(y, x, save_name, ylabel, xlabel, ax):
     # fig = plt.figure()
-    plt.scatter(x, y)
+    ax.scatter(x, y)
     # fig.suptitle('test title', fontsize=20)
 
     # Fitting line (regression)
@@ -160,7 +160,7 @@ def plot_relation(y, x, save_name, ylabel, xlabel):
     # plt.plot(point, f, lw=2.5, c="k", label="fit line")
 
     X_test, y_pred = linear_regression(x, y)
-    plt.plot(X_test, y_pred, linewidth=3, label="fit line (linear regression)")
+    ax.plot(X_test, y_pred, linewidth=3, label="fit line (linear regression)")
 
     # y_rbf, y_lin, y_poly = svm_regression(x, y)
     # plt.plot(x, y_rbf, color='navy', lw=3, label='RBF model')
@@ -168,12 +168,12 @@ def plot_relation(y, x, save_name, ylabel, xlabel):
     # plt.plot(x, y_poly, color='orange', lw=3, label='Polynomial model')
 
     y_poly = svm_regression(x, y)
-    plt.plot(x, y_poly, color='orange', lw=3, label='Polynomial model')
+    ax.plot(x, y_poly, color='orange', lw=3, label='Polynomial model')
 
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.savefig(save_name)
-    plt.clf()
+    ax.xlabel(xlabel)
+    ax.ylabel(ylabel)
+    # plt.savefig(save_name)
+    # plt.clf()
 
 
 def clean_data_frame(data_frame):
@@ -368,7 +368,7 @@ def fidelity_bar_plot(df_cl, t1, meas_error):
         0.2666, 0.4392, 0.5333), align='center')
     ax1.bar(x2, df_rcmapper["mean_f"], width=0.2, color=(
         0.3058, 0.7058, 0.9215), align='center')
-    plt.xticks(x, df_rcmapper["benchmark"], rotation=30, fontsize=8)
+    plt.xticks(x, df_rcmapper["benchmark"], rotation=0, fontsize=8)
 
     # # Option 3
     # ax = plt.subplot(111)
@@ -414,7 +414,7 @@ def prb_succs_perctg(df_cl):
     return ps_perctg_array, perctg_swaps
 
 
-def diff_f_ps_swap_percentage(df_cl, t1, meas_error):
+def diff_f_ps_swap_percentage(df_cl, t1, meas_error, axf, axps):
 
     f_perctg_array, perctg_swaps = fidelity_perctg(df_cl)
     ps_perctg_array, perctg_swaps = prb_succs_perctg(df_cl)
@@ -423,14 +423,14 @@ def diff_f_ps_swap_percentage(df_cl, t1, meas_error):
 
     f_s_corr = pearsonr(f_perctg_array, perctg_swaps)
     plot_relation(f_perctg_array, perctg_swaps,
-                  "f_swap_percentage_"+t1+"_"+meas_error, "percentage of decrement in fidelity", "percentage of SWAPS")
+                  "f_swap_percentage_"+t1+"_"+meas_error, "percentage of decrement in fidelity", "percentage of SWAPS", axf)
     print(f_s_corr)
 
     print("\n\t-- Correlation between the percentage of decrement in Prob. Success and percentage of SWAPS")
 
     ps_s_corr = pearsonr(ps_perctg_array, perctg_swaps)
     plot_relation(ps_perctg_array, perctg_swaps,
-                  "ps_swap_percentage_"+t1+"_"+meas_error, "percentage of decrement in Probability of success", "percentage of SWAPS")
+                  "ps_swap_percentage_"+t1+"_"+meas_error, "percentage of decrement in Probability of success", "percentage of SWAPS", axps)
     print(ps_s_corr)
 
 
@@ -482,10 +482,67 @@ def data_analysis(t1, meas_error):
 
     # swap_proportion_analysis(df_cl, t1, meas_error)
 
-    fidelity_bar_plot(df_cl, t1, meas_error)
+    # fidelity_bar_plot(df_cl, t1, meas_error)
     diff_f_ps_swap_percentage(df_cl, t1, meas_error)
 
 
-data_analysis("3000", "0.005")
-# data_analysis("1000", "0.005")
-# data_analysis("3000", "0")
+param = [["3000", "0.005"], ["1000", "0.005"]]
+figf, axf = plt.subplots()
+figps, axps = plt.subplots()
+
+for p in param:
+
+    t1 = p[0]
+    meas_error = p[1]
+    N_gates = []
+    N_swaps = []
+    depth = []
+    prob_succs = []
+    mean_f = []
+    q_vol = []
+    N_two_qg = []
+    mapper = []
+    benchmark = []
+
+    print("\n\tAnalysis For Decoherence Time = " +
+          t1+" and Error Measurement = "+meas_error)
+    print("\n\t-------------------------------")
+
+    for i in range(5):
+
+        db_path = "/home/dmorenomanzano/qbench/mapping_benchmarks/simple_benchs_smart_fast{i}.db".format(
+            i=i if i > 0 else "")
+
+        # bench_info = extract_decoher_info(db_path, t1)
+        bench_info = extract_info(db_path, t1, meas_error)
+        for b_i in bench_info:
+            N_gates.append(b_i[0])
+            N_swaps.append(b_i[1])
+            depth.append(b_i[2])
+            prob_succs.append(b_i[3])
+            mean_f.append(b_i[4])
+            q_vol.append(b_i[5])
+            N_two_qg.append(two_q_gates[b_i[6]]+3*b_i[1])
+            mapper.append(b_i[7])
+            benchmark.append(b_i[6])
+
+        data_frame = store_db_main_info(
+            N_gates, N_two_qg, N_swaps, depth, prob_succs, mean_f, q_vol, mapper, benchmark)
+        df_cl = clean_data_frame(data_frame)
+
+        meas_error = meas_error.replace(".", "_")
+
+        # general_results(df_cl, t1, meas_error)
+
+        # two_q_gates_analysis(df_cl, t1, meas_error)
+
+        # swap_proportion_analysis(df_cl, t1, meas_error)
+
+        # fidelity_bar_plot(df_cl, t1, meas_error)
+        diff_f_ps_swap_percentage(df_cl, t1, meas_error)
+
+figf.savefig("f_sprop_"+t1+"_"+meas_error+".png")
+figf.clf()
+
+figps.savefig("ps_sprop_"+t1+"_"+meas_error+".png")
+figps.clf()
