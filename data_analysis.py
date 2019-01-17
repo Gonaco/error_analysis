@@ -57,7 +57,7 @@ two_q_gates = {
 
 benchmark_selection_corr_ps_f = ["graycode6_47",
                                  "sf_274",
-                                 "mod5d1_63"
+                                 "mod5d1_63",
                                  "xor5_254",
                                  "ham3_102"]
 
@@ -335,16 +335,17 @@ def fidelity_bar_plot(df_cl, t1, meas_error):
     df_nomapper = df_cl[df_cl["mapper"] == "no"]
     df_rcmapper = df_cl[df_cl["mapper"] == "minextendrc"]
 
-    df_rcmapper.sort_values(by=["benchmark"])
-    df_rcmapper.drop_duplicates(subset=["benchmark"], keep="first")
-    df_nomapper.sort_values(by=["benchmark"])
-    df_nomapper.drop_duplicates(subset=["benchmark"], keep="first")
+    df_rcmapper = df_rcmapper.sort_values(by=["benchmark"])
+    df_rcmapper = df_rcmapper.drop_duplicates(
+        subset=["benchmark"], keep="first")
+    df_nomapper = df_nomapper.sort_values(by=["benchmark"])
+    df_nomapper = df_nomapper.drop_duplicates(
+        subset=["benchmark"], keep="first")
 
     # Selecting the benchmarks
-    df_nomapper = df_nomapper.set_index(["benchmark"])
-    df_nomapper = df_nomapper[df_nomapper.index.isin(
+    df_nomapper = df_nomapper[df_nomapper["benchmark"].isin(
         benchmark_selection_corr_ps_f)]
-    df_rcmapper = df_rcmapper[df_rcmapper.index.isin(
+    df_rcmapper = df_rcmapper[df_rcmapper["benchmark"].isin(
         benchmark_selection_corr_ps_f)]
 
     fig1, ax1 = plt.subplots()
@@ -361,7 +362,7 @@ def fidelity_bar_plot(df_cl, t1, meas_error):
 
     ax1.bar(x1, df_nomapper["mean_f"], width=0.2, color='b', align='center')
     ax1.bar(x2, df_rcmapper["mean_f"], width=0.2, color='r', align='center')
-    plt.xticks(x, df_rcmapper["benchmark"], rotation=45)
+    plt.xticks(x, df_rcmapper["benchmark"], rotation=30, labelsize=9)
 
     # # Option 3
     # ax = plt.subplot(111)
