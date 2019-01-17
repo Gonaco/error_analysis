@@ -332,13 +332,31 @@ def swap_proportion_analysis(df_cl, t1, meas_error):
 
 def fidelity_bar_plot(df_cl, t1, meas_error):
 
-    df_mapper = df_cl[df_cl["mapper"].isin(["minextendrc", "no"])]
-    df_mapper.sort_values(by=["benchmark"])
+    df_nomapper = df_cl[df_cl["benchmark"] == "no"]
+    df_rcmapper = df_cl[df_cl["benchmark"] == "minextendrc"]
 
-    df_mapper = df_mapper[df_mapper["benchmark"].isin(
-        benchmark_selection_corr_ps_f)]
+    df_rcmapper.sort_values(by=["benchmark"])
+    df_rcmapper.drop_duplicates(subset=["benchmark"], keep="first")
+    df_nomapper.sort_values(by=["benchmark"])
+    df_nomapper.drop_duplicates(subset=["benchmark"], keep="first")
 
-    ax = df_mapper.plot.bar(x="benchmark", y="mean_f")
+    # Option 1
+    ax = df_rcmapper.plot.bar(x="benchmark", y="mean_f")
+    ax = df_nomapper.plot.bar(x="benchmark", y="mean_f")
+
+    # # Option 2
+    # x = list(range(1, 6))
+    # ax = plt.subplot(111)
+    # ax.bar(x-0.2, y, width=0.2, color='b', align='center')
+    # ax.bar(x+0.2, k, width=0.2, color='r', align='center')
+
+    # # Option 3
+    # ax = plt.subplot(111)
+    # ax.bar(df_nomapper["benchmark"], df_nomapper["mean_f"],
+    #        width=0.2, color='b', align='center')
+    # ax.bar(df_rcmapper["benchmark"], df_rcmapper["mean_f"],
+    #        width=0.2, color='r', align='center')
+
     fig = ax.get_figure()
     fig.savefig("bar_plot_test.png")
     fig.clf()
