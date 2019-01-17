@@ -541,12 +541,12 @@ for p in param:
         # fidelity_bar_plot(df_cl, t1, meas_error)
         diff_f_ps_swap_percentage(df_cl, t1, meas_error_, axf, axps)
 
-figf.savefig("f_sprop_"+t1+"_"+meas_error_+".png")
+figf.savefig("f_swap_percentage_"+meas_error_+".png")
 figf.xlabel("percentage of SWAPS")
 figf.ylabel("percentage of decrement in fidelity")
 figf.clf()
 
-figps.savefig("ps_sprop_"+t1+"_"+meas_error_+".png")
+figps.savefig("ps_sprop_swap_percentage"+meas_error_+".png")
 figps.xlabel("percentage of SWAPS")
 figps.ylabel("percentage of decrement in Probability of success")
 figps.clf()
