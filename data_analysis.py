@@ -57,9 +57,9 @@ two_q_gates = {
 
 benchmark_selection_corr_ps_f = ["graycode6_47",
                                  "sf_274",
-                                 "mod5d1_63",
+                                 "mod5adder_127",
                                  "xor5_254",
-                                 "ham3_102"]
+                                 "hwb4_49"]
 
 
 def extract_decoher_info(db_path, t1):
