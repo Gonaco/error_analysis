@@ -332,8 +332,8 @@ def swap_proportion_analysis(df_cl, t1, meas_error):
 
 def fidelity_bar_plot(df_cl, t1, meas_error):
 
-    df_nomapper = df_cl[df_cl["benchmark"] == "no"]
-    df_rcmapper = df_cl[df_cl["benchmark"] == "minextendrc"]
+    df_nomapper = df_cl[df_cl["mapper"] == "no"]
+    df_rcmapper = df_cl[df_cl["mapper"] == "minextendrc"]
 
     df_rcmapper.sort_values(by=["benchmark"])
     df_rcmapper.drop_duplicates(subset=["benchmark"], keep="first")
