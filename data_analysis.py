@@ -170,8 +170,8 @@ def plot_relation(y, x, save_name, ylabel, xlabel, ax):
     y_poly = svm_regression(x, y)
     ax.plot(x, y_poly, color='orange', lw=3, label='Polynomial model')
 
-    ax.xlabel(xlabel)
-    ax.ylabel(ylabel)
+    # plt.xlabel(xlabel)
+    # plt.ylabel(ylabel)
     # plt.savefig(save_name)
     # plt.clf()
 
@@ -539,10 +539,14 @@ for p in param:
         # swap_proportion_analysis(df_cl, t1, meas_error)
 
         # fidelity_bar_plot(df_cl, t1, meas_error)
-        diff_f_ps_swap_percentage(df_cl, t1, meas_error)
+        diff_f_ps_swap_percentage(df_cl, t1, meas_error, axf, axps)
 
 figf.savefig("f_sprop_"+t1+"_"+meas_error+".png")
+figf.xlabel("percentage of SWAPS")
+figf.ylabel("percentage of decrement in fidelity")
 figf.clf()
 
 figps.savefig("ps_sprop_"+t1+"_"+meas_error+".png")
+figps.xlabel("percentage of SWAPS")
+figps.ylabel("percentage of decrement in Probability of success")
 figps.clf()
