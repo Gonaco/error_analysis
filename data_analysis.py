@@ -348,9 +348,11 @@ def fidelity_bar_plot(df_cl, t1, meas_error):
 
     # Option 2
     x = list(range(1, 6))
+    x1 = [i-0.2 for i in range(1, 6)]
+    x2 = [i+0.2 for i in range(1, 6)]
 
-    ax1.bar(x-0.2, df_nomapper["mean_f"], width=0.2, color='b', align='center')
-    ax1.bar(x+0.2, df_rcmapper["mean_f"], width=0.2, color='r', align='center')
+    ax1.bar(x1, df_nomapper["mean_f"], width=0.2, color='b', align='center')
+    ax1.bar(x2, df_rcmapper["mean_f"], width=0.2, color='r', align='center')
     plt.xticks(x, df_rcmapper["benchmark"])
 
     # # Option 3
