@@ -342,15 +342,16 @@ def fidelity_bar_plot(df_cl, t1, meas_error):
 
     fig1, ax1 = plt.subplots()
 
-    # Option 1
-    df_rcmapper.plot.bar(x="benchmark", y="mean_f", ax=ax1)
-    df_nomapper.plot.bar(x="benchmark", y="mean_f", ax=ax1)
+    # # Option 1
+    # df_nomapper.plot.bar(x="benchmark", y="mean_f", ax=ax1)
+    # df_rcmapper.plot.bar(x="benchmark", y="mean_f", ax=ax1)
 
-    # # Option 2
-    # x = list(range(1, 6))
-    # ax = plt.subplot(111)
-    # ax.bar(x-0.2, y, width=0.2, color='b', align='center')
-    # ax.bar(x+0.2, k, width=0.2, color='r', align='center')
+    # Option 2
+    x = list(range(1, 6))
+
+    ax1.bar(x-0.2, df_nomapper["mean_f"], width=0.2, color='b', align='center')
+    ax1.bar(x+0.2, df_rcmapper["mean_f"], width=0.2, color='r', align='center')
+    plt.xticks(x, df_rcmapper["benchmark"])
 
     # # Option 3
     # ax = plt.subplot(111)
@@ -359,7 +360,6 @@ def fidelity_bar_plot(df_cl, t1, meas_error):
     # ax.bar(df_rcmapper["benchmark"], df_rcmapper["mean_f"],
     #        width=0.2, color='r', align='center')
 
-    # fig = ax.get_figure()
     fig1.savefig("bar_plot_test.png")
     fig1.clf()
 
