@@ -341,9 +341,10 @@ def fidelity_bar_plot(df_cl, t1, meas_error):
     df_nomapper.drop_duplicates(subset=["benchmark"], keep="first")
 
     # Selecting the benchmarks
-    df_nomapper = df_nomapper.loc[df_nomapper["benchmark"].isin(
+    df_nomapper = df_nomapper.set_index(["benchmark"])
+    df_nomapper = df_nomapper[df_nomapper.index.isin(
         benchmark_selection_corr_ps_f)]
-    df_rcmapper = df_rcmapper.loc[df_rcmapper["benchmark"].isin(
+    df_rcmapper = df_rcmapper[df_rcmapper.index.isin(
         benchmark_selection_corr_ps_f)]
 
     fig1, ax1 = plt.subplots()
@@ -360,7 +361,7 @@ def fidelity_bar_plot(df_cl, t1, meas_error):
 
     ax1.bar(x1, df_nomapper["mean_f"], width=0.2, color='b', align='center')
     ax1.bar(x2, df_rcmapper["mean_f"], width=0.2, color='r', align='center')
-    plt.xticks(x, df_rcmapper["benchmark"], rotation=90)
+    plt.xticks(x, df_rcmapper["benchmark"], rotation=45)
 
     # # Option 3
     # ax = plt.subplot(111)
