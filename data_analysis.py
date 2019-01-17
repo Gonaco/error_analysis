@@ -83,6 +83,18 @@ def extract_info(db_path, t1, meas_error):
     return cursor.fetchall()
 
 
+def extract_info_f_filter(db_path, t1, meas_error, f_min, f_max):
+
+    connection = sqlite3.connect(db_path)
+    cursor = connection.cursor()
+
+    # NO INITIAL PLACEMENT IS TO AVOID FOR NOW THE ERROR OF INITIAL PLACEMENTS AND THE NUMBER OF GATES TO AVOID THE ALGORITHM SYM6
+    query = "SELECT DISTINCT HardwareBenchs.N_gates, HardwareBenchs.N_swaps, depth, prob_succs, mean_f, q_vol, Benchmarks.benchmark, mapper FROM SimulationsInfo LEFT JOIN HardwareBenchs ON algorithm=HardwareBenchs.id LEFT JOIN Results ON result=Results.id LEFT JOIN Experiments ON experiment=Experiments.id LEFT JOIN Benchmarks ON HardwareBenchs.benchmark=Benchmarks.id LEFT JOIN Configurations ON configuration=Configurations.id WHERE SimulationsInfo.t1 = {t1} AND meas_error = {meas_error} AND initial_placement='no' AND Benchmarks.N_gates < 3888 AND mean_f > {f_min} AND mean_f < {f_max};"
+    cursor.execute(query.format(
+        t1=t1, meas_error=meas_error, f_min=f_min, f_max=f_max))
+    return cursor.fetchall()
+
+
 def store_db_main_info(N_gates, N_two_qg, N_swaps, depth, prob_succs, mean_f, q_vol, mapper, benchmark):
 
     data_frame = pd.DataFrame({"N_gates": N_gates, "N_two_qg": N_two_qg, "N_swaps": N_swaps, "depth": depth,
@@ -271,20 +283,20 @@ def prb_succs_diff(df_cl):
 
 def two_q_gates_f_diff_analysis(df_cl, t1, meas_error):
 
-    f_diff_array, N_swaps = fidelity_diff(df_cl)
-    ps_diff_array, N_swaps = prb_succs_diff(df_cl)
+    f_diff_array, N_swaps_f = fidelity_diff(df_cl)
+    ps_diff_array, N_swaps_ps = prb_succs_diff(df_cl)
 
     print("\n\t-- Correlation between the decrement in Fidelity and # of SWAPS")
 
-    f_s_corr = pearsonr(f_diff_array, N_swaps)
-    plot_relation(f_diff_array, N_swaps,
+    f_s_corr = pearsonr(f_diff_array, N_swaps_f)
+    plot_relation(f_diff_array, N_swaps_f,
                   "f_s_2qg_"+t1+"_"+meas_error, "decrement in fidelity", "# of SWAPS")
     print(f_s_corr)
 
     print("\n\t-- Correlation between the decrement in Prob. Success and # of SWAPS")
 
-    ps_s_corr = pearsonr(ps_diff_array, N_swaps)
-    plot_relation(ps_diff_array, N_swaps,
+    ps_s_corr = pearsonr(ps_diff_array, N_swaps_ps)
+    plot_relation(ps_diff_array, N_swaps_ps,
                   "ps_s_2qg_"+t1+"_"+meas_error, "decrement in fidelity", "# of SWAPS")
     print(ps_s_corr)
 
@@ -390,9 +402,23 @@ def fidelity_perctg(df_cl):
 
         if row["N_swaps"] == 0:
             no_map_entr = row["mean_f"]
+            d_b = row["depth"]
         else:
             f_perctg_array.append((no_map_entr - row["mean_f"])/no_map_entr)
             perctg_swaps.append(row["N_swaps"]/row["N_gates"])
+
+            # Infidelity perc\entage
+            f_perctg_array.append(-(row["mean_f"] -
+                                    no_map_entr)/(1 - no_map_entr))
+            # f_perctg_array.append(-(row["mean_f"] - no_map_entr)/no_map_entr)
+            # f_perctg_array.append(-(row["mean_f"] - no_map_entr))
+
+            # perctg_swaps.append(row["N_swaps"]/(row["N_gates"]-9*row["N_swaps"]))
+            # perctg_swaps.append(row["N_swaps"])
+
+            perctg_swaps.append((d_b - row["depth"])/d_b)
+            # perctg_swaps.append(d_b - row["depth"])
+            # perctg_swaps.append(row["depth"])
 
     return f_perctg_array, perctg_swaps
 
@@ -432,6 +458,19 @@ def diff_f_ps_swap_percentage(df_cl, t1, meas_error, axf, axps):
     plot_relation(ps_perctg_array, perctg_swaps_ps,
                   "ps_swap_percentage_"+t1+"_"+meas_error, "percentage of decrement in Probability of success", "percentage of SWAPS", axps)
     print(ps_s_corr)
+
+
+def f_ps_correlation(df_cl, t1, meas_error, ax):
+
+    f = df_cl["mean_f"]
+    ps = df_cl["prob_succs"]
+
+    print("\n\t-- Correlation between the Fidelity and Probability of Success")
+
+    f_ps_corr = pearsonr(ps, f)
+    plot_relation(ps, f,
+                  "f_ps_correlation_"+t1+"_"+meas_error, "probability of success", "fidelity", axf)
+    print(f_ps_corr)
 
 
 def data_analysis(t1, meas_error):
@@ -487,8 +526,10 @@ def data_analysis(t1, meas_error):
 
 
 param = [["3000", "0.005"], ["1000", "0.005"]]
+# param = [["3000", "0.005"], ["3000", "0"]]
 figf, axf = plt.subplots()
 figps, axps = plt.subplots()
+figfps, axfps = plt.subplots()
 
 for p in param:
 
@@ -539,7 +580,8 @@ for p in param:
     # swap_proportion_analysis(df_cl, t1, meas_error)
 
     # fidelity_bar_plot(df_cl, t1, meas_error)
-    diff_f_ps_swap_percentage(df_cl, t1, meas_error_, axf, axps)
+    # diff_f_ps_swap_percentage(df_cl, t1, meas_error_, axf, axps)
+    f_ps_correlation(df_cl, t1, meas_error, axfps)
 
 figf.savefig("f_swap_percentage_"+meas_error_+".png")
 figf.xlabel("percentage of SWAPS")
