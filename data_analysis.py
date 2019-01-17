@@ -347,7 +347,8 @@ def fidelity_bar_plot(df_cl, t1, meas_error):
     # df_rcmapper.plot.bar(x="benchmark", y="mean_f", ax=ax1)
 
     # Option 2
-    x = list(range(1, 6))
+    N_benchs = len(df_nomapper["mean_f"])
+    x = list(range(1, N_benchs))
     x1 = [i-0.2 for i in range(1, 6)]
     x2 = [i+0.2 for i in range(1, 6)]
 
