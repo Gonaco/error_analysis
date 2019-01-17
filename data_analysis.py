@@ -469,7 +469,7 @@ def f_ps_correlation(df_cl, t1, meas_error, ax):
 
     f_ps_corr = pearsonr(ps, f)
     plot_relation(ps, f,
-                  "f_ps_correlation_"+t1+"_"+meas_error, "probability of success", "fidelity", axf)
+                  "f_ps_correlation_"+meas_error, "probability of success", "fidelity", axf)
     print(f_ps_corr)
 
 
@@ -584,11 +584,16 @@ for p in param:
     f_ps_correlation(df_cl, t1, meas_error, axfps)
 
 figf.savefig("f_swap_percentage_"+meas_error_+".png")
-figf.xlabel("percentage of SWAPS")
-figf.ylabel("percentage of decrement in fidelity")
+# figf.xlabel("percentage of SWAPS")
+# figf.ylabel("percentage of decrement in fidelity")
 figf.clf()
 
 figps.savefig("ps_sprop_swap_percentage"+meas_error_+".png")
-figps.xlabel("percentage of SWAPS")
-figps.ylabel("percentage of decrement in Probability of success")
+# figps.xlabel("percentage of SWAPS")
+# figps.ylabel("percentage of decrement in Probability of success")
 figps.clf()
+
+figfps.savefig("f_ps_correlation_"+meas_error+".png")
+# figfps.xlabel("percentage of SWAPS")
+# figfps.ylabel("percentage of decrement in fidelity")
+figfps.clf()
