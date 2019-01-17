@@ -530,7 +530,7 @@ for p in param:
             N_gates, N_two_qg, N_swaps, depth, prob_succs, mean_f, q_vol, mapper, benchmark)
         df_cl = clean_data_frame(data_frame)
 
-        meas_error = meas_error.replace(".", "_")
+        meas_error_ = meas_error.replace(".", "_")
 
         # general_results(df_cl, t1, meas_error)
 
@@ -539,14 +539,14 @@ for p in param:
         # swap_proportion_analysis(df_cl, t1, meas_error)
 
         # fidelity_bar_plot(df_cl, t1, meas_error)
-        diff_f_ps_swap_percentage(df_cl, t1, meas_error, axf, axps)
+        diff_f_ps_swap_percentage(df_cl, t1, meas_error_, axf, axps)
 
-figf.savefig("f_sprop_"+t1+"_"+meas_error+".png")
+figf.savefig("f_sprop_"+t1+"_"+meas_error_+".png")
 figf.xlabel("percentage of SWAPS")
 figf.ylabel("percentage of decrement in fidelity")
 figf.clf()
 
-figps.savefig("ps_sprop_"+t1+"_"+meas_error+".png")
+figps.savefig("ps_sprop_"+t1+"_"+meas_error_+".png")
 figps.xlabel("percentage of SWAPS")
 figps.ylabel("percentage of decrement in Probability of success")
 figps.clf()
