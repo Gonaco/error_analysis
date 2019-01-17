@@ -526,20 +526,20 @@ for p in param:
             mapper.append(b_i[7])
             benchmark.append(b_i[6])
 
-        data_frame = store_db_main_info(
-            N_gates, N_two_qg, N_swaps, depth, prob_succs, mean_f, q_vol, mapper, benchmark)
-        df_cl = clean_data_frame(data_frame)
+    data_frame = store_db_main_info(
+        N_gates, N_two_qg, N_swaps, depth, prob_succs, mean_f, q_vol, mapper, benchmark)
+    df_cl = clean_data_frame(data_frame)
 
-        meas_error_ = meas_error.replace(".", "_")
+    meas_error_ = meas_error.replace(".", "_")
 
-        # general_results(df_cl, t1, meas_error)
+    # general_results(df_cl, t1, meas_error)
 
-        # two_q_gates_analysis(df_cl, t1, meas_error)
+    # two_q_gates_analysis(df_cl, t1, meas_error)
 
-        # swap_proportion_analysis(df_cl, t1, meas_error)
+    # swap_proportion_analysis(df_cl, t1, meas_error)
 
-        # fidelity_bar_plot(df_cl, t1, meas_error)
-        diff_f_ps_swap_percentage(df_cl, t1, meas_error_, axf, axps)
+    # fidelity_bar_plot(df_cl, t1, meas_error)
+    diff_f_ps_swap_percentage(df_cl, t1, meas_error_, axf, axps)
 
 figf.savefig("f_swap_percentage_"+meas_error_+".png")
 figf.xlabel("percentage of SWAPS")
