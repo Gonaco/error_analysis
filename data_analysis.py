@@ -139,15 +139,15 @@ def svm_regression(x, y):
     x = np.array(x).reshape(-1, 1)
     y = np.array(y).reshape(-1, 1)
 
-    # svr_rbf = SVR(kernel='rbf', C=1e3, gamma=0.1)
+    svr_rbf = SVR(kernel='rbf', C=1e3, gamma=0.1)
     # svr_lin = SVR(kernel='linear', C=1e3)
-    svr_poly = SVR(kernel='poly', C=1e3, degree=2)
-    # y_rbf = svr_rbf.fit(x, y).predict(x)
+    # svr_poly = SVR(kernel='poly', C=1e3, degree=2)
+    y_rbf = svr_rbf.fit(x, y).predict(x)
     # y_lin = svr_lin.fit(x, y).predict(x)
-    y_poly = svr_poly.fit(x, y).predict(x)
+    # y_poly = svr_poly.fit(x, y).predict(x)
 
     # return y_rbf, y_lin, y_poly
-    return y_poly
+    return y_rbf
 
 
 def plot_relation(y, x, save_name, ylabel, xlabel, ax):
@@ -416,20 +416,20 @@ def prb_succs_perctg(df_cl):
 
 def diff_f_ps_swap_percentage(df_cl, t1, meas_error, axf, axps):
 
-    f_perctg_array, perctg_swaps = fidelity_perctg(df_cl)
-    ps_perctg_array, perctg_swaps = prb_succs_perctg(df_cl)
+    f_perctg_array, perctg_swaps_f = fidelity_perctg(df_cl)
+    ps_perctg_array, perctg_swaps_ps = prb_succs_perctg(df_cl)
 
     print("\n\t-- Correlation between the percentage of decrement in Fidelity and percentage of SWAPS")
 
-    f_s_corr = pearsonr(f_perctg_array, perctg_swaps)
-    plot_relation(f_perctg_array, perctg_swaps,
+    f_s_corr = pearsonr(f_perctg_array, perctg_swaps_f)
+    plot_relation(f_perctg_array, perctg_swaps_f,
                   "f_swap_percentage_"+t1+"_"+meas_error, "percentage of decrement in fidelity", "percentage of SWAPS", axf)
     print(f_s_corr)
 
     print("\n\t-- Correlation between the percentage of decrement in Prob. Success and percentage of SWAPS")
 
-    ps_s_corr = pearsonr(ps_perctg_array, perctg_swaps)
-    plot_relation(ps_perctg_array, perctg_swaps,
+    ps_s_corr = pearsonr(ps_perctg_array, perctg_swaps_ps)
+    plot_relation(ps_perctg_array, perctg_swaps_ps,
                   "ps_swap_percentage_"+t1+"_"+meas_error, "percentage of decrement in Probability of success", "percentage of SWAPS", axps)
     print(ps_s_corr)
 
