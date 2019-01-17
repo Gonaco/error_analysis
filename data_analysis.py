@@ -139,14 +139,15 @@ def svm_regression(x, y):
     x = np.array(x).reshape(-1, 1)
     y = np.array(y).reshape(-1, 1)
 
-    svr_rbf = SVR(kernel='rbf', C=1e3, gamma=0.1)
-    svr_lin = SVR(kernel='linear', C=1e3)
+    # svr_rbf = SVR(kernel='rbf', C=1e3, gamma=0.1)
+    # svr_lin = SVR(kernel='linear', C=1e3)
     svr_poly = SVR(kernel='poly', C=1e3, degree=2)
-    y_rbf = svr_rbf.fit(x, y).predict(x)
-    y_lin = svr_lin.fit(x, y).predict(x)
+    # y_rbf = svr_rbf.fit(x, y).predict(x)
+    # y_lin = svr_lin.fit(x, y).predict(x)
     y_poly = svr_poly.fit(x, y).predict(x)
 
-    return y_rbf, y_lin, y_poly
+    # return y_rbf, y_lin, y_poly
+    return y_poly
 
 
 def plot_relation(y, x, save_name, ylabel, xlabel):
@@ -161,9 +162,12 @@ def plot_relation(y, x, save_name, ylabel, xlabel):
     X_test, y_pred = linear_regression(x, y)
     plt.plot(X_test, y_pred, linewidth=3, label="fit line (linear regression)")
 
-    y_rbf, y_lin, y_poly = svm_regression(x, y)
-    plt.plot(x, y_rbf, color='navy', lw=3, label='RBF model')
-    plt.plot(x, y_lin, color='c', lw=3, label='Linear model')
+    # y_rbf, y_lin, y_poly = svm_regression(x, y)
+    # plt.plot(x, y_rbf, color='navy', lw=3, label='RBF model')
+    # plt.plot(x, y_lin, color='c', lw=3, label='Linear model')
+    # plt.plot(x, y_poly, color='orange', lw=3, label='Polynomial model')
+
+    y_poly = svm_regression(x, y)
     plt.plot(x, y_poly, color='orange', lw=3, label='Polynomial model')
 
     plt.xlabel(xlabel)
@@ -360,9 +364,11 @@ def fidelity_bar_plot(df_cl, t1, meas_error):
     x1 = [i-0.2 for i in range(1, N_benchs+1)]
     x2 = [i+0.2 for i in range(1, N_benchs+1)]
 
-    ax1.bar(x1, df_nomapper["mean_f"], width=0.2, color='b', align='center')
-    ax1.bar(x2, df_rcmapper["mean_f"], width=0.2, color='r', align='center')
-    plt.xticks(x, df_rcmapper["benchmark"], rotation=30, fontsize=9)
+    ax1.bar(x1, df_nomapper["mean_f"], width=0.2, color=(
+        0.2666, 0.4392, 0.5333), align='center')
+    ax1.bar(x2, df_rcmapper["mean_f"], width=0.2, color=(
+        0.3058, 0.7058, 0.9215), align='center')
+    plt.xticks(x, df_rcmapper["benchmark"], rotation=30, fontsize=8)
 
     # # Option 3
     # ax = plt.subplot(111)
@@ -371,8 +377,61 @@ def fidelity_bar_plot(df_cl, t1, meas_error):
     # ax.bar(df_rcmapper["benchmark"], df_rcmapper["mean_f"],
     #        width=0.2, color='r', align='center')
 
-    fig1.savefig("bar_plot_test.png")
+    fig1.savefig("f_diff_bar_plot.png")
     fig1.clf()
+
+
+def fidelity_perctg(df_cl):
+
+    f_perctg_array = []
+    perctg_swaps = []
+
+    for index, row in df_cl.iterrows():
+
+        if row["N_swaps"] == 0:
+            no_map_entr = row["mean_f"]
+        else:
+            f_perctg_array.append((no_map_entr - row["mean_f"])/no_map_entr)
+            perctg_swaps.append(row["N_swaps"]/row["N_gates"])
+
+    return f_perctg_array, perctg_swaps
+
+
+def prb_succs_perctg(df_cl):
+
+    ps_perctg_array = []
+    perctg_swaps = []
+
+    for index, row in df_cl.iterrows():
+
+        if row["N_swaps"] == 0:
+            no_map_entr = row["prob_succs"]
+        else:
+            ps_perctg_array.append(
+                (no_map_entr - row["prob_succs"])/no_map_entr)
+            perctg_swaps.append(row["N_swaps"]/row["N_gates"])
+
+    return ps_perctg_array, perctg_swaps
+
+
+def diff_f_ps_swap_percentage(df_cl, t1, meas_error):
+
+    f_perctg_array, perctg_swaps = fidelity_perctg(df_cl)
+    ps_perctg_array, perctg_swaps = prb_succs_perctg(df_cl)
+
+    print("\n\t-- Correlation between the percentage of decrement in Fidelity and percentage of SWAPS")
+
+    f_s_corr = pearsonr(f_perctg_array, perctg_swaps)
+    plot_relation(f_perctg_array, perctg_swaps,
+                  "f_swap_percentage_"+t1+"_"+meas_error, "percentage of decrement in fidelity", "percentage of SWAPS")
+    print(f_s_corr)
+
+    print("\n\t-- Correlation between the percentage of decrement in Prob. Success and percentage of SWAPS")
+
+    ps_s_corr = pearsonr(ps_perctg_array, perctg_swaps)
+    plot_relation(ps_perctg_array, perctg_swaps,
+                  "ps_swap_percentage_"+t1+"_"+meas_error, "percentage of decrement in Probability of success", "percentage of SWAPS")
+    print(ps_s_corr)
 
 
 def data_analysis(t1, meas_error):
@@ -424,6 +483,7 @@ def data_analysis(t1, meas_error):
     # swap_proportion_analysis(df_cl, t1, meas_error)
 
     fidelity_bar_plot(df_cl, t1, meas_error)
+    diff_f_ps_swap_percentage(df_cl, t1, meas_error)
 
 
 data_analysis("3000", "0.005")
