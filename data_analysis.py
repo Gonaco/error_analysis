@@ -340,9 +340,11 @@ def fidelity_bar_plot(df_cl, t1, meas_error):
     df_nomapper.sort_values(by=["benchmark"])
     df_nomapper.drop_duplicates(subset=["benchmark"], keep="first")
 
+    fig1, ax1 = plt.subplots()
+
     # Option 1
-    ax = df_rcmapper.plot.bar(x="benchmark", y="mean_f")
-    ax = df_nomapper.plot.bar(x="benchmark", y="mean_f")
+    df_rcmapper.plot.bar(x="benchmark", y="mean_f", ax=ax1)
+    df_nomapper.plot.bar(x="benchmark", y="mean_f", ax=ax1)
 
     # # Option 2
     # x = list(range(1, 6))
@@ -357,9 +359,9 @@ def fidelity_bar_plot(df_cl, t1, meas_error):
     # ax.bar(df_rcmapper["benchmark"], df_rcmapper["mean_f"],
     #        width=0.2, color='r', align='center')
 
-    fig = ax.get_figure()
-    fig.savefig("bar_plot_test.png")
-    fig.clf()
+    # fig = ax.get_figure()
+    fig1.savefig("bar_plot_test.png")
+    fig1.clf()
 
 
 def data_analysis(t1, meas_error):
