@@ -172,7 +172,8 @@ def plot_relation(y, x, save_name, ylabel, xlabel, ax):
     # plt.plot(point, f, lw=2.5, c="k", label="fit line")
 
     X_test, y_pred = linear_regression(x, y)
-    ax.plot(X_test, y_pred, linewidth=3, label="fit line (linear regression)")
+    ax.plot(X_test, y_pred, linewidth=0.5, label="fit line (linear regression)",
+            color='cornflowerblue', linestyle='dashed')
 
     # y_rbf, y_lin, y_poly = svm_regression(x, y)
     # plt.plot(x, y_rbf, color='navy', lw=3, label='RBF model')
@@ -180,7 +181,7 @@ def plot_relation(y, x, save_name, ylabel, xlabel, ax):
     # plt.plot(x, y_poly, color='orange', lw=3, label='Polynomial model')
 
     y_poly = svm_regression(x, y)
-    ax.plot(x, y_poly, color='orange', lw=3, label='Polynomial model')
+    ax.plot(x, y_poly, color='cornflowerblue', lw=0.5, label='Polynomial model', linestyle='dashed', color)
 
     # plt.xlabel(xlabel)
     # plt.ylabel(ylabel)
@@ -469,8 +470,63 @@ def f_ps_correlation(df_cl, t1, meas_error, ax):
 
     f_ps_corr = pearsonr(ps, f)
     plot_relation(ps, f,
-                  "f_ps_correlation_"+meas_error, "probability of success", "fidelity", axf)
+                  "f_ps_correlation_"+meas_error, "probability of success", "fidelity", ax)
     print(f_ps_corr)
+
+
+def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
+
+    print("\n\t-- Correlation between Fidelity and:")
+
+    print("\n- # of Gates:")
+    f_g_corr = pearsonr(df_cl.mean_f, df_cl.N_gates)
+    plot_relation(df_cl.mean_f, df_cl.N_gates,
+                  "f_g_"+t1+"_"+meas_error, "fidelity", "# of gates", axrr1[0, 0])
+    print(f_g_corr)
+
+    print("\n- # of two-qubit gates:")
+    f_s_corr = pearsonr(df_cl.mean_f, df_cl.N_two_qg)
+    plot_relation(df_cl.mean_f, df_cl.N_two_qg,
+                  "f_s_"+t1+"_"+meas_error, "fidelity", "# of two-qubit gates", axrr1[0, 1])
+    print(f_s_corr)
+
+    print("\n- Depth:")
+    f_d_corr = pearsonr(df_cl.mean_f, df_cl.depth)
+    plot_relation(df_cl.mean_f, df_cl.depth, "f_d_" +
+                  t1+"_"+meas_error, "fidelity", "depth", axrr1[1, 0])
+    print(f_d_corr)
+
+    print("\n- Quantum Volume:")
+    f_q_corr = pearsonr(df_cl.mean_f, df_cl.q_vol)
+    plot_relation(df_cl.mean_f, df_cl.q_vol, "f_q_" +
+                  t1+"_"+meas_error, "fidelity", "V_Q", axrr1[1, 1])
+    print(f_q_corr)
+
+    print("\n\n\t-- Correlation between Probability of Success and:")
+
+    print("\n- # of Gates:")
+    ps_g_corr = pearsonr(df_cl.prob_succs, df_cl.N_gates)
+    plot_relation(df_cl.prob_succs, df_cl.N_gates,
+                  "ps_g_"+t1+"_"+meas_error, "prob. success", "# of gates", axrr2[0, 0])
+    print(ps_g_corr)
+
+    print("\n- # of two-qubit gates:")
+    ps_s_corr = pearsonr(df_cl.prob_succs, df_cl.N_two_qg)
+    plot_relation(df_cl.prob_succs, df_cl.N_two_qg,
+                  "ps_s_"+t1+"_"+meas_error, "prob. success", "# of -qubit gates", axrr2[0, 1])
+    print(ps_s_corr)
+
+    print("\n- Depth:")
+    ps_d_corr = pearsonr(df_cl.prob_succs, df_cl.depth)
+    plot_relation(df_cl.prob_succs, df_cl.depth,
+                  "ps_d_"+t1+"_"+meas_error, "prob. success", "depth", axrr2[1, 0])
+    print(ps_d_corr)
+
+    print("\n- Quantum Volume:")
+    ps_q_corr = pearsonr(df_cl.prob_succs, df_cl.q_vol)
+    plot_relation(df_cl.prob_succs, df_cl.q_vol,
+                  "ps_q_"+t1+"_"+meas_error, "prob. success", "V_Q", axrr2[1, 1])
+    print(ps_q_corr)
 
 
 def data_analysis(t1, meas_error):
@@ -525,11 +581,15 @@ def data_analysis(t1, meas_error):
     diff_f_ps_swap_percentage(df_cl, t1, meas_error)
 
 
+
 # param = [["3000", "0.005"], ["1000", "0.005"]]
 param = [["3000", "0.005"], ["3000", "0"]]
+# param = [["3000", "0.005"], ["1000", "0.005"], ["3000", "0"]]
 figf, axf = plt.subplots()
 figps, axps = plt.subplots()
 figfps, axfps = plt.subplots()
+figmf, axarrf = plt.subplots(2, 2)
+figmps, axarrps = plt.subplots(2, 2)
 
 for p in param:
 
@@ -582,18 +642,25 @@ for p in param:
     # fidelity_bar_plot(df_cl, t1, meas_error)
     # diff_f_ps_swap_percentage(df_cl, t1, meas_error_, axf, axps)
     f_ps_correlation(df_cl, t1, meas_error, axfps)
+    # f_ps_metrics_correlation(df_cl, t1, meas_error, axarrf, axarrps)
 
-figf.savefig("f_swap_percentage_"+meas_error_+".png")
-# figf.xlabel("percentage of SWAPS")
-# figf.ylabel("percentage of decrement in fidelity")
-figf.clf()
+# figf.savefig("f_swap_percentage_"+meas_error_+".png")
+# # figf.xlabel("percentage of SWAPS")
+# # figf.ylabel("percentage of decrement in fidelity")
+# figf.clf()
 
-figps.savefig("ps_sprop_swap_percentage"+meas_error_+".png")
-# figps.xlabel("percentage of SWAPS")
-# figps.ylabel("percentage of decrement in Probability of success")
-figps.clf()
+# figps.savefig("ps_sprop_swap_percentage"+meas_error_+".png")
+# # figps.xlabel("percentage of SWAPS")
+# # figps.ylabel("percentage of decrement in Probability of success")
+# figps.clf()
 
-figfps.savefig("f_ps_correlation_"+meas_error+".png")
+figfps.savefig("f_ps_correlation.png")
 # figfps.xlabel("percentage of SWAPS")
 # figfps.ylabel("percentage of decrement in fidelity")
 figfps.clf()
+
+figmf.savefig("f_ps_correlation.png")
+figmf.clf()
+
+figmps.savefig("f_ps_correlation.png")
+figmps.clf()
