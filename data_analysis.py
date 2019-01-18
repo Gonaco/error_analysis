@@ -148,18 +148,30 @@ def linear_regression(x, y):
 
 def svm_regression(x, y):
 
+    X = x
     x = np.array(x).reshape(-1, 1)
-    y = np.array(y).reshape(-1, 1)
+    y = np.array(y).reshape(-1, 1).ravel()
 
-    svr_rbf = SVR(kernel='rbf', C=1e3, gamma=0.1)
+    # svr_rbf = SVR(kernel='rbf', C=1e3, gamma=0.1)
+    svr_rbf = SVR(kernel='rbf', C=1e3, gamma='scale', epsilon=0.001)
+
     # svr_lin = SVR(kernel='linear', C=1e3)
     # svr_poly = SVR(kernel='poly', C=1e3, degree=2)
+
     y_rbf = svr_rbf.fit(x, y).predict(x)
     # y_lin = svr_lin.fit(x, y).predict(x)
     # y_poly = svr_poly.fit(x, y).predict(x)
 
+    z = np.polyfit(X, y_rbf, 2)
+    f = np.poly1d(z)
+
+    print("\nPolynomial function:")
+    print(f)
+    print("----------------------------\n")
+
     # return y_rbf, y_lin, y_poly
-    return y_rbf
+    # return y_rbf
+    return f(list(range(0, int(max(X)))))
 
 
 def plot_relation(y, x, save_name, ylabel, xlabel, ax):
@@ -171,9 +183,9 @@ def plot_relation(y, x, save_name, ylabel, xlabel, ax):
     # point, f = fit_polynomial(x, y, 1)
     # plt.plot(point, f, lw=2.5, c="k", label="fit line")
 
-    X_test, y_pred = linear_regression(x, y)
-    ax.plot(X_test, y_pred, linewidth=0.5, label="fit line (linear regression)",
-            color='cornflowerblue', linestyle='dashed')
+    # X_test, y_pred = linear_regression(x, y)
+    # ax.plot(X_test, y_pred, linewidth=0.5, label="fit line (linear regression)",
+    #         color='cornflowerblue', linestyle='dashed')
 
     # y_rbf, y_lin, y_poly = svm_regression(x, y)
     # plt.plot(x, y_rbf, color='navy', lw=3, label='RBF model')
@@ -181,7 +193,8 @@ def plot_relation(y, x, save_name, ylabel, xlabel, ax):
     # plt.plot(x, y_poly, color='orange', lw=3, label='Polynomial model')
 
     y_poly = svm_regression(x, y)
-    ax.plot(x, y_poly, color='cornflowerblue', lw=0.5,
+    # ax.plot(x, y_poly, lw=0.5, linestyle='dashed')
+    ax.plot(list(range(0, int(max(x)))), y_poly, lw=1,
             label='Polynomial model', linestyle='dashed')
 
     # plt.xlabel(xlabel)
@@ -192,7 +205,7 @@ def plot_relation(y, x, save_name, ylabel, xlabel, ax):
 
 def clean_data_frame(data_frame):
     # I use Quantum Volume as the harder variable to be randomly repeated
-    data_frame.drop_duplicates(subset=['q_vol'], keep='first')
+    data_frame = data_frame.drop_duplicates(subset=['q_vol'], keep='first')
     return data_frame
 
 
@@ -204,24 +217,28 @@ def general_results(df_cl, t1, meas_error):
     f_g_corr = pearsonr(df_cl.mean_f, df_cl.N_gates)
     plot_relation(df_cl.mean_f, df_cl.N_gates,
                   "f_g_"+t1+"_"+meas_error, "fidelity", "# of gates")
+    print("\nPearson correlation:")
     print(f_g_corr)
 
     print("\n- # of Swaps:")
     f_s_corr = pearsonr(df_cl.mean_f, df_cl.N_swaps)
     plot_relation(df_cl.mean_f, df_cl.N_swaps,
                   "f_s_"+t1+"_"+meas_error, "fidelity", "# of swaps")
+    print("\nPearson correlation:")
     print(f_s_corr)
 
     print("\n- Depth:")
     f_d_corr = pearsonr(df_cl.mean_f, df_cl.depth)
     plot_relation(df_cl.mean_f, df_cl.depth, "f_d_" +
                   t1+"_"+meas_error, "fidelity", "depth")
+    print("\nPearson correlation:")
     print(f_d_corr)
 
     print("\n- Quantum Volume:")
     f_q_corr = pearsonr(df_cl.mean_f, df_cl.q_vol)
     plot_relation(df_cl.mean_f, df_cl.q_vol, "f_q_" +
                   t1+"_"+meas_error, "fidelity", "V_Q")
+    print("\nPearson correlation:")
     print(f_q_corr)
 
     print("\n\n\t-- Correlation between Probability of Success and:")
@@ -230,24 +247,28 @@ def general_results(df_cl, t1, meas_error):
     ps_g_corr = pearsonr(df_cl.prob_succs, df_cl.N_gates)
     plot_relation(df_cl.prob_succs, df_cl.N_gates,
                   "ps_g_"+t1+"_"+meas_error, "prob. success", "# of gates")
+    print("\nPearson correlation:")
     print(ps_g_corr)
 
     print("\n- # of Swaps:")
     ps_s_corr = pearsonr(df_cl.prob_succs, df_cl.N_swaps)
     plot_relation(df_cl.prob_succs, df_cl.N_swaps,
                   "ps_s_"+t1+"_"+meas_error, "prob. success", "# of swaps")
+    print("\nPearson correlation:")
     print(ps_s_corr)
 
     print("\n- Depth:")
     ps_d_corr = pearsonr(df_cl.prob_succs, df_cl.depth)
     plot_relation(df_cl.prob_succs, df_cl.depth,
                   "ps_d_"+t1+"_"+meas_error, "prob. success", "depth")
+    print("\nPearson correlation:")
     print(ps_d_corr)
 
     print("\n- Quantum Volume:")
     ps_q_corr = pearsonr(df_cl.prob_succs, df_cl.q_vol)
     plot_relation(df_cl.prob_succs, df_cl.q_vol,
                   "ps_q_"+t1+"_"+meas_error, "prob. success", "V_Q")
+    print("\nPearson correlation:")
     print(ps_q_corr)
 
 
@@ -418,9 +439,10 @@ def fidelity_perctg(df_cl):
             # perctg_swaps.append(row["N_swaps"]/(row["N_gates"]-9*row["N_swaps"]))
             # perctg_swaps.append(row["N_swaps"])
 
-            perctg_swaps.append((d_b - row["depth"])/d_b)
-            # perctg_swaps.append(d_b - row["depth"])
+            perctg_swaps.append((row["depth"] - d_b)/d_b)
+            # perctg_swaps.append(row["depth"] - d_b)
             # perctg_swaps.append(row["depth"])
+            # perctg_swaps.append(d_b)
 
     return f_perctg_array, perctg_swaps
 
@@ -616,7 +638,9 @@ for p in param:
             i=i if i > 0 else "")
 
         # bench_info = extract_decoher_info(db_path, t1)
-        bench_info = extract_info(db_path, t1, meas_error)
+        # bench_info = extract_info(db_path, t1, meas_error)
+        bench_info = extract_info_f_filter(
+            db_path, t1, meas_error, 0.5, 1)
         for b_i in bench_info:
             N_gates.append(b_i[0])
             N_swaps.append(b_i[1])
