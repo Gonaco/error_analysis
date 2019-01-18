@@ -181,7 +181,8 @@ def plot_relation(y, x, save_name, ylabel, xlabel, ax):
     # plt.plot(x, y_poly, color='orange', lw=3, label='Polynomial model')
 
     y_poly = svm_regression(x, y)
-    ax.plot(x, y_poly, color='cornflowerblue', lw=0.5, label='Polynomial model', linestyle='dashed', color)
+    ax.plot(x, y_poly, color='cornflowerblue', lw=0.5,
+            label='Polynomial model', linestyle='dashed')
 
     # plt.xlabel(xlabel)
     # plt.ylabel(ylabel)
@@ -659,8 +660,8 @@ figfps.savefig("f_ps_correlation.png")
 # figfps.ylabel("percentage of decrement in fidelity")
 figfps.clf()
 
-figmf.savefig("f_ps_correlation.png")
-figmf.clf()
+# figmf.savefig("f_metrics_correlation.png")
+# figmf.clf()
 
-figmps.savefig("f_ps_correlation.png")
-figmps.clf()
+# figmps.savefig("ps_metrics_correlation.png")
+# figmps.clf()
