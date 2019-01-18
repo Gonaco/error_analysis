@@ -163,6 +163,7 @@ def svm_regression(x, y):
     # y_poly = svr_poly.fit(x, y).predict(x)
 
     z = np.polyfit(X, y_rbf, 2)
+    # z = np.polyfit(X, np.log(y_rbf), 1)
     f = np.poly1d(z)
 
     print("\nPolynomial function:")
@@ -172,6 +173,7 @@ def svm_regression(x, y):
     # return y_rbf, y_lin, y_poly
     # return y_rbf
     return f(list(range(0, int(max(X)))))
+    # return np.exp(f(list(range(0, int(max(X))))))
 
 
 def plot_relation(y, x, save_name, ylabel, xlabel, ax):
@@ -427,8 +429,8 @@ def fidelity_perctg(df_cl):
             no_map_entr = row["mean_f"]
             d_b = row["depth"]
         else:
-            f_perctg_array.append((no_map_entr - row["mean_f"])/no_map_entr)
-            perctg_swaps.append(row["N_swaps"]/row["N_gates"])
+            # f_perctg_array.append((no_map_entr - row["mean_f"])/no_map_entr)
+            # perctg_swaps.append(row["N_swaps"]/row["N_gates"])
 
             # Infidelity perc\entage
             f_perctg_array.append(-(row["mean_f"] -
@@ -484,6 +486,31 @@ def diff_f_ps_swap_percentage(df_cl, t1, meas_error, axf, axps):
     print(ps_s_corr)
 
 
+def minus_infid_percentage_depth_before(df_cl, t1, meas_error, axf, axps):
+
+    print("\n\t-- Correlation between the percentage of decrement in Infidelity and depth before being mapped")
+
+    infid_perctg_array = []
+    depth_before = []
+
+    for index, row in df_cl.iterrows():
+
+        if row["N_swaps"] == 0:
+            no_map_entr = row["mean_f"]
+            d_b = row["depth"]
+        else:
+            # Infidelity perc\entage
+            infid_perctg_array.append(-(row["mean_f"] -
+                                        no_map_entr)/(1 - no_map_entr))
+
+            depth_before.append(d_b)
+
+    f_s_corr = pearsonr(infid_perctg_array, depth_before)
+    plot_relation(infid_perctg_array, depth_before,
+                  "f_swap_percentage_"+t1+"_"+meas_error, "percentage of decrement in fidelity", "percentage of SWAPS", axf)
+    print(f_s_corr)
+
+
 def f_ps_correlation(df_cl, t1, meas_error, ax):
 
     f = df_cl["mean_f"]
@@ -505,24 +532,32 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     f_g_corr = pearsonr(df_cl.mean_f, df_cl.N_gates)
     plot_relation(df_cl.mean_f, df_cl.N_gates,
                   "f_g_"+t1+"_"+meas_error, "fidelity", "# of gates", axarr1[0, 0])
+    axarr1[0, 0].set_ylabel("fidelity")
+    axarr1[0, 0].set_xlabel("# of gates")
     print(f_g_corr)
 
     print("\n- # of two-qubit gates:")
     f_s_corr = pearsonr(df_cl.mean_f, df_cl.N_two_qg)
     plot_relation(df_cl.mean_f, df_cl.N_two_qg,
                   "f_s_"+t1+"_"+meas_error, "fidelity", "# of two-qubit gates", axarr1[0, 1])
+    axarr1[0, 1].set_ylabel("fidelity")
+    axarr1[0, 1].set_xlabel("# of two-qubit gates")
     print(f_s_corr)
 
     print("\n- Depth:")
     f_d_corr = pearsonr(df_cl.mean_f, df_cl.depth)
     plot_relation(df_cl.mean_f, df_cl.depth, "f_d_" +
                   t1+"_"+meas_error, "fidelity", "depth", axarr1[1, 0])
+    axarr1[1, 0].set_ylabel("fidelity")
+    axarr1[1, 0].set_xlabel("depth")
     print(f_d_corr)
 
     print("\n- Quantum Volume:")
     f_q_corr = pearsonr(df_cl.mean_f, df_cl.q_vol)
     plot_relation(df_cl.mean_f, df_cl.q_vol, "f_q_" +
                   t1+"_"+meas_error, "fidelity", "V_Q", axarr1[1, 1])
+    axarr1[1, 1].set_ylabel("fidelity")
+    axarr1[1, 1].set_xlabel("Quantum Volume")
     print(f_q_corr)
 
     print("\n\n\t-- Correlation between Probability of Success and:")
@@ -531,24 +566,32 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     ps_g_corr = pearsonr(df_cl.prob_succs, df_cl.N_gates)
     plot_relation(df_cl.prob_succs, df_cl.N_gates,
                   "ps_g_"+t1+"_"+meas_error, "prob. success", "# of gates", axarr2[0, 0])
+    axarr2[0, 0].set_ylabel("prob. of success")
+    axarr2[0, 0].set_xlabel("# of gates")
     print(ps_g_corr)
 
     print("\n- # of two-qubit gates:")
     ps_s_corr = pearsonr(df_cl.prob_succs, df_cl.N_two_qg)
     plot_relation(df_cl.prob_succs, df_cl.N_two_qg,
                   "ps_s_"+t1+"_"+meas_error, "prob. success", "# of -qubit gates", axarr2[0, 1])
+    axarr2[0, 1].set_ylabel("prob. of success")
+    axarr2[0, 1].set_xlabel("# of two-qubit gates")
     print(ps_s_corr)
 
     print("\n- Depth:")
     ps_d_corr = pearsonr(df_cl.prob_succs, df_cl.depth)
     plot_relation(df_cl.prob_succs, df_cl.depth,
                   "ps_d_"+t1+"_"+meas_error, "prob. success", "depth", axarr2[1, 0])
+    axarr2[1, 0].set_ylabel("prob. of success")
+    axarr2[1, 0].set_xlabel("depth")
     print(ps_d_corr)
 
     print("\n- Quantum Volume:")
     ps_q_corr = pearsonr(df_cl.prob_succs, df_cl.q_vol)
     plot_relation(df_cl.prob_succs, df_cl.q_vol,
                   "ps_q_"+t1+"_"+meas_error, "prob. success", "V_Q", axarr2[1, 1])
+    axarr2[1, 1].set_ylabel("prob. of success")
+    axarr2[1, 1].set_xlabel("Quantum Volume")
     print(ps_q_corr)
 
 
@@ -608,9 +651,18 @@ def data_analysis(t1, meas_error):
 # param = [["3000", "0.005"], ["1000", "0.005"]]
 param = [["3000", "0.005"], ["3000", "0"]]
 # param = [["3000", "0.005"], ["1000", "0.005"], ["3000", "0"]]
+
+plt.rc('font', family='serif')
+
 figf, axf = plt.subplots()
+plt.xlabel("depth (before mapping)")
+plt.ylabel("-1x infidelity percentage")
 figps, axps = plt.subplots()
+plt.xlabel("?")
+plt.ylabel("?")
 figfps, axfps = plt.subplots()
+plt.xlabel("?")
+plt.ylabel("?")
 figmf, axarrf = plt.subplots(2, 2)
 figmps, axarrps = plt.subplots(2, 2)
 
