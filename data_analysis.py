@@ -482,25 +482,25 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     print("\n- # of Gates:")
     f_g_corr = pearsonr(df_cl.mean_f, df_cl.N_gates)
     plot_relation(df_cl.mean_f, df_cl.N_gates,
-                  "f_g_"+t1+"_"+meas_error, "fidelity", "# of gates", axrr1[0, 0])
+                  "f_g_"+t1+"_"+meas_error, "fidelity", "# of gates", axarr1[0, 0])
     print(f_g_corr)
 
     print("\n- # of two-qubit gates:")
     f_s_corr = pearsonr(df_cl.mean_f, df_cl.N_two_qg)
     plot_relation(df_cl.mean_f, df_cl.N_two_qg,
-                  "f_s_"+t1+"_"+meas_error, "fidelity", "# of two-qubit gates", axrr1[0, 1])
+                  "f_s_"+t1+"_"+meas_error, "fidelity", "# of two-qubit gates", axarr1[0, 1])
     print(f_s_corr)
 
     print("\n- Depth:")
     f_d_corr = pearsonr(df_cl.mean_f, df_cl.depth)
     plot_relation(df_cl.mean_f, df_cl.depth, "f_d_" +
-                  t1+"_"+meas_error, "fidelity", "depth", axrr1[1, 0])
+                  t1+"_"+meas_error, "fidelity", "depth", axarr1[1, 0])
     print(f_d_corr)
 
     print("\n- Quantum Volume:")
     f_q_corr = pearsonr(df_cl.mean_f, df_cl.q_vol)
     plot_relation(df_cl.mean_f, df_cl.q_vol, "f_q_" +
-                  t1+"_"+meas_error, "fidelity", "V_Q", axrr1[1, 1])
+                  t1+"_"+meas_error, "fidelity", "V_Q", axarr1[1, 1])
     print(f_q_corr)
 
     print("\n\n\t-- Correlation between Probability of Success and:")
@@ -508,25 +508,25 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     print("\n- # of Gates:")
     ps_g_corr = pearsonr(df_cl.prob_succs, df_cl.N_gates)
     plot_relation(df_cl.prob_succs, df_cl.N_gates,
-                  "ps_g_"+t1+"_"+meas_error, "prob. success", "# of gates", axrr2[0, 0])
+                  "ps_g_"+t1+"_"+meas_error, "prob. success", "# of gates", axarr2[0, 0])
     print(ps_g_corr)
 
     print("\n- # of two-qubit gates:")
     ps_s_corr = pearsonr(df_cl.prob_succs, df_cl.N_two_qg)
     plot_relation(df_cl.prob_succs, df_cl.N_two_qg,
-                  "ps_s_"+t1+"_"+meas_error, "prob. success", "# of -qubit gates", axrr2[0, 1])
+                  "ps_s_"+t1+"_"+meas_error, "prob. success", "# of -qubit gates", axarr2[0, 1])
     print(ps_s_corr)
 
     print("\n- Depth:")
     ps_d_corr = pearsonr(df_cl.prob_succs, df_cl.depth)
     plot_relation(df_cl.prob_succs, df_cl.depth,
-                  "ps_d_"+t1+"_"+meas_error, "prob. success", "depth", axrr2[1, 0])
+                  "ps_d_"+t1+"_"+meas_error, "prob. success", "depth", axarr2[1, 0])
     print(ps_d_corr)
 
     print("\n- Quantum Volume:")
     ps_q_corr = pearsonr(df_cl.prob_succs, df_cl.q_vol)
     plot_relation(df_cl.prob_succs, df_cl.q_vol,
-                  "ps_q_"+t1+"_"+meas_error, "prob. success", "V_Q", axrr2[1, 1])
+                  "ps_q_"+t1+"_"+meas_error, "prob. success", "V_Q", axarr2[1, 1])
     print(ps_q_corr)
 
 
