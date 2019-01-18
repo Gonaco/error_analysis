@@ -13,6 +13,8 @@ from sklearn.svm import SVR
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 
+from math import ceil
+
 two_q_gates = {
     "4gt11_82": 18,
     "4gt12_v1_89": 100,
@@ -172,7 +174,8 @@ def svm_regression(x, y):
 
     # return y_rbf, y_lin, y_poly
     # return y_rbf
-    return f(list(range(0, int(max(X)))))
+    return f(list(range(0, ceil(max(X)))))
+    # return f(list(np.arange(min(X), ceil(max(X)),0.01)))
     # return np.exp(f(list(range(0, int(max(X))))))
 
 
@@ -196,8 +199,10 @@ def plot_relation(y, x, save_name, ylabel, xlabel, ax):
 
     y_poly = svm_regression(x, y)
     # ax.plot(x, y_poly, lw=0.5, linestyle='dashed')
-    ax.plot(list(range(0, int(max(x)))), y_poly, lw=1,
+    ax.plot(list(range(0, ceil(max(x)))), y_poly, lw=1,
             label='Polynomial model', linestyle='dashed')
+    # ax.plot(list(np.arange(min(x), ceil(max(x)), 0.01)), y_poly, lw=1,
+    #         label='Polynomial model', linestyle='dashed')
 
     # plt.xlabel(xlabel)
     # plt.ylabel(ylabel)
@@ -647,10 +652,10 @@ def data_analysis(t1, meas_error):
     diff_f_ps_swap_percentage(df_cl, t1, meas_error)
 
 
-
 # param = [["3000", "0.005"], ["1000", "0.005"]]
-param = [["3000", "0.005"], ["3000", "0"]]
+# param = [["3000", "0.005"], ["3000", "0"]]
 # param = [["3000", "0.005"], ["1000", "0.005"], ["3000", "0"]]
+
 
 plt.rc('font', family='serif')
 
@@ -661,8 +666,8 @@ figps, axps = plt.subplots()
 plt.xlabel("?")
 plt.ylabel("?")
 figfps, axfps = plt.subplots()
-plt.xlabel("?")
-plt.ylabel("?")
+plt.xlabel("fidelity")
+plt.ylabel("prob. of success")
 figmf, axarrf = plt.subplots(2, 2)
 figmps, axarrps = plt.subplots(2, 2)
 
@@ -691,8 +696,8 @@ for p in param:
 
         # bench_info = extract_decoher_info(db_path, t1)
         # bench_info = extract_info(db_path, t1, meas_error)
-        bench_info = extract_info_f_filter(
-            db_path, t1, meas_error, 0.5, 1)
+        # bench_info = extract_info_f_filter(
+        #     db_path, t1, meas_error, 0.5, 1)
         for b_i in bench_info:
             N_gates.append(b_i[0])
             N_swaps.append(b_i[1])
@@ -727,13 +732,9 @@ for p in param:
 # figf.clf()
 
 # figps.savefig("ps_sprop_swap_percentage"+meas_error_+".png")
-# # figps.xlabel("percentage of SWAPS")
-# # figps.ylabel("percentage of decrement in Probability of success")
 # figps.clf()
 
 figfps.savefig("f_ps_correlation.png")
-# figfps.xlabel("percentage of SWAPS")
-# figfps.ylabel("percentage of decrement in fidelity")
 figfps.clf()
 
 # figmf.savefig("f_metrics_correlation.png")
