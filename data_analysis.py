@@ -583,7 +583,8 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     axarr1[0, 1].set_ylabel("fidelity")
     axarr1[0, 1].set_xlabel("# of two-qubit gates")
     axarr1[0, 1].set_ylim(0, 1)
-    axarr1[0, 1].legend(fontsize=8)
+    axarr1[0, 1].legend(labels=["Fitting line", "Fitting line",
+                                "decoherence time 30 \mu s", "decoherence time 10 \mu s"], fontsize=8)
     print(f_s_corr)
 
     print("\n- Depth:")
