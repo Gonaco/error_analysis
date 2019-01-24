@@ -903,12 +903,14 @@ def thesis_f_metrics_correlation():
         f_ps_metrics_correlation(df_cl, t1, meas_error, axarrf, axarrps)
 
     figmf.legend(fontsize=8)
-    figmf.savefig("f_metrics_correlation.png", dpi=1000)
+    figmf.savefig("f_metrics_correlation.png")
+    # figmf.savefig("f_metrics_correlation.png", dpi=1000)
     figmf.savefig("f_metrics_correlation.eps", dpi=1000)
     figmf.clf()
 
     figmps.legend(fontsize=8)
-    figmps.savefig("ps_metrics_correlation.png", dpi=1000)
+    figmps.savefig("ps_metrics_correlation.png")
+    # figmps.savefig("ps_metrics_correlation.png", dpi=1000)
     figmps.savefig("ps_metrics_correlation.eps", dpi=1000)
     figmps.clf()
 
