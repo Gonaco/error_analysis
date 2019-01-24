@@ -148,7 +148,7 @@ def linear_regression(x, y):
     return X_test, y_pred
 
 
-def svm_regression(x, y):
+def svm_regression(x, y, poly_order):
 
     X = x
     x = np.array(x).reshape(-1, 1)
@@ -164,7 +164,7 @@ def svm_regression(x, y):
     # y_lin = svr_lin.fit(x, y).predict(x)
     # y_poly = svr_poly.fit(x, y).predict(x)
 
-    z = np.polyfit(X, y_rbf, 2)
+    z = np.polyfit(X, y_rbf, poly_order)
     # z = np.polyfit(X, np.log(y_rbf), 1)
     f = np.poly1d(z)
 
@@ -179,7 +179,7 @@ def svm_regression(x, y):
     # return np.exp(f(list(range(0, int(max(X))))))
 
 
-def plot_relation(y, x, save_name, ylabel, xlabel, ax):
+def plot_relation(y, x, save_name, ylabel, xlabel, ax, linear=False):
     # fig = plt.figure()
     ax.scatter(x, y)
     # fig.suptitle('test title', fontsize=20)
@@ -197,12 +197,14 @@ def plot_relation(y, x, save_name, ylabel, xlabel, ax):
     # plt.plot(x, y_lin, color='c', lw=3, label='Linear model')
     # plt.plot(x, y_poly, color='orange', lw=3, label='Polynomial model')
 
-    y_poly = svm_regression(x, y)
+    y_poly = svm_regression(x, y, 1 if linear else 2)
     # ax.plot(x, y_poly, lw=0.5, linestyle='dashed')
     ax.plot(list(range(0, ceil(max(x)))), y_poly, lw=1,
             label='Polynomial model', linestyle='dashed')
     # ax.plot(list(np.arange(min(x), ceil(max(x)), 0.01)), y_poly, lw=1,
     #         label='Polynomial model', linestyle='dashed')
+
+    # ax.legend()
 
     # plt.xlabel(xlabel)
     # plt.ylabel(ylabel)
@@ -412,6 +414,7 @@ def fidelity_bar_plot(df_cl, t1, meas_error):
         0.3058, 0.7058, 0.9215), align='center', label="After mapped")
     ax1.legend()
     plt.xticks(x, df_rcmapper["benchmark"], rotation=0, fontsize=8)
+    plt.ylabel("fidelity")
 
     # # Option 3
     # ax = plt.subplot(111)
@@ -525,8 +528,32 @@ def f_ps_correlation(df_cl, t1, meas_error, ax):
     print("\n\t-- Correlation between the Fidelity and Probability of Success")
 
     f_ps_corr = pearsonr(ps, f)
-    plot_relation(ps, f,
-                  "f_ps_correlation_"+meas_error, "probability of success", "fidelity", ax)
+    # plot_relation(ps, f,
+    #               "f_ps_correlation_"+meas_error, "probability of success", "fidelity", ax)
+
+    ax.scatter(f, ps)
+
+    X = f
+    x = np.array(f).reshape(-1, 1)
+    y = np.array(ps).reshape(-1, 1).ravel()
+
+    svr_rbf = SVR(kernel='rbf', C=1e3, gamma='scale', epsilon=0.001)
+    y_rbf = svr_rbf.fit(x, y).predict(x)
+
+    z = np.polyfit(X, y_rbf, 1)
+    f = np.poly1d(z)
+
+    print("\nPolynomial function:")
+    print(f)
+    print("----------------------------\n")
+
+    y_poly = f(list(range(0, ceil(max(X)))))
+
+    ax.plot(list(range(0, ceil(max(f)))), y_poly, lw=1,
+            label='Polynomial model', linestyle='dashed')
+
+    ax.legend()
+
     print(f_ps_corr)
 
 
@@ -571,7 +598,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     print("\n- # of Gates:")
     ps_g_corr = pearsonr(df_cl.prob_succs, df_cl.N_gates)
     plot_relation(df_cl.prob_succs, df_cl.N_gates,
-                  "ps_g_"+t1+"_"+meas_error, "prob. success", "# of gates", axarr2[0, 0])
+                  "ps_g_"+t1+"_"+meas_error, "prob. success", "# of gates", axarr2[0, 0], True)
     axarr2[0, 0].set_ylabel("prob. of success")
     axarr2[0, 0].set_xlabel("# of gates")
     print(ps_g_corr)
@@ -579,7 +606,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     print("\n- # of two-qubit gates:")
     ps_s_corr = pearsonr(df_cl.prob_succs, df_cl.N_two_qg)
     plot_relation(df_cl.prob_succs, df_cl.N_two_qg,
-                  "ps_s_"+t1+"_"+meas_error, "prob. success", "# of -qubit gates", axarr2[0, 1])
+                  "ps_s_"+t1+"_"+meas_error, "prob. success", "# of -qubit gates", axarr2[0, 1], True)
     axarr2[0, 1].set_ylabel("prob. of success")
     axarr2[0, 1].set_xlabel("# of two-qubit gates")
     print(ps_s_corr)
@@ -587,7 +614,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     print("\n- Depth:")
     ps_d_corr = pearsonr(df_cl.prob_succs, df_cl.depth)
     plot_relation(df_cl.prob_succs, df_cl.depth,
-                  "ps_d_"+t1+"_"+meas_error, "prob. success", "depth", axarr2[1, 0])
+                  "ps_d_"+t1+"_"+meas_error, "prob. success", "depth", axarr2[1, 0], True)
     axarr2[1, 0].set_ylabel("prob. of success")
     axarr2[1, 0].set_xlabel("depth")
     print(ps_d_corr)
@@ -595,7 +622,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     print("\n- Quantum Volume:")
     ps_q_corr = pearsonr(df_cl.prob_succs, df_cl.q_vol)
     plot_relation(df_cl.prob_succs, df_cl.q_vol,
-                  "ps_q_"+t1+"_"+meas_error, "prob. success", "V_Q", axarr2[1, 1])
+                  "ps_q_"+t1+"_"+meas_error, "prob. success", "V_Q", axarr2[1, 1], True)
     axarr2[1, 1].set_ylabel("prob. of success")
     axarr2[1, 1].set_xlabel("Quantum Volume")
     print(ps_q_corr)
@@ -653,93 +680,238 @@ def data_analysis(t1, meas_error):
     diff_f_ps_swap_percentage(df_cl, t1, meas_error)
 
 
-# param = [["3000", "0.005"], ["1000", "0.005"]]
-# param = [["3000", "0.005"], ["3000", "0"]]
-# param = [["3000", "0.005"], ["1000", "0.005"], ["3000", "0"]]
+def thesis_bar_plot():
+
+    param = [["3000", "0.005"], ["1000", "0.005"]]
+    # param = [["3000", "0.005"], ["3000", "0"]]
+
+    for p in param:
+
+        t1 = p[0]
+        meas_error = p[1]
+        N_gates = []
+        N_swaps = []
+        depth = []
+        prob_succs = []
+        mean_f = []
+        q_vol = []
+        N_two_qg = []
+        mapper = []
+        benchmark = []
+
+        print("\n\tAnalysis For Decoherence Time = " +
+              t1+" and Error Measurement = "+meas_error)
+        print("\n\t-------------------------------")
+
+        for i in range(5):
+
+            db_path = "/home/dmorenomanzano/qbench/mapping_benchmarks/simple_benchs_smart_fast{i}.db".format(
+                i=i if i > 0 else "")
+
+            # bench_info = extract_decoher_info(db_path, t1)
+            bench_info = extract_info(db_path, t1, meas_error)
+            for b_i in bench_info:
+                N_gates.append(b_i[0])
+                N_swaps.append(b_i[1])
+                depth.append(b_i[2])
+                prob_succs.append(b_i[3])
+                mean_f.append(b_i[4])
+                q_vol.append(b_i[5])
+                N_two_qg.append(two_q_gates[b_i[6]]+3*b_i[1])
+                mapper.append(b_i[7])
+                benchmark.append(b_i[6])
+
+        data_frame = store_db_main_info(
+            N_gates, N_two_qg, N_swaps, depth, prob_succs, mean_f, q_vol, mapper, benchmark)
+        df_cl = clean_data_frame(data_frame)
+
+        meas_error_ = meas_error.replace(".", "_")
+
+        fidelity_bar_plot(df_cl, t1, meas_error_)
 
 
-plt.rc('font', family='serif')
+def thesis_mapping_effect():
 
-figf, axf = plt.subplots()
-plt.xlabel("depth (before mapping)")
-plt.ylabel("-1x infidelity percentage")
-figps, axps = plt.subplots()
-plt.xlabel("?")
-plt.ylabel("?")
-figfps, axfps = plt.subplots()
-plt.xlabel("fidelity")
-plt.ylabel("prob. of success")
-figmf, axarrf = plt.subplots(2, 2)
-figmps, axarrps = plt.subplots(2, 2)
+    param = [["3000", "0.005"], ["1000", "0.005"]]
+    figf, axf = plt.subplots()
+    plt.xlabel("depth (before mapping)")
+    plt.ylabel("-1x infidelity percentage")
 
-for p in param:
+    for p in param:
 
-    t1 = p[0]
-    meas_error = p[1]
-    N_gates = []
-    N_swaps = []
-    depth = []
-    prob_succs = []
-    mean_f = []
-    q_vol = []
-    N_two_qg = []
-    mapper = []
-    benchmark = []
+        t1 = p[0]
+        meas_error = p[1]
+        N_gates = []
+        N_swaps = []
+        depth = []
+        prob_succs = []
+        mean_f = []
+        q_vol = []
+        N_two_qg = []
+        mapper = []
+        benchmark = []
 
-    print("\n\tAnalysis For Decoherence Time = " +
-          t1+" and Error Measurement = "+meas_error)
-    print("\n\t-------------------------------")
+        print("\n\tAnalysis For Decoherence Time = " +
+              t1+" and Error Measurement = "+meas_error)
+        print("\n\t-------------------------------")
 
-    for i in range(5):
+        for i in range(5):
 
-        db_path = "/home/dmorenomanzano/qbench/mapping_benchmarks/simple_benchs_smart_fast{i}.db".format(
-            i=i if i > 0 else "")
+            db_path = "/home/dmorenomanzano/qbench/mapping_benchmarks/simple_benchs_smart_fast{i}.db".format(
+                i=i if i > 0 else "")
 
-        # bench_info = extract_decoher_info(db_path, t1)
-        # bench_info = extract_info(db_path, t1, meas_error)
-        # bench_info = extract_info_f_filter(
-        #     db_path, t1, meas_error, 0.5, 1)
-        for b_i in bench_info:
-            N_gates.append(b_i[0])
-            N_swaps.append(b_i[1])
-            depth.append(b_i[2])
-            prob_succs.append(b_i[3])
-            mean_f.append(b_i[4])
-            q_vol.append(b_i[5])
-            N_two_qg.append(two_q_gates[b_i[6]]+3*b_i[1])
-            mapper.append(b_i[7])
-            benchmark.append(b_i[6])
+            bench_info = extract_info_f_filter(
+                db_path, t1, meas_error, 0.5, 1)
+            for b_i in bench_info:
+                N_gates.append(b_i[0])
+                N_swaps.append(b_i[1])
+                depth.append(b_i[2])
+                prob_succs.append(b_i[3])
+                mean_f.append(b_i[4])
+                q_vol.append(b_i[5])
+                N_two_qg.append(two_q_gates[b_i[6]]+3*b_i[1])
+                mapper.append(b_i[7])
+                benchmark.append(b_i[6])
 
-    data_frame = store_db_main_info(
-        N_gates, N_two_qg, N_swaps, depth, prob_succs, mean_f, q_vol, mapper, benchmark)
-    df_cl = clean_data_frame(data_frame)
+        data_frame = store_db_main_info(
+            N_gates, N_two_qg, N_swaps, depth, prob_succs, mean_f, q_vol, mapper, benchmark)
+        df_cl = clean_data_frame(data_frame)
 
-    meas_error_ = meas_error.replace(".", "_")
+        meas_error_ = meas_error.replace(".", "_")
 
-    # general_results(df_cl, t1, meas_error)
+        diff_f_ps_swap_percentage(df_cl, t1, meas_error_, axf, axps)
 
-    # two_q_gates_analysis(df_cl, t1, meas_error)
+    figf.savefig("mapping_effect"+meas_error_+".png", dpi=1000)
+    figf.savefig("mapping_effect"+meas_error_+".eps", dpi=1000)
+    figf.clf()
 
-    # swap_proportion_analysis(df_cl, t1, meas_error)
 
-    # fidelity_bar_plot(df_cl, t1, meas_error)
-    # diff_f_ps_swap_percentage(df_cl, t1, meas_error_, axf, axps)
-    f_ps_correlation(df_cl, t1, meas_error, axfps)
-    # f_ps_metrics_correlation(df_cl, t1, meas_error, axarrf, axarrps)
+def thesis_f_ps_corr_plot():
 
-# figf.savefig("f_swap_percentage_"+meas_error_+".png")
-# # figf.xlabel("percentage of SWAPS")
-# # figf.ylabel("percentage of decrement in fidelity")
-# figf.clf()
+    param = [["3000", "0.005"], ["1000", "0.005"]]
 
-# figps.savefig("ps_sprop_swap_percentage"+meas_error_+".png")
-# figps.clf()
+    figfps, axfps = plt.subplots()
+    figfps.tight_layout()
+    plt.xlabel("fidelity")
+    plt.ylabel("prob. of success")
 
-figfps.savefig("f_ps_correlation.png")
-figfps.clf()
+    for p in param:
 
-# figmf.savefig("f_metrics_correlation.png")
-# figmf.clf()
+        t1 = p[0]
+        meas_error = p[1]
+        N_gates = []
+        N_swaps = []
+        depth = []
+        prob_succs = []
+        mean_f = []
+        q_vol = []
+        N_two_qg = []
+        mapper = []
+        benchmark = []
 
-# figmps.savefig("ps_metrics_correlation.png")
-# figmps.clf()
+        print("\n\tAnalysis For Decoherence Time = " +
+              t1+" and Error Measurement = "+meas_error)
+        print("\n\t-------------------------------")
+
+        for i in range(5):
+
+            db_path = "/home/dmorenomanzano/qbench/mapping_benchmarks/simple_benchs_smart_fast{i}.db".format(
+                i=i if i > 0 else "")
+
+            # bench_info = extract_decoher_info(db_path, t1)
+            bench_info = extract_info(db_path, t1, meas_error)
+            # bench_info = extract_info_f_filter(
+            #     db_path, t1, meas_error, 0.5, 1)
+            for b_i in bench_info:
+                N_gates.append(b_i[0])
+                N_swaps.append(b_i[1])
+                depth.append(b_i[2])
+                prob_succs.append(b_i[3])
+                mean_f.append(b_i[4])
+                q_vol.append(b_i[5])
+                N_two_qg.append(two_q_gates[b_i[6]]+3*b_i[1])
+                mapper.append(b_i[7])
+                benchmark.append(b_i[6])
+
+        data_frame = store_db_main_info(
+            N_gates, N_two_qg, N_swaps, depth, prob_succs, mean_f, q_vol, mapper, benchmark)
+        df_cl = clean_data_frame(data_frame)
+
+        meas_error_ = meas_error.replace(".", "_")
+
+        f_ps_correlation(df_cl, t1, meas_error, axfps)
+
+    figfps.savefig("f_ps_correlation.png", dpi=1000)
+    figfps.savefig("f_ps_correlation.eps", dpi=1000)
+    figfps.clf()
+
+
+def thesis_f_metrics_correlation():
+
+    param = [["3000", "0.005"], ["1000", "0.005"]]
+
+    figmf, axarrf = plt.subplots(2, 2)
+    figmf.tight_layout()
+    figmps, axarrps = plt.subplots(2, 2)
+    figmps.tight_layout()
+
+    for p in param:
+
+        t1 = p[0]
+        meas_error = p[1]
+        N_gates = []
+        N_swaps = []
+        depth = []
+        prob_succs = []
+        mean_f = []
+        q_vol = []
+        N_two_qg = []
+        mapper = []
+        benchmark = []
+
+        print("\n\tAnalysis For Decoherence Time = " +
+              t1+" and Error Measurement = "+meas_error)
+        print("\n\t-------------------------------")
+
+        for i in range(5):
+
+            db_path = "/home/dmorenomanzano/qbench/mapping_benchmarks/simple_benchs_smart_fast{i}.db".format(
+                i=i if i > 0 else "")
+
+            bench_info = extract_info(db_path, t1, meas_error)
+            # bench_info = extract_info_f_filter(
+            #     db_path, t1, meas_error, 0.5, 1)
+            for b_i in bench_info:
+                N_gates.append(b_i[0])
+                N_swaps.append(b_i[1])
+                depth.append(b_i[2])
+                prob_succs.append(b_i[3])
+                mean_f.append(b_i[4])
+                q_vol.append(b_i[5])
+                N_two_qg.append(two_q_gates[b_i[6]]+3*b_i[1])
+                mapper.append(b_i[7])
+                benchmark.append(b_i[6])
+
+        data_frame = store_db_main_info(
+            N_gates, N_two_qg, N_swaps, depth, prob_succs, mean_f, q_vol, mapper, benchmark)
+        df_cl = clean_data_frame(data_frame)
+
+        meas_error_ = meas_error.replace(".", "_")
+
+        f_ps_metrics_correlation(df_cl, t1, meas_error, axarrf, axarrps)
+
+    figmf.legend(fontsize=8)
+    figmf.savefig("f_metrics_correlation.png", dpi=1000)
+    figmf.savefig("f_metrics_correlation.eps", dpi=1000)
+    figmf.clf()
+
+    figmps.legend(fontsize=8)
+    figmps.savefig("ps_metrics_correlation.png", dpi=1000)
+    figmps.savefig("ps_metrics_correlation.eps", dpi=1000)
+    figmps.clf()
+
+
+thesis_bar_plot()
+thesis_mapping_effect()
+thesis_f_ps_corr_plot()
+thesis_f_metrics_correlation()
