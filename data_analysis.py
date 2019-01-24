@@ -534,8 +534,6 @@ def f_ps_correlation(df_cl, t1, meas_error, ax):
     print("\n\t-- Correlation between the Fidelity and Probability of Success")
 
     f_ps_corr = pearsonr(ps, f)
-    plot_relation(ps, f,
-                  "f_ps_correlation_"+meas_error, "probability of success", "fidelity", ax, True, True)
 
     ax.scatter(f, ps)
 
@@ -864,7 +862,6 @@ def thesis_f_ps_corr_plot():
     #                      "t_d 30 µs", "t_d 10 µs"], fontsize=8, frameon=True)
     axfps.legend(fontsize=8, frameon=True)
 
-    # Plotting diagonal line
     axfps.set_ylim(0, 1)
     # axfps.plot(axfps.get_xlim(), axfps.get_ylim(), ls=":",
     #            lw=1, label='Prob. succ = Fidelity')
