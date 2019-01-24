@@ -570,7 +570,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     print("\n- # of Gates:")
     f_g_corr = pearsonr(df_cl.mean_f, df_cl.N_gates)
     plot_relation(df_cl.mean_f, df_cl.N_gates,
-                  "f_g_"+t1+"_"+meas_error, "fidelity", "# of gates", axarr1[0, 0])
+                  "f_g_"+t1+"_"+meas_error, "fidelity", "# of gates", axarr1[0, 0], exp=True)
     axarr1[0, 0].set_ylabel("fidelity")
     axarr1[0, 0].set_xlabel("# of gates")
     axarr1[0, 0].set_ylim(0, 1)
@@ -579,7 +579,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     print("\n- # of two-qubit gates:")
     f_s_corr = pearsonr(df_cl.mean_f, df_cl.N_two_qg)
     plot_relation(df_cl.mean_f, df_cl.N_two_qg,
-                  "f_s_"+t1+"_"+meas_error, "fidelity", "# of two-qubit gates", axarr1[0, 1])
+                  "f_s_"+t1+"_"+meas_error, "fidelity", "# of two-qubit gates", axarr1[0, 1], exp=True)
     axarr1[0, 1].set_ylabel("fidelity")
     axarr1[0, 1].set_xlabel("# of two-qubit gates")
     axarr1[0, 1].set_ylim(0, 1)
@@ -588,7 +588,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     print("\n- Depth:")
     f_d_corr = pearsonr(df_cl.mean_f, df_cl.depth)
     plot_relation(df_cl.mean_f, df_cl.depth, "f_d_" +
-                  t1+"_"+meas_error, "fidelity", "depth", axarr1[1, 0])
+                  t1+"_"+meas_error, "fidelity", "depth", axarr1[1, 0], exp=True)
     axarr1[1, 0].set_ylabel("fidelity")
     axarr1[1, 0].set_xlabel("depth")
     axarr1[1, 0].set_ylim(0, 1)
@@ -597,7 +597,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     print("\n- Quantum Volume:")
     f_q_corr = pearsonr(df_cl.mean_f, df_cl.q_vol)
     plot_relation(df_cl.mean_f, df_cl.q_vol, "f_q_" +
-                  t1+"_"+meas_error, "fidelity", "V_Q", axarr1[1, 1])
+                  t1+"_"+meas_error, "fidelity", "V_Q", axarr1[1, 1], exp=True)
     axarr1[1, 1].set_ylabel("fidelity")
     axarr1[1, 1].set_xlabel("Quantum Volume")
     axarr1[1, 1].set_ylim(0, 1)
