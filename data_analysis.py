@@ -559,13 +559,13 @@ def f_ps_correlation(df_cl, t1, meas_error, ax):
     print("----------------------------\n")
 
     if exp:
-        y_poly = np.exp(f_poly(list(np.arange(0, ceil(max(X)), 0.01))))
+        y_poly = np.exp(f_poly(list(np.arange(min(X), ceil(max(X)), 0.01))))
 
     else:
 
         y_poly = f_poly(list(np.arange(min(X), ceil(max(X)), 0.01)))
 
-    ax.plot(list(np.arange(min(f), ceil(max(f)), 0.01)), y_poly, lw=1,
+    ax.plot(list(np.arange(min(X), ceil(max(X)), 0.01)), y_poly, lw=1,
             label='Fitting line', linestyle='dashed')
 
     print(f_ps_corr)
