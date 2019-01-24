@@ -545,28 +545,25 @@ def f_ps_correlation(df_cl, t1, meas_error, ax):
     x = np.array(f).reshape(-1, 1)
     y = np.array(ps).reshape(-1, 1).ravel()
 
-    # svr_rbf = SVR(kernel='rbf', C=1e3, gamma=0.1)
     svr_rbf = SVR(kernel='rbf', C=1e3, gamma='scale', epsilon=0.001)
 
     y_rbf = svr_rbf.fit(x, y).predict(x)
-    # y_lin = svr_lin.fit(x, y).predict(x)
-    # y_poly = svr_poly.fit(x, y).predict(x)
 
     z = np.polyfit(X, y_rbf, 1)
     if exp:
         z = np.polyfit(X, np.log(y_rbf), 1)
-    f = np.poly1d(z)
+    f_poly = np.poly1d(z)
 
     print("\nPolynomial function:")
-    print(f)
+    print(f_poly)
     print("----------------------------\n")
 
     if exp:
-        y_poly = np.exp(f(list(np.arange(0, ceil(max(X)), 0.01))))
+        y_poly = np.exp(f_poly(list(np.arange(0, ceil(max(X)), 0.01))))
 
     else:
 
-        y_poly = f(list(np.arange(min(X), ceil(max(X)), 0.01)))
+        y_poly = f_poly(list(np.arange(min(X), ceil(max(X)), 0.01)))
 
     ax.plot(list(np.arange(min(f), ceil(max(f)), 0.01)), y_poly, lw=1,
             label='Fitting line', linestyle='dashed')
