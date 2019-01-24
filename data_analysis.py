@@ -562,7 +562,7 @@ def f_ps_correlation(df_cl, t1, meas_error, ax):
     print("----------------------------\n")
 
     if exp:
-        y_poly = np.exp(f(list(range(0, ceil(max(X))))))
+        y_poly = np.exp(f(list(np.arange(0, ceil(max(X)), 0.01))))
 
     else:
 
