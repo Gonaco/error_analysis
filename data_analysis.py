@@ -916,14 +916,14 @@ def thesis_f_metrics_correlation():
 
         f_ps_metrics_correlation(df_cl, t1, meas_error, axarrf, axarrps)
 
-    figmf.legend(fontsize=8)
+    figmf.legend("Fitting line", fontsize=8)
     figmf.tight_layout()
     figmf.savefig("f_metrics_correlation.png")
     figmf.savefig("f_metrics_correlation_HQ.png", dpi=1000)
     figmf.savefig("f_metrics_correlation.eps", dpi=1000)
     figmf.clf()
 
-    figmps.legend(fontsize=8)
+    figmps.legend("Fitting line", fontsize=8)
     figmps.tight_layout()
     figmps.savefig("ps_metrics_correlation.png")
     figmps.savefig("ps_metrics_correlation_HQ.png", dpi=1000)
