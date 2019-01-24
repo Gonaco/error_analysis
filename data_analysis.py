@@ -174,11 +174,11 @@ def svm_regression(x, y, poly_order, exp):
     print("----------------------------\n")
 
     if exp:
-        return np.exp(f(list(range(0, int(max(X))))))
+        return np.exp(f(list(range(ceil(min(X)), int(max(X))))))
 
     # return y_rbf, y_lin, y_poly
     # return y_rbf
-    return f(list(range(0, ceil(max(X)))))
+    return f(list(range(ceil(min(X)), ceil(max(X)))))
     # return f(list(np.arange(min(X), ceil(max(X)),0.01)))
 
 
