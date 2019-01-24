@@ -424,6 +424,8 @@ def fidelity_bar_plot(df_cl, t1, meas_error):
     #        width=0.2, color='r', align='center')
 
     fig1.savefig("f_diff_bar_plot.png")
+    fig1.savefig("f_diff_bar_plot_HQ.png", dpi=1000)
+    fig1.savefig("f_diff_bar_plot.eps", dpi=1000)
     fig1.clf()
 
 
@@ -783,7 +785,8 @@ def thesis_mapping_effect():
 
         diff_f_ps_swap_percentage(df_cl, t1, meas_error_, axf, axps)
 
-    figf.savefig("mapping_effect"+meas_error_+".png", dpi=1000)
+    figf.savefig("mapping_effect"+meas_error_+".png")
+    figf.savefig("mapping_effect"+meas_error_+"_HQ.png", dpi=1000)
     figf.savefig("mapping_effect"+meas_error_+".eps", dpi=1000)
     figf.clf()
 
@@ -843,7 +846,8 @@ def thesis_f_ps_corr_plot():
 
         f_ps_correlation(df_cl, t1, meas_error, axfps)
 
-    figfps.savefig("f_ps_correlation.png", dpi=1000)
+    figfps.savefig("f_ps_correlation.png")
+    figfps.savefig("f_ps_correlation_HQ.png", dpi=1000)
     figfps.savefig("f_ps_correlation.eps", dpi=1000)
     figfps.clf()
 
@@ -904,13 +908,13 @@ def thesis_f_metrics_correlation():
 
     figmf.legend(fontsize=8)
     figmf.savefig("f_metrics_correlation.png")
-    # figmf.savefig("f_metrics_correlation.png", dpi=1000)
+    figmf.savefig("f_metrics_correlation_HQ.png", dpi=1000)
     figmf.savefig("f_metrics_correlation.eps", dpi=1000)
     figmf.clf()
 
     figmps.legend(fontsize=8)
     figmps.savefig("ps_metrics_correlation.png")
-    # figmps.savefig("ps_metrics_correlation.png", dpi=1000)
+    figmps.savefig("ps_metrics_correlation_HQ.png", dpi=1000)
     figmps.savefig("ps_metrics_correlation.eps", dpi=1000)
     figmps.clf()
 
