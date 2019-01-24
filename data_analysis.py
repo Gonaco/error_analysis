@@ -174,11 +174,11 @@ def svm_regression(x, y, poly_order, exp):
     print("----------------------------\n")
 
     if exp:
-        return np.exp(f(list(range(ceil(min(X)), int(max(X))))))
+        return np.exp(f(list(range(0, int(max(X))))))
 
     # return y_rbf, y_lin, y_poly
     # return y_rbf
-    return f(list(range(ceil(min(X)), ceil(max(X)))))
+    return f(list(range(0, ceil(max(X)))))
     # return f(list(np.arange(min(X), ceil(max(X)),0.01)))
 
 
@@ -203,7 +203,7 @@ def plot_relation(y, x, save_name, ylabel, xlabel, ax, linear=False, exp=False):
     y_poly = svm_regression(x, y, 1 if linear else 2, exp)
     # ax.plot(x, y_poly, lw=0.5, linestyle='dashed')
     ax.plot(list(range(0, ceil(max(x)))), y_poly, lw=1,
-            label='Polynomial model', linestyle='dashed')
+            label='Fitting line', linestyle='dashed')
     # ax.plot(list(np.arange(min(x), ceil(max(x)), 0.01)), y_poly, lw=1,
     #         label='Polynomial model', linestyle='dashed')
 
@@ -573,6 +573,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
                   "f_g_"+t1+"_"+meas_error, "fidelity", "# of gates", axarr1[0, 0])
     axarr1[0, 0].set_ylabel("fidelity")
     axarr1[0, 0].set_xlabel("# of gates")
+    axarr1[0, 0].set_ylim(0, 1)
     print(f_g_corr)
 
     print("\n- # of two-qubit gates:")
@@ -581,6 +582,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
                   "f_s_"+t1+"_"+meas_error, "fidelity", "# of two-qubit gates", axarr1[0, 1])
     axarr1[0, 1].set_ylabel("fidelity")
     axarr1[0, 1].set_xlabel("# of two-qubit gates")
+    axarr1[0, 1].set_ylim(0, 1)
     print(f_s_corr)
 
     print("\n- Depth:")
@@ -589,6 +591,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
                   t1+"_"+meas_error, "fidelity", "depth", axarr1[1, 0])
     axarr1[1, 0].set_ylabel("fidelity")
     axarr1[1, 0].set_xlabel("depth")
+    axarr1[1, 0].set_ylim(0, 1)
     print(f_d_corr)
 
     print("\n- Quantum Volume:")
@@ -597,6 +600,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
                   t1+"_"+meas_error, "fidelity", "V_Q", axarr1[1, 1])
     axarr1[1, 1].set_ylabel("fidelity")
     axarr1[1, 1].set_xlabel("Quantum Volume")
+    axarr1[1, 1].set_ylim(0, 1)
     print(f_q_corr)
 
     print("\n\n\t-- Correlation between Probability of Success and:")
@@ -607,6 +611,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
                   "ps_g_"+t1+"_"+meas_error, "prob. success", "# of gates", axarr2[0, 0], True, True)
     axarr2[0, 0].set_ylabel("prob. of success")
     axarr2[0, 0].set_xlabel("# of gates")
+    axarr2[0, 0].set_ylim(0, 1)
     print(ps_g_corr)
 
     print("\n- # of two-qubit gates:")
@@ -615,6 +620,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
                   "ps_s_"+t1+"_"+meas_error, "prob. success", "# of -qubit gates", axarr2[0, 1], True, True)
     axarr2[0, 1].set_ylabel("prob. of success")
     axarr2[0, 1].set_xlabel("# of two-qubit gates")
+    axarr2[0, 1].set_ylim(0, 1)
     print(ps_s_corr)
 
     print("\n- Depth:")
@@ -623,6 +629,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
                   "ps_d_"+t1+"_"+meas_error, "prob. success", "depth", axarr2[1, 0], True, True)
     axarr2[1, 0].set_ylabel("prob. of success")
     axarr2[1, 0].set_xlabel("depth")
+    axarr2[1, 0].set_ylim(0, 1)
     print(ps_d_corr)
 
     print("\n- Quantum Volume:")
@@ -631,6 +638,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
                   "ps_q_"+t1+"_"+meas_error, "prob. success", "V_Q", axarr2[1, 1], True, True)
     axarr2[1, 1].set_ylabel("prob. of success")
     axarr2[1, 1].set_xlabel("Quantum Volume")
+    axarr2[1, 1].set_ylim(0, 1)
     print(ps_q_corr)
 
 
