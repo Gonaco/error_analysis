@@ -601,7 +601,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     print("\n- # of Gates:")
     ps_g_corr = pearsonr(df_cl.prob_succs, df_cl.N_gates)
     plot_relation(df_cl.prob_succs, df_cl.N_gates,
-                  "ps_g_"+t1+"_"+meas_error, "prob. success", "# of gates", axarr2[0, 0], True)
+                  "ps_g_"+t1+"_"+meas_error, "prob. success", "# of gates", axarr2[0, 0])
     axarr2[0, 0].set_ylabel("prob. of success")
     axarr2[0, 0].set_xlabel("# of gates")
     print(ps_g_corr)
@@ -609,7 +609,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     print("\n- # of two-qubit gates:")
     ps_s_corr = pearsonr(df_cl.prob_succs, df_cl.N_two_qg)
     plot_relation(df_cl.prob_succs, df_cl.N_two_qg,
-                  "ps_s_"+t1+"_"+meas_error, "prob. success", "# of -qubit gates", axarr2[0, 1], True)
+                  "ps_s_"+t1+"_"+meas_error, "prob. success", "# of -qubit gates", axarr2[0, 1])
     axarr2[0, 1].set_ylabel("prob. of success")
     axarr2[0, 1].set_xlabel("# of two-qubit gates")
     print(ps_s_corr)
@@ -617,7 +617,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     print("\n- Depth:")
     ps_d_corr = pearsonr(df_cl.prob_succs, df_cl.depth)
     plot_relation(df_cl.prob_succs, df_cl.depth,
-                  "ps_d_"+t1+"_"+meas_error, "prob. success", "depth", axarr2[1, 0], True)
+                  "ps_d_"+t1+"_"+meas_error, "prob. success", "depth", axarr2[1, 0])
     axarr2[1, 0].set_ylabel("prob. of success")
     axarr2[1, 0].set_xlabel("depth")
     print(ps_d_corr)
@@ -625,7 +625,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     print("\n- Quantum Volume:")
     ps_q_corr = pearsonr(df_cl.prob_succs, df_cl.q_vol)
     plot_relation(df_cl.prob_succs, df_cl.q_vol,
-                  "ps_q_"+t1+"_"+meas_error, "prob. success", "V_Q", axarr2[1, 1], True)
+                  "ps_q_"+t1+"_"+meas_error, "prob. success", "V_Q", axarr2[1, 1])
     axarr2[1, 1].set_ylabel("prob. of success")
     axarr2[1, 1].set_xlabel("Quantum Volume")
     print(ps_q_corr)
