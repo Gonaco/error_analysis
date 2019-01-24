@@ -736,6 +736,9 @@ def thesis_mapping_effect():
     figf, axf = plt.subplots()
     plt.xlabel("depth (before mapping)")
     plt.ylabel("-1x infidelity percentage")
+    figps, axps = plt.subplots()
+    plt.xlabel("?")
+    plt.ylabel("?")
 
     for p in param:
 
