@@ -528,31 +528,31 @@ def f_ps_correlation(df_cl, t1, meas_error, ax):
     print("\n\t-- Correlation between the Fidelity and Probability of Success")
 
     f_ps_corr = pearsonr(ps, f)
-    # plot_relation(ps, f,
-    #               "f_ps_correlation_"+meas_error, "probability of success", "fidelity", ax)
+    plot_relation(ps, f,
+                  "f_ps_correlation_"+meas_error, "probability of success", "fidelity", ax, True)
 
-    ax.scatter(f, ps)
+    # ax.scatter(f, ps)
 
-    X = f
-    x = np.array(f).reshape(-1, 1)
-    y = np.array(ps).reshape(-1, 1).ravel()
+    # X = f
+    # x = np.array(f).reshape(-1, 1)
+    # y = np.array(ps).reshape(-1, 1).ravel()
 
-    svr_rbf = SVR(kernel='rbf', C=1e3, gamma='scale', epsilon=0.001)
-    y_rbf = svr_rbf.fit(x, y).predict(x)
+    # svr_rbf = SVR(kernel='rbf', C=1e3, gamma='scale', epsilon=0.001)
+    # y_rbf = svr_rbf.fit(x, y).predict(x)
 
-    z = np.polyfit(X, y_rbf, 1)
-    f = np.poly1d(z)
+    # z = np.polyfit(X, y_rbf, 1)
+    # f = np.poly1d(z)
 
-    print("\nPolynomial function:")
-    print(f)
-    print("----------------------------\n")
+    # print("\nPolynomial function:")
+    # print(f)
+    # print("----------------------------\n")
 
-    y_poly = f(list(range(0, ceil(max(X)))))
+    # y_poly = f(list(range(0, ceil(max(X)))))
 
-    ax.plot(list(range(0, ceil(max(f)))), y_poly, lw=1,
-            label='Polynomial model', linestyle='dashed')
+    # ax.plot(list(range(0, ceil(max(f)))), y_poly, lw=1,
+    #         label='Polynomial model', linestyle='dashed')
 
-    ax.legend()
+    # ax.legend()
 
     print(f_ps_corr)
 
@@ -682,8 +682,7 @@ def data_analysis(t1, meas_error):
 
 def thesis_bar_plot():
 
-    param = [["3000", "0.005"], ["1000", "0.005"]]
-    # param = [["3000", "0.005"], ["3000", "0"]]
+    param = [["3000", "0.005"]]
 
     for p in param:
 
