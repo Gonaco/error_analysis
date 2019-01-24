@@ -539,8 +539,6 @@ def f_ps_correlation(df_cl, t1, meas_error, ax):
 
     ax.scatter(f, ps)
 
-    exp = True
-
     X = f
     x = np.array(f).reshape(-1, 1)
     y = np.array(ps).reshape(-1, 1).ravel()
@@ -549,21 +547,14 @@ def f_ps_correlation(df_cl, t1, meas_error, ax):
 
     y_rbf = svr_rbf.fit(x, y).predict(x)
 
-    z = np.polyfit(X, y_rbf, 1)
-    if exp:
-        z = np.polyfit(X, np.log(y_rbf), 1)
+    z = np.polyfit(X, np.exp(y_rbf), 1)
     f_poly = np.poly1d(z)
 
     print("\nPolynomial function:")
     print(f_poly)
     print("----------------------------\n")
 
-    if exp:
-        y_poly = np.exp(f_poly(list(np.arange(min(X), ceil(max(X)), 0.01))))
-
-    else:
-
-        y_poly = f_poly(list(np.arange(min(X), ceil(max(X)), 0.01)))
+    y_poly = np.log(f_poly(list(np.arange(min(X), ceil(max(X)), 0.01))))
 
     ax.plot(list(np.arange(min(X), ceil(max(X)), 0.01)), y_poly, lw=1,
             label='Fitting line', linestyle='dashed')
@@ -869,13 +860,14 @@ def thesis_f_ps_corr_plot():
 
         f_ps_correlation(df_cl, t1, meas_error, axfps)
 
-    axfps.legend(labels=["Fitting line", "Fitting line",
-                         "t_d 30 µs", "t_d 10 µs"], fontsize=8, frameon=True)
+    # axfps.legend(labels=["Fitting line", "Fitting line",
+    #                      "t_d 30 µs", "t_d 10 µs"], fontsize=8, frameon=True)
+    axfps.legend(fontsize=8, frameon=True)
 
     # Plotting diagonal line
     axfps.set_ylim(0, 1)
-    axfps.plot(axfps.get_xlim(), axfps.get_ylim(), ls=":",
-               lw=1, label='Prob. succ = Fidelity')
+    # axfps.plot(axfps.get_xlim(), axfps.get_ylim(), ls=":",
+    #            lw=1, label='Prob. succ = Fidelity')
 
     figfps.tight_layout()
     figfps.savefig("f_ps_correlation.png")
