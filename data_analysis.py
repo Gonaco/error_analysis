@@ -569,7 +569,7 @@ def f_ps_correlation(df_cl, t1, meas_error, ax):
         y_poly = f(list(np.arange(min(X), ceil(max(X)), 0.01)))
 
     ax.plot(list(np.arange(min(f), ceil(max(f)), 0.01)), y_poly, lw=1,
-            label='Polynomial model', linestyle='dashed')
+            label='Fitting line', linestyle='dashed')
 
     print(f_ps_corr)
 
