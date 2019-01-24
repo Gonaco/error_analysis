@@ -407,9 +407,10 @@ def fidelity_bar_plot(df_cl, t1, meas_error):
     x2 = [i+0.2 for i in range(1, N_benchs+1)]
 
     ax1.bar(x1, df_nomapper["mean_f"], width=0.2, color=(
-        0.2666, 0.4392, 0.5333), align='center')
+        0.2666, 0.4392, 0.5333), align='center', label="Before mapped")
     ax1.bar(x2, df_rcmapper["mean_f"], width=0.2, color=(
-        0.3058, 0.7058, 0.9215), align='center')
+        0.3058, 0.7058, 0.9215), align='center', label="After mapped")
+    ax1.legend()
     plt.xticks(x, df_rcmapper["benchmark"], rotation=0, fontsize=8)
 
     # # Option 3
