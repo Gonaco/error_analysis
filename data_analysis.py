@@ -583,6 +583,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     axarr1[0, 1].set_ylabel("fidelity")
     axarr1[0, 1].set_xlabel("# of two-qubit gates")
     axarr1[0, 1].set_ylim(0, 1)
+    axarr1[0, 1].legend(fontsize=8)
     print(f_s_corr)
 
     print("\n- Depth:")
@@ -621,6 +622,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     axarr2[0, 1].set_ylabel("prob. of success")
     axarr2[0, 1].set_xlabel("# of two-qubit gates")
     axarr2[0, 1].set_ylim(0, 1)
+    axarr2[0, 1].legend(fontsize=8)
     print(ps_s_corr)
 
     print("\n- Depth:")
@@ -916,14 +918,14 @@ def thesis_f_metrics_correlation():
 
         f_ps_metrics_correlation(df_cl, t1, meas_error, axarrf, axarrps)
 
-    figmf.legend("Fitting line", fontsize=8)
+    # figmf.legend("Fitting line", fontsize=8)
     figmf.tight_layout()
     figmf.savefig("f_metrics_correlation.png")
     figmf.savefig("f_metrics_correlation_HQ.png", dpi=1000)
     figmf.savefig("f_metrics_correlation.eps", dpi=1000)
     figmf.clf()
 
-    figmps.legend("Fitting line", fontsize=8)
+    # figmps.legend("Fitting line", fontsize=8)
     figmps.tight_layout()
     figmps.savefig("ps_metrics_correlation.png")
     figmps.savefig("ps_metrics_correlation_HQ.png", dpi=1000)
