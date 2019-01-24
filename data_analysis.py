@@ -423,6 +423,7 @@ def fidelity_bar_plot(df_cl, t1, meas_error):
     # ax.bar(df_rcmapper["benchmark"], df_rcmapper["mean_f"],
     #        width=0.2, color='r', align='center')
 
+    fig1.tight_layout()
     fig1.savefig("f_diff_bar_plot.png")
     fig1.savefig("f_diff_bar_plot_HQ.png", dpi=1000)
     fig1.savefig("f_diff_bar_plot.eps", dpi=1000)
@@ -796,7 +797,6 @@ def thesis_f_ps_corr_plot():
     param = [["3000", "0.005"], ["1000", "0.005"]]
 
     figfps, axfps = plt.subplots()
-    figfps.tight_layout()
     plt.xlabel("fidelity")
     plt.ylabel("prob. of success")
 
@@ -846,6 +846,7 @@ def thesis_f_ps_corr_plot():
 
         f_ps_correlation(df_cl, t1, meas_error, axfps)
 
+    figfps.tight_layout()
     figfps.savefig("f_ps_correlation.png")
     figfps.savefig("f_ps_correlation_HQ.png", dpi=1000)
     figfps.savefig("f_ps_correlation.eps", dpi=1000)
@@ -857,9 +858,7 @@ def thesis_f_metrics_correlation():
     param = [["3000", "0.005"], ["1000", "0.005"]]
 
     figmf, axarrf = plt.subplots(2, 2)
-    figmf.tight_layout()
     figmps, axarrps = plt.subplots(2, 2)
-    figmps.tight_layout()
 
     for p in param:
 
@@ -907,12 +906,14 @@ def thesis_f_metrics_correlation():
         f_ps_metrics_correlation(df_cl, t1, meas_error, axarrf, axarrps)
 
     figmf.legend(fontsize=8)
+    figmf.tight_layout()
     figmf.savefig("f_metrics_correlation.png")
     figmf.savefig("f_metrics_correlation_HQ.png", dpi=1000)
     figmf.savefig("f_metrics_correlation.eps", dpi=1000)
     figmf.clf()
 
     figmps.legend(fontsize=8)
+    figmps.tight_layout()
     figmps.savefig("ps_metrics_correlation.png")
     figmps.savefig("ps_metrics_correlation_HQ.png", dpi=1000)
     figmps.savefig("ps_metrics_correlation.eps", dpi=1000)
