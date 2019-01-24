@@ -537,6 +537,12 @@ def f_ps_correlation(df_cl, t1, meas_error, ax):
     plot_relation(ps, f,
                   "f_ps_correlation_"+meas_error, "probability of success", "fidelity", ax, True, True)
 
+    ax.scatter(f, ps)
+
+    y_poly = svm_regression(f, ps, 1, exp=True)
+    ax.plot(list(np.arange(min(f), ceil(max(f)), 0.01)), y_poly, lw=1,
+            label='Polynomial model', linestyle='dashed')
+
     print(f_ps_corr)
 
 
@@ -838,10 +844,8 @@ def thesis_f_ps_corr_plot():
 
         f_ps_correlation(df_cl, t1, meas_error, axfps)
 
-    # axfps.legend(labels=["Fitting line", "Fitting line",
-    #                      "t_d 30 µs", "t_d 10 µs"], fontsize=8, frameon=True)
-
-    axfps.legend(fontsize=8, frameon=True)
+    axfps.legend(labels=["Fitting line", "Fitting line",
+                         "t_d 30 µs", "t_d 10 µs"], fontsize=8, frameon=True)
 
     # Plotting diagonal line
     axfps.set_ylim(0, 1)
