@@ -537,13 +537,6 @@ def f_ps_correlation(df_cl, t1, meas_error, ax):
     plot_relation(ps, f,
                   "f_ps_correlation_"+meas_error, "probability of success", "fidelity", ax, True, True)
 
-    ax.legend(labels=["Fitting line", "Fitting line",
-                      "t_d 30 µs", "t_d 10 µs"], fontsize=8, frameon=True)
-
-    # Plotting diagonal line
-    ax.set_ylim(0, 1)
-    ax.plot(ax.get_xlim(), ax.get_ylim(), ls=":",
-            lw=1, label='Prob. succ = Fidelity')
     print(f_ps_corr)
 
 
@@ -844,6 +837,16 @@ def thesis_f_ps_corr_plot():
         meas_error_ = meas_error.replace(".", "_")
 
         f_ps_correlation(df_cl, t1, meas_error, axfps)
+
+    # axfps.legend(labels=["Fitting line", "Fitting line",
+    #                      "t_d 30 µs", "t_d 10 µs"], fontsize=8, frameon=True)
+
+    axfps.legend(fontsize=8, frameon=True)
+
+    # Plotting diagonal line
+    axfps.set_ylim(0, 1)
+    axfps.plot(axfps.get_xlim(), axfps.get_ylim(), ls=":",
+               lw=1, label='Prob. succ = Fidelity')
 
     figfps.tight_layout()
     figfps.savefig("f_ps_correlation.png")
