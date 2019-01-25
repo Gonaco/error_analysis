@@ -858,9 +858,8 @@ def thesis_f_ps_corr_plot():
 
         f_ps_correlation(df_cl, t1, meas_error, axfps)
 
-    # axfps.legend(labels=["Fitting line", "Fitting line",
-    #                      "t_d 30 µs", "t_d 10 µs"], fontsize=8, frameon=True)
-    axfps.legend(fontsize=8, frameon=True)
+    axfps.legend(labels=["Fitting line", "Fitting line",
+                         "t_d 30 µs", "t_d 10 µs"], fontsize=8, frameon=True)
 
     axfps.set_ylim(0, 1)
     # axfps.plot(axfps.get_xlim(), axfps.get_ylim(), ls=":",
