@@ -825,7 +825,7 @@ def thesis_mapping_effect():
         print("\n\t-- Correlation between the percentage of decrement in Fidelity and percentage of SWAPS")
 
         f_s_corr = pearsonr(error_metric, circuit_metric)
-        axf.scatter(error_metric, circuit_metric)
+        axf.scatter(circuit_metric, error_metric)
         print(f_s_corr)
 
     figf.savefig("mapping_effect_"+meas_error_+".png")
