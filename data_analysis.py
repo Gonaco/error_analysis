@@ -567,7 +567,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     print("\n- # of Gates:")
     f_g_corr = pearsonr(df_cl.mean_f, df_cl.N_gates)
     plot_relation(df_cl.mean_f, df_cl.N_gates,
-                  "f_g_"+t1+"_"+meas_error, "fidelity", "# of gates", axarr1[0, 0], exp=True)
+                  "f_g_"+t1+"_"+meas_error, "fidelity", "# of gates", axarr1[0, 0], exp=True if t1 == "3000" else False)
     axarr1[0, 0].set_ylabel("fidelity")
     axarr1[0, 0].set_xlabel("# of gates")
     axarr1[0, 0].set_ylim(0, 1)
@@ -576,7 +576,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     print("\n- # of two-qubit gates:")
     f_s_corr = pearsonr(df_cl.mean_f, df_cl.N_two_qg)
     plot_relation(df_cl.mean_f, df_cl.N_two_qg,
-                  "f_s_"+t1+"_"+meas_error, "fidelity", "# of two-qubit gates", axarr1[0, 1], exp=True)
+                  "f_s_"+t1+"_"+meas_error, "fidelity", "# of two-qubit gates", axarr1[0, 1], exp=True if t1 == "3000" else False)
     axarr1[0, 1].set_ylabel("fidelity")
     axarr1[0, 1].set_xlabel("# of two-qubit gates")
     axarr1[0, 1].set_ylim(0, 1)
@@ -587,7 +587,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     print("\n- Depth:")
     f_d_corr = pearsonr(df_cl.mean_f, df_cl.depth)
     plot_relation(df_cl.mean_f, df_cl.depth, "f_d_" +
-                  t1+"_"+meas_error, "fidelity", "depth", axarr1[1, 0], exp=True)
+                  t1+"_"+meas_error, "fidelity", "depth", axarr1[1, 0], exp=True if t1 == "3000" else False)
     axarr1[1, 0].set_ylabel("fidelity")
     axarr1[1, 0].set_xlabel("depth")
     axarr1[1, 0].set_ylim(0, 1)
@@ -596,7 +596,7 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     print("\n- Quantum Volume:")
     f_q_corr = pearsonr(df_cl.mean_f, df_cl.q_vol)
     plot_relation(df_cl.mean_f, df_cl.q_vol, "f_q_" +
-                  t1+"_"+meas_error, "fidelity", "V_Q", axarr1[1, 1], exp=True)
+                  t1+"_"+meas_error, "fidelity", "V_Q", axarr1[1, 1], exp=True if t1 == "3000" else False)
     axarr1[1, 1].set_ylabel("fidelity")
     axarr1[1, 1].set_xlabel("Quantum Volume")
     axarr1[1, 1].set_ylim(0, 1)
@@ -750,9 +750,9 @@ def thesis_mapping_effect():
     figf, axf = plt.subplots()
     plt.xlabel("depth (before mapping)")
     plt.ylabel("-1x infidelity percentage")
-    figps, axps = plt.subplots()
-    plt.xlabel("?")
-    plt.ylabel("?")
+    # figps, axps = plt.subplots()
+    # plt.xlabel("?")
+    # plt.ylabel("?")
 
     for p in param:
 
@@ -796,7 +796,37 @@ def thesis_mapping_effect():
 
         meas_error_ = meas_error.replace(".", "_")
 
-        diff_f_ps_swap_percentage(df_cl, t1, meas_error_, axf, axps)
+        error_metric = []
+        circuit_metric = []
+
+        for index, row in df_cl.iterrows():
+
+            if row["N_swaps"] == 0:
+                no_map_entr = row["mean_f"]
+                d_b = row["depth"]
+            else:
+                # error_metric.append((no_map_entr - row["mean_f"])/no_map_entr)
+                # circuit_metric.append(row["N_swaps"]/row["N_gates"])
+
+                # Infidelity perc\entage
+                error_metric.append(-(row["mean_f"] -
+                                      no_map_entr)/(1 - no_map_entr))
+                # error_metric.append(-(row["mean_f"] - no_map_entr)/no_map_entr)
+                # error_metric.append(-(row["mean_f"] - no_map_entr))
+
+                # circuit_metric.append(row["N_swaps"]/(row["N_gates"]-9*row["N_swaps"]))
+                # circuit_metric.append(row["N_swaps"])
+
+                # circuit_metric.append((row["depth"] - d_b)/d_b)
+                # circuit_metric.append(row["depth"] - d_b)
+                # circuit_metric.append(row["depth"])
+                circuit_metric.append(d_b)
+
+        print("\n\t-- Correlation between the percentage of decrement in Fidelity and percentage of SWAPS")
+
+        f_s_corr = pearsonr(error_metric, circuit_metric)
+        axf.scatter(error_metric, circuit_metric)
+        print(f_s_corr)
 
     figf.savefig("mapping_effect_"+meas_error_+".png")
     figf.savefig("mapping_effect_"+meas_error_+"_HQ.png", dpi=1000)
@@ -862,8 +892,76 @@ def thesis_f_ps_corr_plot():
                          "t_d 30 µs", "t_d 10 µs"], fontsize=8, frameon=True)
 
     axfps.set_ylim(0, 1)
-    # axfps.plot(axfps.get_xlim(), axfps.get_ylim(), ls=":",
-    #            lw=1, label='Prob. succ = Fidelity')
+    axfps.plot(axfps.get_xlim(), axfps.get_ylim(), color="gray", ls=":",
+               lw=1, label='Prob. succ = Fidelity')
+
+    figfps.tight_layout()
+    figfps.savefig("f_ps_correlation.png")
+    figfps.savefig("f_ps_correlation_HQ.png", dpi=1000)
+    figfps.savefig("f_ps_correlation.eps", dpi=1000)
+    figfps.clf()
+
+
+def thesis_f_ps_corr_plot_filt():
+
+    param = [["3000", "0.005"], ["1000", "0.005"]]
+
+    figfps, axfps = plt.subplots()
+    plt.xlabel("fidelity")
+    plt.ylabel("prob. of success")
+
+    for p in param:
+
+        t1 = p[0]
+        meas_error = p[1]
+        N_gates = []
+        N_swaps = []
+        depth = []
+        prob_succs = []
+        mean_f = []
+        q_vol = []
+        N_two_qg = []
+        mapper = []
+        benchmark = []
+
+        print("\n\tAnalysis For Decoherence Time = " +
+              t1+" and Error Measurement = "+meas_error)
+        print("\n\t-------------------------------")
+
+        for i in range(5):
+
+            db_path = "/home/dmorenomanzano/qbench/mapping_benchmarks/simple_benchs_smart_fast{i}.db".format(
+                i=i if i > 0 else "")
+
+            # bench_info = extract_decoher_info(db_path, t1)
+            # bench_info = extract_info(db_path, t1, meas_error)
+            bench_info = extract_info_f_filter(
+                db_path, t1, meas_error, 0.5, 1)
+            for b_i in bench_info:
+                N_gates.append(b_i[0])
+                N_swaps.append(b_i[1])
+                depth.append(b_i[2])
+                prob_succs.append(b_i[3])
+                mean_f.append(b_i[4])
+                q_vol.append(b_i[5])
+                N_two_qg.append(two_q_gates[b_i[6]]+3*b_i[1])
+                mapper.append(b_i[7])
+                benchmark.append(b_i[6])
+
+        data_frame = store_db_main_info(
+            N_gates, N_two_qg, N_swaps, depth, prob_succs, mean_f, q_vol, mapper, benchmark)
+        df_cl = clean_data_frame(data_frame)
+
+        meas_error_ = meas_error.replace(".", "_")
+
+        f_ps_correlation(df_cl, t1, meas_error, axfps)
+
+    axfps.legend(labels=["Fitting line", "Fitting line",
+                         "t_d 30 µs", "t_d 10 µs"], fontsize=8, frameon=True)
+
+    axfps.set_ylim(0, 1)
+    axfps.plot(axfps.get_xlim(), axfps.get_ylim(), color="gray", ls=":",
+               lw=1, label='Prob. succ = Fidelity')
 
     figfps.tight_layout()
     figfps.savefig("f_ps_correlation.png")
