@@ -534,6 +534,7 @@ def f_ps_correlation(df_cl, t1, meas_error, ax):
     print("\n\t-- Correlation between the Fidelity and Probability of Success")
 
     f_ps_corr = pearsonr(ps, f)
+    print(f_ps_corr)
 
     ax.scatter(f, ps)
 
@@ -557,6 +558,7 @@ def f_ps_correlation(df_cl, t1, meas_error, ax):
     ax.plot(list(np.arange(min(X), ceil(max(X)), 0.01)), y_poly, lw=1,
             label='Fitting line', linestyle='dashed')
 
+    f_ps_corr = pearsonr(np.exp(ps), f)
     print(f_ps_corr)
 
 
@@ -566,15 +568,19 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
 
     print("\n- # of Gates:")
     f_g_corr = pearsonr(df_cl.mean_f, df_cl.N_gates)
+    print(f_g_corr)
     plot_relation(df_cl.mean_f, df_cl.N_gates,
                   "f_g_"+t1+"_"+meas_error, "fidelity", "# of gates", axarr1[0, 0], exp=True if t1 == "3000" else False)
     axarr1[0, 0].set_ylabel("fidelity")
     axarr1[0, 0].set_xlabel("# of gates")
     axarr1[0, 0].set_ylim(0, 1)
+
+    f_g_corr = pearsonr(np.log(df_cl.mean_f), df_cl.N_gates)
     print(f_g_corr)
 
     print("\n- # of two-qubit gates:")
     f_s_corr = pearsonr(df_cl.mean_f, df_cl.N_two_qg)
+    print(f_s_corr)
     plot_relation(df_cl.mean_f, df_cl.N_two_qg,
                   "f_s_"+t1+"_"+meas_error, "fidelity", "# of two-qubit gates", axarr1[0, 1], exp=True if t1 == "3000" else False)
     axarr1[0, 1].set_ylabel("fidelity")
@@ -582,39 +588,51 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     axarr1[0, 1].set_ylim(0, 1)
     axarr1[0, 1].legend(labels=["Fitting line", "Fitting line",
                                 "t_d 30 µs", "t_d 10 µs"], fontsize=8, frameon=True)
+
+    f_s_corr = pearsonr(np.log(df_cl.mean_f), df_cl.N_two_qg)
     print(f_s_corr)
 
     print("\n- Depth:")
     f_d_corr = pearsonr(df_cl.mean_f, df_cl.depth)
+    print(f_d_corr)
     plot_relation(df_cl.mean_f, df_cl.depth, "f_d_" +
                   t1+"_"+meas_error, "fidelity", "depth", axarr1[1, 0], exp=True if t1 == "3000" else False)
     axarr1[1, 0].set_ylabel("fidelity")
     axarr1[1, 0].set_xlabel("depth")
     axarr1[1, 0].set_ylim(0, 1)
+
+    f_d_corr = pearsonr(np.log(df_cl.mean_f), df_cl.depth)
     print(f_d_corr)
 
     print("\n- Quantum Volume:")
     f_q_corr = pearsonr(df_cl.mean_f, df_cl.q_vol)
+    print(f_q_corr)
     plot_relation(df_cl.mean_f, df_cl.q_vol, "f_q_" +
                   t1+"_"+meas_error, "fidelity", "V_Q", axarr1[1, 1], exp=True if t1 == "3000" else False)
     axarr1[1, 1].set_ylabel("fidelity")
     axarr1[1, 1].set_xlabel("Quantum Volume")
     axarr1[1, 1].set_ylim(0, 1)
+
+    f_q_corr = pearsonr(np.log(df_cl.mean_f), df_cl.q_vol)
     print(f_q_corr)
 
     print("\n\n\t-- Correlation between Probability of Success and:")
 
     print("\n- # of Gates:")
     ps_g_corr = pearsonr(df_cl.prob_succs, df_cl.N_gates)
+    print(ps_g_corr)
     plot_relation(df_cl.prob_succs, df_cl.N_gates,
                   "ps_g_"+t1+"_"+meas_error, "prob. success", "# of gates", axarr2[0, 0], True, True)
     axarr2[0, 0].set_ylabel("prob. of success")
     axarr2[0, 0].set_xlabel("# of gates")
     axarr2[0, 0].set_ylim(0, 1)
+
+    ps_g_corr = pearsonr(np.log(df_cl.prob_succs), df_cl.N_gates)
     print(ps_g_corr)
 
     print("\n- # of two-qubit gates:")
     ps_s_corr = pearsonr(df_cl.prob_succs, df_cl.N_two_qg)
+    print(ps_s_corr)
     plot_relation(df_cl.prob_succs, df_cl.N_two_qg,
                   "ps_s_"+t1+"_"+meas_error, "prob. success", "# of -qubit gates", axarr2[0, 1], True, True)
     axarr2[0, 1].set_ylabel("prob. of success")
@@ -622,24 +640,32 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     axarr2[0, 1].set_ylim(0, 1)
     axarr2[0, 1].legend(labels=["Fitting line", "Fitting line",
                                 "t_d 30 µs", "t_d 10 µs"], fontsize=8, frameon=True)
+
+    ps_s_corr = pearsonr(np.log(df_cl.prob_succs), df_cl.N_two_qg)
     print(ps_s_corr)
 
     print("\n- Depth:")
     ps_d_corr = pearsonr(df_cl.prob_succs, df_cl.depth)
+    print(ps_d_corr)
     plot_relation(df_cl.prob_succs, df_cl.depth,
                   "ps_d_"+t1+"_"+meas_error, "prob. success", "depth", axarr2[1, 0], True, True)
     axarr2[1, 0].set_ylabel("prob. of success")
     axarr2[1, 0].set_xlabel("depth")
     axarr2[1, 0].set_ylim(0, 1)
+
+    ps_d_corr = pearsonr(np.log(df_cl.prob_succs), df_cl.depth)
     print(ps_d_corr)
 
     print("\n- Quantum Volume:")
     ps_q_corr = pearsonr(df_cl.prob_succs, df_cl.q_vol)
+    print(ps_q_corr)
     plot_relation(df_cl.prob_succs, df_cl.q_vol,
                   "ps_q_"+t1+"_"+meas_error, "prob. success", "V_Q", axarr2[1, 1], True, True)
     axarr2[1, 1].set_ylabel("prob. of success")
     axarr2[1, 1].set_xlabel("Quantum Volume")
     axarr2[1, 1].set_ylim(0, 1)
+
+    ps_q_corr = pearsonr(np.log(df_cl.prob_succs), df_cl.q_vol)
     print(ps_q_corr)
 
 
@@ -749,7 +775,8 @@ def thesis_mapping_effect():
     param = [["3000", "0.005"], ["1000", "0.005"]]
     figf, axf = plt.subplots()
     plt.xlabel("depth (before mapping)")
-    plt.ylabel("-1x infidelity percentage")
+    # plt.ylabel("-1x infidelity difference percentage")
+    plt.ylabel("fidelity difference percentage")
     # figps, axps = plt.subplots()
     # plt.xlabel("?")
     # plt.ylabel("?")
@@ -798,6 +825,7 @@ def thesis_mapping_effect():
 
         error_metric = []
         circuit_metric = []
+        error_metric_no_mapped = []
 
         for index, row in df_cl.iterrows():
 
@@ -822,10 +850,14 @@ def thesis_mapping_effect():
                 # circuit_metric.append(row["depth"])
                 circuit_metric.append(d_b)
 
+                error_metric_no_mapped.append(no_map_entr)
+
         print("\n\t-- Correlation between the percentage of decrement in Fidelity and percentage of SWAPS")
 
         f_s_corr = pearsonr(error_metric, circuit_metric)
         axf.scatter(circuit_metric, error_metric)
+        # axf.scatter(circuit_metric, error_metric_no_mapped, color='red')
+        # axf.bar(circuit_metric, error_metric)
         print(f_s_corr)
 
     figf.savefig("mapping_effect_"+meas_error_+".png")
