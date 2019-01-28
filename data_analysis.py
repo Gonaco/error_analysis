@@ -806,8 +806,9 @@ def thesis_mapping_effect():
             db_path = "/home/dmorenomanzano/qbench/mapping_benchmarks/simple_benchs_smart_fast{i}.db".format(
                 i=i if i > 0 else "")
 
-            bench_info = extract_info_f_filter(
-                db_path, t1, meas_error, 0.5, 1)
+            bench_info = extract_info(db_path, t1, meas_error)
+            # bench_info = extract_info_f_filter(
+            #     db_path, t1, meas_error, 0.5, 1)
             for b_i in bench_info:
                 N_gates.append(b_i[0])
                 N_swaps.append(b_i[1])
@@ -831,12 +832,15 @@ def thesis_mapping_effect():
 
         error_metric_diff = []
 
+        table_print = "| {bench} | {depth} |"
+
         # error_metric_diff_up = []
         # error_metric_diff_low = []
 
         for index, row in df_cl.iterrows():
 
-            print(row)
+            print(table_print.format(
+                bench=row["benchmark"], depth=row["depth"]))
 
             if row["N_swaps"] == 0:
                 no_map_entr = row["mean_f"]
@@ -877,14 +881,14 @@ def thesis_mapping_effect():
         # axf.bar(circuit_metric, error_metric)
         print(f_s_corr)
 
-    figf.savefig("mapping_effect_"+meas_error_+".png")
-    figf.savefig("mapping_effect_"+meas_error_+"_HQ.png", dpi=1000)
-    figf.savefig("mapping_effect_"+meas_error_+".eps", dpi=1000)
+    figf.savefig("mapping_effect_"+t1+".png")
+    figf.savefig("mapping_effect_"+t1+"_HQ.png", dpi=1000)
+    figf.savefig("mapping_effect_"+t1+".eps", dpi=1000)
     figf.clf()
 
-    figdiff.savefig("mapping_effect_diff_"+meas_error_+".png")
-    figdiff.savefig("mapping_effect_diff_"+meas_error_+"_HQ.png", dpi=1000)
-    figdiff.savefig("mapping_effect_diff_"+meas_error_+".eps", dpi=1000)
+    figdiff.savefig("mapping_effect_diff_"+t1+".png")
+    figdiff.savefig("mapping_effect_diff_"+t1+"_HQ.png", dpi=1000)
+    figdiff.savefig("mapping_effect_diff_"+t1+".eps", dpi=1000)
     figdiff.clf()
 
 
