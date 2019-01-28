@@ -894,14 +894,14 @@ def thesis_mapping_effect():
                     color=(0.2666, 0.4392, 0.5333), label="Before mapped")
         axf.scatter(circuit_metric, error_metric,
                     color=(0.3058, 0.7058, 0.9215), label="After mapped")
-        axf.legend()
+        axf.legend(frameon=True)
         axf.set_xticklabels([])
 
         axdiff.scatter(circuit_metric_diff, error_metric_diff_up,
                        color=(0.92, 0.36, 0.35), label="Upper bound")
         axdiff.scatter(circuit_metric_diff, error_metric_diff_low,
                        color=(0.11, 0.4, 0.6), label="Lower bound")
-        axdiff.legend()
+        axdiff.legend(frameon=True)
 
         # X = circuit_metric_diff
         # x = np.array(circuit_metric_diff).reshape(-1, 1)
