@@ -830,12 +830,13 @@ def thesis_mapping_effect():
         circuit_metric = []
         error_metric_no_mapped = []
 
-        error_metric_diff = []
-
         table_print = "| {bench} | {depth} |"
 
-        # error_metric_diff_up = []
-        # error_metric_diff_low = []
+        error_metric_diff_up = []
+        error_metric_diff_low = []
+        error_metric_diff = []
+        circuit_metric_diff = []
+        benchmark_prev = ""
 
         for index, row in df_cl.iterrows():
 
@@ -845,6 +846,7 @@ def thesis_mapping_effect():
             if row["N_swaps"] == 0:
                 no_map_entr = row["mean_f"]
                 d_b = row["depth"]
+                benchmark = row["benchmark"]
             else:
                 # error_metric.append((no_map_entr - row["mean_f"])/no_map_entr)
                 # circuit_metric.append(row["N_swaps"]/row["N_gates"])
@@ -854,30 +856,47 @@ def thesis_mapping_effect():
                 #                       no_map_entr)/(1 - no_map_entr))
                 # error_metric.append(-(row["mean_f"] -
                 #                       no_map_entr)/no_map_entr)
-
-                error_metric_diff.append(-(row["mean_f"] -
-                                           no_map_entr)/no_map_entr)
                 # error_metric.append(-(row["mean_f"] - no_map_entr))
-                error_metric.append(row["mean_f"])
-
                 # circuit_metric.append(row["N_swaps"]/(row["N_gates"]-9*row["N_swaps"]))
                 # circuit_metric.append(row["N_swaps"])
 
                 # circuit_metric.append((row["depth"] - d_b)/d_b)
                 # circuit_metric.append(row["depth"] - d_b)
                 # circuit_metric.append(row["depth"])
+
+                error_metric.append(row["mean_f"])
                 circuit_metric.append(d_b)
 
                 error_metric_no_mapped.append(no_map_entr)
+
+                if benchmark != benchmark_prev:
+
+                    benchmark_prev = benchmark
+
+                    error_metric_diff_up.append(max(error_metric_diff))
+                    error_metric_diff_low.append(min(error_metric_diff))
+
+                    circuit_metric_diff.append(d_b)
+
+                    error_metric_diff = []
+
+                error_metric_diff.append(-(row["mean_f"] -
+                                           no_map_entr)/no_map_entr)
 
         print("\n\t-- Correlation between the percentage of decrement in Fidelity and percentage of SWAPS")
 
         f_s_corr = pearsonr(error_metric, circuit_metric)
         axf.scatter(circuit_metric, error_metric,
-                    color=(0.3058, 0.7058, 0.9215))
+                    color=(0.3058, 0.7058, 0.9215), label="Before mapped")
         axf.scatter(circuit_metric, error_metric_no_mapped,
-                    color=(0.2666, 0.4392, 0.5333))
-        axdiff.scatter(circuit_metric, error_metric_diff)
+                    color=(0.2666, 0.4392, 0.5333), label="After mapped")
+        axf.legend()
+        axf.set_xticklabels([])
+        axdiff.plot(circuit_metric_diff, error_metric_diff_up,
+                    color=(0.92, 0.36, 0.35), label="Maximum difference in fidelity per benchmark")
+        axdiff.plot(circuit_metric_diff, error_metric_diff_low,
+                    color=(0.7, 0.7058, 0.13), label="Minimum difference in fidelity per benchmark")
+        axdiff.legend()
         # axf.bar(circuit_metric, error_metric)
         print(f_s_corr)
 
