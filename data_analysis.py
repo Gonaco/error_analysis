@@ -386,10 +386,10 @@ def fidelity_bar_plot(df_cl, t1, meas_error):
     df_nomapper = df_cl[df_cl["mapper"] == "no"]
     df_rcmapper = df_cl[df_cl["mapper"] == "minextendrc"]
 
-    df_rcmapper = df_rcmapper.sort_values(by=["benchmark"])
+    df_rcmapper = df_rcmapper.sort_values(by=["N_gates"])
     df_rcmapper = df_rcmapper.drop_duplicates(
         subset=["benchmark"], keep="first")
-    df_nomapper = df_nomapper.sort_values(by=["benchmark"])
+    df_nomapper = df_nomapper.sort_values(by=["N_gates"])
     df_nomapper = df_nomapper.drop_duplicates(
         subset=["benchmark"], keep="first")
 
@@ -874,9 +874,9 @@ def thesis_mapping_effect():
 
         f_s_corr = pearsonr(error_metric, circuit_metric)
         axf.scatter(circuit_metric, error_metric,
-                    color=(0.2666, 0.4392, 0.5333))
-        axf.scatter(circuit_metric, error_metric_no_mapped,
                     color=(0.3058, 0.7058, 0.9215))
+        axf.scatter(circuit_metric, error_metric_no_mapped,
+                    color=(0.2666, 0.4392, 0.5333))
         axdiff.scatter(circuit_metric, error_metric_diff)
         # axf.bar(circuit_metric, error_metric)
         print(f_s_corr)
