@@ -897,12 +897,12 @@ def thesis_mapping_effect():
         axf.legend()
         axf.set_xticklabels([])
 
-        axdiff.plot(circuit_metric_diff, error_metric_diff_up,
-                    color=(0.92, 0.36, 0.35), label="Maximum difference in fidelity per benchmark")
-        axdiff.plot(circuit_metric_diff, error_metric_diff_low,
-                    color=(0.7, 0.7058, 0.13), label="Minimum difference in fidelity per benchmark")
+        axdiff.scatter(circuit_metric_diff, error_metric_diff_up,
+                       color=(0.92, 0.36, 0.35), label="Maximum difference in fidelity per benchmark")
+        axdiff.scatter(circuit_metric_diff, error_metric_diff_low,
+                       color=(0.7, 0.7058, 0.13), label="Minimum difference in fidelity per benchmark")
         axdiff.legend()
-        axdiff.xticks(range(len(error_metric_diff_up)), circuit_metric_diff)
+
         axdiff.set_xticklabels([])
         # axf.bar(circuit_metric, error_metric)
         print(f_s_corr)
