@@ -840,8 +840,8 @@ def thesis_mapping_effect():
 
         for index, row in df_cl.iterrows():
 
-            print(table_print.format(
-                bench=row["benchmark"], depth=row["depth"]))
+            # print(table_print.format(
+            #     bench=row["benchmark"], depth=row["depth"]))
 
             if row["N_swaps"] == 0:
                 no_map_entr = row["mean_f"]
@@ -883,6 +883,9 @@ def thesis_mapping_effect():
 
                 error_metric_diff.append(-(row["mean_f"] -
                                            no_map_entr)/no_map_entr)
+
+        error_metric_diff_up.append(max(error_metric_diff))
+        error_metric_diff_low.append(min(error_metric_diff))
 
         print("\n\t-- Correlation between the percentage of decrement in Fidelity and percentage of SWAPS")
 
