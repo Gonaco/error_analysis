@@ -898,10 +898,50 @@ def thesis_mapping_effect():
         axf.set_xticklabels([])
 
         axdiff.scatter(circuit_metric_diff, error_metric_diff_up,
-                       color=(0.92, 0.36, 0.35), label="Maximum difference in fidelity per benchmark")
+                       color=(0.92, 0.36, 0.35), label="Upper bound")
         axdiff.scatter(circuit_metric_diff, error_metric_diff_low,
-                       color=(0.7, 0.7058, 0.13), label="Minimum difference in fidelity per benchmark")
+                       color=(0.7, 0.7058, 0.13), label="Lower bound")
         axdiff.legend()
+
+        X = circuit_metric_diff
+        x = np.array(circuit_metric_diff).reshape(-1, 1)
+        y = np.array(error_metric_diff_up).reshape(-1, 1).ravel()
+
+        svr_rbf = SVR(kernel='rbf', C=1e3, gamma='scale', epsilon=0.001)
+
+        y_rbf = svr_rbf.fit(x, y).predict(x)
+
+        z = np.polyfit(X, np.exp(y_rbf), 1)
+        f_poly = np.poly1d(z)
+
+        print("\nPolynomial function:")
+        print(f_poly)
+        print("----------------------------\n")
+
+        y_poly = np.log(f_poly(list(np.arange(min(X), ceil(max(X)), 0.01))))
+
+        axdiff.plot(list(np.arange(min(X), ceil(max(X)), 0.01)), y_poly, lw=1,
+                    label='Fitting line', linestyle='dashed', color=(0.92, 0.36, 0.35))
+
+        X = circuit_metric_diff
+        x = np.array(circuit_metric_diff).reshape(-1, 1)
+        y = np.array(error_metric_diff_low).reshape(-1, 1).ravel()
+
+        svr_rbf = SVR(kernel='rbf', C=1e3, gamma='scale', epsilon=0.001)
+
+        y_rbf = svr_rbf.fit(x, y).predict(x)
+
+        z = np.polyfit(X, np.exp(y_rbf), 1)
+        f_poly = np.poly1d(z)
+
+        print("\nPolynomial function:")
+        print(f_poly)
+        print("----------------------------\n")
+
+        y_poly = np.log(f_poly(list(np.arange(min(X), ceil(max(X)), 0.01))))
+
+        axdiff.plot(list(np.arange(min(X), ceil(max(X)), 0.01)), y_poly, lw=1,
+                    label='Fitting line', linestyle='dashed', color=(0.7, 0.7058, 0.13))
 
         axdiff.set_xticklabels([])
         # axf.bar(circuit_metric, error_metric)
