@@ -772,14 +772,16 @@ def thesis_bar_plot():
 
 def thesis_mapping_effect():
 
-    param = [["3000", "0.005"], ["1000", "0.005"]]
+    param = [["3000", "0.005"]]
+
+    # param = [["1000", "0.005"]]
     figf, axf = plt.subplots()
-    plt.xlabel("depth (before mapping)")
+    plt.xlabel("Benchmarks")
     # plt.ylabel("-1x infidelity difference percentage")
+    plt.ylabel("fidelity")
+    figdiff, axdiff = plt.subplots()
+    plt.xlabel("Benchmarks")
     plt.ylabel("fidelity difference percentage")
-    # figps, axps = plt.subplots()
-    # plt.xlabel("?")
-    # plt.ylabel("?")
 
     for p in param:
 
@@ -827,7 +829,14 @@ def thesis_mapping_effect():
         circuit_metric = []
         error_metric_no_mapped = []
 
+        error_metric_diff = []
+
+        # error_metric_diff_up = []
+        # error_metric_diff_low = []
+
         for index, row in df_cl.iterrows():
+
+            print(row)
 
             if row["N_swaps"] == 0:
                 no_map_entr = row["mean_f"]
@@ -837,10 +846,15 @@ def thesis_mapping_effect():
                 # circuit_metric.append(row["N_swaps"]/row["N_gates"])
 
                 # Infidelity perc\entage
-                error_metric.append(-(row["mean_f"] -
-                                      no_map_entr)/(1 - no_map_entr))
-                # error_metric.append(-(row["mean_f"] - no_map_entr)/no_map_entr)
+                # error_metric.append(-(row["mean_f"] -
+                #                       no_map_entr)/(1 - no_map_entr))
+                # error_metric.append(-(row["mean_f"] -
+                #                       no_map_entr)/no_map_entr)
+
+                error_metric_diff.append(-(row["mean_f"] -
+                                           no_map_entr)/no_map_entr)
                 # error_metric.append(-(row["mean_f"] - no_map_entr))
+                error_metric.append(row["mean_f"])
 
                 # circuit_metric.append(row["N_swaps"]/(row["N_gates"]-9*row["N_swaps"]))
                 # circuit_metric.append(row["N_swaps"])
@@ -855,8 +869,11 @@ def thesis_mapping_effect():
         print("\n\t-- Correlation between the percentage of decrement in Fidelity and percentage of SWAPS")
 
         f_s_corr = pearsonr(error_metric, circuit_metric)
-        axf.scatter(circuit_metric, error_metric)
-        # axf.scatter(circuit_metric, error_metric_no_mapped, color='red')
+        axf.scatter(circuit_metric, error_metric,
+                    color=(0.2666, 0.4392, 0.5333))
+        axf.scatter(circuit_metric, error_metric_no_mapped,
+                    color=(0.3058, 0.7058, 0.9215))
+        axdiff.scatter(circuit_metric, error_metric_diff)
         # axf.bar(circuit_metric, error_metric)
         print(f_s_corr)
 
@@ -864,6 +881,11 @@ def thesis_mapping_effect():
     figf.savefig("mapping_effect_"+meas_error_+"_HQ.png", dpi=1000)
     figf.savefig("mapping_effect_"+meas_error_+".eps", dpi=1000)
     figf.clf()
+
+    figdiff.savefig("mapping_effect_diff_"+meas_error_+".png")
+    figdiff.savefig("mapping_effect_diff_"+meas_error_+"_HQ.png", dpi=1000)
+    figdiff.savefig("mapping_effect_diff_"+meas_error_+".eps", dpi=1000)
+    figdiff.clf()
 
 
 def thesis_f_ps_corr_plot():
