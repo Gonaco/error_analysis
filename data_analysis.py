@@ -873,8 +873,9 @@ def thesis_mapping_effect():
 
                     benchmark_prev = benchmark
 
-                    error_metric_diff_up.append(max(error_metric_diff))
-                    error_metric_diff_low.append(min(error_metric_diff))
+                    if error_metric_diff:
+                        error_metric_diff_up.append(max(error_metric_diff))
+                        error_metric_diff_low.append(min(error_metric_diff))
 
                     circuit_metric_diff.append(d_b)
 
