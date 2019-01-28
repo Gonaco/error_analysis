@@ -890,25 +890,30 @@ def thesis_mapping_effect():
         print("\n\t-- Correlation between the percentage of decrement in Fidelity and percentage of SWAPS")
 
         f_s_corr = pearsonr(error_metric, circuit_metric)
-        axf.scatter(circuit_metric, error_metric,
-                    color=(0.3058, 0.7058, 0.9215), label="Before mapped")
         axf.scatter(circuit_metric, error_metric_no_mapped,
-                    color=(0.2666, 0.4392, 0.5333), label="After mapped")
+                    color=(0.2666, 0.4392, 0.5333), label="Before mapped")
+        axf.scatter(circuit_metric, error_metric,
+                    color=(0.3058, 0.7058, 0.9215), label="After mapped")
         axf.legend()
         axf.set_xticklabels([])
+
         axdiff.plot(circuit_metric_diff, error_metric_diff_up,
                     color=(0.92, 0.36, 0.35), label="Maximum difference in fidelity per benchmark")
         axdiff.plot(circuit_metric_diff, error_metric_diff_low,
                     color=(0.7, 0.7058, 0.13), label="Minimum difference in fidelity per benchmark")
         axdiff.legend()
+        axdiff.xticks(range(len(error_metric_diff_up)), circuit_metric_diff)
+        axdiff.set_xticklabels([])
         # axf.bar(circuit_metric, error_metric)
         print(f_s_corr)
 
+    figf.tight_layout()
     figf.savefig("mapping_effect_"+t1+".png")
     figf.savefig("mapping_effect_"+t1+"_HQ.png", dpi=1000)
     figf.savefig("mapping_effect_"+t1+".eps", dpi=1000)
     figf.clf()
 
+    figdiff.tight_layout()
     figdiff.savefig("mapping_effect_diff_"+t1+".png")
     figdiff.savefig("mapping_effect_diff_"+t1+"_HQ.png", dpi=1000)
     figdiff.savefig("mapping_effect_diff_"+t1+".eps", dpi=1000)
