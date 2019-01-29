@@ -897,9 +897,9 @@ def thesis_mapping_effect():
         axf.legend(frameon=True)
         axf.set_xticklabels([])
 
-        axdiff.plot(circuit_metric_diff.sort(), error_metric_diff_up.sort(),
+        axdiff.plot(np.sort(circuit_metric_diff), np.sort(error_metric_diff_up),
                     color=(0.92, 0.36, 0.35), label="Upper bound")
-        axdiff.plot(circuit_metric_diff.sort(), error_metric_diff_low.sort(),
+        axdiff.plot(np.sort(circuit_metric_diff), np.sort(error_metric_diff_low),
                     color=(0.11, 0.4, 0.6), label="Lower bound")
         axdiff.legend(frameon=True)
 
