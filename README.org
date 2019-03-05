@@ -16,7 +16,39 @@
 
 ** Example
 
-#+BEGIN_SRC python
+#+BEGIN_SRC python 
+
+from quantum_benchmark import Benchmark
+from quantum_benchmark import MappingAnalysis
+
+benchmark_name = "....py"
+
+b_name = "/home/dmorenomanzano/qbench/mapping_benchmarks/"+benchmark
+
+benchmarks = []
+
+
+# Configuration 1
+b1 = Benchmark(b_name,
+                     "/home/dmorenomanzano/qbench/config_files/no_constraints_configuration_quantumsim_sc17_no_mapper.json", "benchmarks_exports/smart_fast/conf1", "ALAP", "no")
+# Configuration 2
+b2 = Benchmark(b_name,
+                     "/home/dmorenomanzano/qbench/config_files/constraints_configuration_quantumsim_sc17.json", output_dir_name="benchmarks_exports/smart_fast/conf2")
+# Configuration 3
+b3 = Benchmark(b_name,
+                     "/home/dmorenomanzano/qbench/config_files/constraints_configuration_quantumsim_sc17.json", "benchmarks_exports/smart_fast/conf4", "ALAP", "minextend", "no")    
+# Configuration 4
+b4 = Benchmark(b_name,
+                     "/home/dmorenomanzano/qbench/config_files/constraints_configuration_quantumsim_sc17.json", "benchmarks_exports/smart_fast/conf6", "ALAP", "base", "no")
+                  
+benchmarks.append(b1)
+benchmarks.append(b2)
+benchmarks.append(b4)
+benchmarks.append(b6)
+
+test = MappingAnalysis(benchmarks, "simple_benchs_smart_fast2.db", 1)
+# test.analyse(True, 1000, 0, 3000, 3000, 0)
+test.analyse(False, 1000, 0, 3000, 3000, 0)
 
 #+END_SRC
 ** Classes
