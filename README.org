@@ -1,0 +1,30 @@
+* Error analysis Framework
+
+
+** Required Packages
+
+- python v?
+- numpy
+- OpenQL
+- qxelarator
+- quantumsim
+- atexit
+- matplotlib
+- h5py
+- sqlite3
+- csv
+
+** Example
+
+#+BEGIN_SRC python
+
+#+END_SRC
+** Classes
+*** MappingAnalysis (Main class)
+*** Benchmark (Main class)
+*** _QASMReader (Private class)
+
+This object encloses all the functions that serve to read and analyze the QASM files.
+
+*** _DescripBench (Private class)
+*** _SimBench (Private class)
