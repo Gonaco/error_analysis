@@ -835,7 +835,7 @@ class _DescripBench(object):
                 os.makedirs(self.output_dir)
 
             self.openql_comp.circuit(
-                config_file=self.config_file_path, scheduler=scheduler, uniform_sched=uniform_sched, mapper=self.mapper, initial_placement=self.init_place, output_dir=self.output_dir)
+                config_file=self.config_file_path, scheduler=scheduler, uniform_sched=uniform_sched, mapper=self.mapper, initial_placement=self.init_place, output_dir_name=self.output_dir)
 
             return _SimBench(self.file_path.replace(".py", ".qasm"), N_exp, self.output_dir), _SimBench(self.file_path.replace(".py", "_scheduled.qasm"), N_exp, self.output_dir), _SimBench(self.file_path.replace(".py", "_rcscheduler_out.qasm"), N_exp, self.output_dir), _SimBench(self.file_path.replace(".py", "_quantumsim_.py"), N_exp, self.output_dir), _SimBench(self.file_path.replace(".py", "_quantumsim_mapped.py"), N_exp, self.output_dir)
 
