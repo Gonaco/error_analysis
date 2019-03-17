@@ -435,7 +435,7 @@ class Benchmark(object):
             1].replace(".py", "").replace("-", "_")
         self.N_exp = 1000
         self.ql_descr = _DescripBench(
-            openql_file_path, config_file_path, scheduler, mapper, initial_placement, output_dir_name)
+            openql_file_path, config_file_path, scheduler=scheduler, mapper=mapper, initial_placement=initial_placement, output_dir_name=output_dir_name)
         t0 = time.time()
 
         self.cqasm_pure, self.cqasm_sched, self.cqasm_mapped, self.quantumsim_sched, self.quantumsim_mapped = self.ql_descr.compile(
@@ -835,7 +835,7 @@ class _DescripBench(object):
                 os.makedirs(self.output_dir)
 
             self.openql_comp.circuit(
-                self.config_file_path, scheduler, uniform_sched, self.mapper, self.init_place, self.output_dir)
+                config_file=self.config_file_path, scheduler=scheduler, uniform_sched=uniform_sched, mapper=self.mapper, initial_placement=self.init_place, output_dir=self.output_dir)
 
             return _SimBench(self.file_path.replace(".py", ".qasm"), N_exp, self.output_dir), _SimBench(self.file_path.replace(".py", "_scheduled.qasm"), N_exp, self.output_dir), _SimBench(self.file_path.replace(".py", "_rcscheduler_out.qasm"), N_exp, self.output_dir), _SimBench(self.file_path.replace(".py", "_quantumsim_.py"), N_exp, self.output_dir), _SimBench(self.file_path.replace(".py", "_quantumsim_mapped.py"), N_exp, self.output_dir)
 
