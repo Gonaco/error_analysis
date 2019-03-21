@@ -1292,7 +1292,7 @@ def thesis_f_swaps_depth_correlation():
 
         f_s_d_3d_plot(df_cl, t1, meas_error, axfsd)
 
-    for angle in range(0, 360):
+    for angle in range(0, 360, 90):
         axfsd.view_init(30, angle)
         # figmf.legend("Fitting line", fontsize=8)
         figfsd.tight_layout()
