@@ -669,6 +669,15 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     print(ps_q_corr)
 
 
+def f_s_d_3d_plot(ax, fidelity, N_swaps, depth):
+
+    ax.scatter(N_swaps, depth, fidelity)
+
+    ax.set_xlabel('# swaps')
+    ax.set_ylabel('depth')
+    ax.set_zlabel('fidelity')
+
+
 def data_analysis(t1, meas_error):
 
     t1 = str(t1)
@@ -1230,7 +1239,69 @@ def thesis_f_ps_metrics_correlation_filt():
     figmps.clf()
 
 
+def thesis_f_swaps_depth_correlation():
+
+    param = [["3000", "0.005"], ["1000", "0.005"]]
+
+    figfsd, axarrfsd = plt.subplots(2, 2)
+
+    for p in param:
+
+        t1 = p[0]
+        meas_error = p[1]
+        N_gates = []
+        N_swaps = []
+        depth = []
+        prob_succs = []
+        mean_f = []
+        q_vol = []
+        N_two_qg = []
+        mapper = []
+        benchmark = []
+
+        print("\n\tAnalysis For Decoherence Time = " +
+              t1+" and Error Measurement = "+meas_error)
+        print("\n\t-------------------------------")
+
+        for i in range(5):
+
+            db_path = "/home/dmorenomanzano/qbench/mapping_benchmarks/simple_benchs_smart_fast{i}.db".format(
+                i=i if i > 0 else "")
+
+            # bench_info = extract_info(db_path, t1, meas_error)
+            bench_info = extract_info_f_filter(
+                db_path, t1, meas_error, 0.5, 1)
+            for b_i in bench_info:
+                N_gates.append(b_i[0])
+                N_swaps.append(b_i[1])
+                depth.append(b_i[2])
+                prob_succs.append(b_i[3])
+                mean_f.append(b_i[4])
+                q_vol.append(b_i[5])
+                N_two_qg.append(two_q_gates[b_i[6]]+3*b_i[1])
+                mapper.append(b_i[7])
+                benchmark.append(b_i[6])
+
+        data_frame = store_db_main_info(
+            N_gates, N_two_qg, N_swaps, depth, prob_succs, mean_f, q_vol, mapper, benchmark)
+        df_cl = clean_data_frame(data_frame)
+
+        meas_error_ = meas_error.replace(".", "_")
+
+        f_s_d_3d_plot(axarrfsd)
+
+    # figmf.legend("Fitting line", fontsize=8)
+    figfsd.tight_layout()
+    figfsd.savefig("f_swaps_depth_3d.png")
+    figfsd.savefig("f_swaps_depth_3d_HQ.png", dpi=1000)
+    figfsd.savefig("f_swaps_depth_3d.eps", dpi=1000)
+    figfsd.clf()
+
+    return
+
+
 thesis_bar_plot()
 thesis_mapping_effect()
 thesis_f_ps_corr_plot()
 thesis_f_ps_metrics_correlation()
+thesis_f_swaps_depth_correlation()
