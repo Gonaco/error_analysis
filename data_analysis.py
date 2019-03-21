@@ -669,9 +669,9 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     print(ps_q_corr)
 
 
-def f_s_d_3d_plot(ax, fidelity, N_swaps, depth):
+def f_s_d_3d_plot(df_cl, t1, meas_error, ax):
 
-    ax.scatter(N_swaps, depth, fidelity)
+    ax.scatter(df_cl.N_swaps, df_cl.depth, df_cl.mean_f)
 
     ax.set_xlabel('# swaps')
     ax.set_ylabel('depth')
@@ -1288,7 +1288,7 @@ def thesis_f_swaps_depth_correlation():
 
         meas_error_ = meas_error.replace(".", "_")
 
-        f_s_d_3d_plot(axarrfsd)
+        f_s_d_3d_plot(df_cl, t1, meas_error, axarrfsd)
 
     # figmf.legend("Fitting line", fontsize=8)
     figfsd.tight_layout()
