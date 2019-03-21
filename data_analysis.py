@@ -1245,7 +1245,7 @@ def thesis_f_swaps_depth_correlation():
     param = [["3000", "0.005"], ["1000", "0.005"]]
 
     figfsd = plt.figure()
-    axarrfsd = figfsd.add_subplot(111, projection='3d')
+    axfsd = figfsd.add_subplot(111, projection='3d')
 
     for p in param:
 
@@ -1290,14 +1290,16 @@ def thesis_f_swaps_depth_correlation():
 
         meas_error_ = meas_error.replace(".", "_")
 
-        f_s_d_3d_plot(df_cl, t1, meas_error, axarrfsd)
+        f_s_d_3d_plot(df_cl, t1, meas_error, axfsd)
 
-    # figmf.legend("Fitting line", fontsize=8)
-    figfsd.tight_layout()
-    figfsd.savefig("f_swaps_depth_3d.png")
-    figfsd.savefig("f_swaps_depth_3d_HQ.png", dpi=1000)
-    figfsd.savefig("f_swaps_depth_3d.eps", dpi=1000)
-    figfsd.clf()
+    for angle in range(0, 360):
+        axfsd.view_init(30, angle)
+        # figmf.legend("Fitting line", fontsize=8)
+        figfsd.tight_layout()
+        figfsd.savefig("f_swaps_depth_3d_"+str(angle)+".png")
+        figfsd.savefig("f_swaps_depth_3d_"+str(angle)+"_HQ.png", dpi=1000)
+        figfsd.savefig("f_swaps_depth_3d_"+str(angle)+".eps", dpi=1000)
+        figfsd.clf()
 
     return
 
