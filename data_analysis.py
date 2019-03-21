@@ -1243,7 +1243,8 @@ def thesis_f_swaps_depth_correlation():
 
     param = [["3000", "0.005"], ["1000", "0.005"]]
 
-    figfsd, axarrfsd = plt.subplots(2, 2)
+    figfsd = plt.figure()
+    axarrfsd = figfsd.add_subplot(111, projection='3d')
 
     for p in param:
 
