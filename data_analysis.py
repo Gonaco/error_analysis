@@ -670,11 +670,11 @@ def f_ps_metrics_correlation(df_cl, t1, meas_error, axarr1, axarr2):
     print(ps_q_corr)
 
 
-def f_s_d_3d_plot(df_cl, t1, meas_error, ax):
+def f_g_d_3d_plot(df_cl, t1, meas_error, ax):
 
-    ax.scatter(df_cl.N_swaps, df_cl.depth, df_cl.mean_f)
+    ax.scatter(df_cl.N_gates, df_cl.depth, df_cl.mean_f)
 
-    ax.set_xlabel('# swaps')
+    ax.set_xlabel('# gates')
     ax.set_ylabel('depth')
     ax.set_zlabel('fidelity')
 
@@ -1240,12 +1240,12 @@ def thesis_f_ps_metrics_correlation_filt():
     figmps.clf()
 
 
-def thesis_f_swaps_depth_correlation():
+def thesis_f_gates_depth_correlation():
 
     param = [["3000", "0.005"], ["1000", "0.005"]]
 
     figfsd = plt.figure()
-    axfsd = figfsd.add_subplot(111, projection='3d')
+    axfgd = figfsd.add_subplot(111, projection='3d')
 
     for p in param:
 
@@ -1290,15 +1290,15 @@ def thesis_f_swaps_depth_correlation():
 
         meas_error_ = meas_error.replace(".", "_")
 
-        f_s_d_3d_plot(df_cl, t1, meas_error, axfsd)
+        f_g_d_3d_plot(df_cl, t1, meas_error, axfgd)
 
     for angle in range(0, 360, 90):
-        axfsd.view_init(30, angle)
+        axfgd.view_init(30, angle)
         # figmf.legend("Fitting line", fontsize=8)
         figfsd.tight_layout()
-        figfsd.savefig("f_swaps_depth_3d_"+str(angle)+".png")
-        figfsd.savefig("f_swaps_depth_3d_"+str(angle)+"_HQ.png", dpi=1000)
-        figfsd.savefig("f_swaps_depth_3d_"+str(angle)+".eps", dpi=1000)
+        figfsd.savefig("f_gates_depth_3d_"+str(angle)+".png")
+        figfsd.savefig("f_gates_depth_3d_"+str(angle)+"_HQ.png", dpi=1000)
+        figfsd.savefig("f_gates_depth_3d_"+str(angle)+".eps", dpi=1000)
         figfsd.clf()
 
     return
@@ -1308,4 +1308,4 @@ thesis_bar_plot()
 thesis_mapping_effect()
 thesis_f_ps_corr_plot()
 thesis_f_ps_metrics_correlation()
-thesis_f_swaps_depth_correlation()
+thesis_f_gates_depth_correlation()
