@@ -42,6 +42,12 @@ from datetime import datetime
 import sqlite3
 import csv
 
+
+# Parallelism ####################################################################
+
+from joblib import Parallel, delayed
+import multiprocessing
+
 # CONSTANTS ###################################################################
 
 CURRENT_DIRECTORY = os.path.split(os.path.realpath(__file__))[0]
@@ -209,12 +215,165 @@ class MappingAnalysis(object):
 
     def __init__(self, benchmarks, db_path, init_type=ONE_STAT, log_path=LOG_FILE, h5_path=H5_FILE):
 
-        self.connection = sqlite3.connect(db_path)
         self.benchmarks = benchmarks
         self.log_path = log_path
         self.h5_path = h5_path
-        self.cursor = self.connection.cursor()
         self.init_type = init_type
+        self.db_handler = DBhandler(db_path)
+
+    def __exit__(self):
+
+        self.db_handler.__exit__()
+
+    def analyse(self, simulator, N_sim, err, t1=3500, t2=1500, meas_err=0.3):
+
+        self.db_handler.db_genesis()
+
+        experiment_id = self.db_handler.db_init_query()
+
+        with h5py.File(self.h5_path, "w") as h5f:
+
+            try:
+
+                num_cores = multiprocessing.cpu_count()
+
+                Parallel(n_jobs=num_cores)(delayed(self.analyze_benchmark)(
+                    benchmark, simulator, N_sim, err, t1, t2, meas_err, experiment_id) for benchmark in self.benchmarks)
+
+            except:
+                self.db_handler.db_interruption_query()
+                raise
+
+        self.db_handler.db_final_query(experiment_id)
+
+    def analyze_benchmark(self, benchmark, simulator, N_sim, err, t1, t2, meas_err, experiment_id):
+
+        if simulator:  # Quantumsim
+            sim_bench = benchmark.getSimBench()
+            sim_bench[4].N_exp = N_sim
+            sim_bench[4].error_analysis(
+                self.init_type, err, t1, t2, meas_err)
+
+            p_s = sim_bench[4].mean_success()
+            mean_f = sim_bench[4].mean_fidelity()
+            std_f = sim_bench[4].std_fidelity()
+            q_vol = sim_bench[4].q_vol()
+
+        else:       # QX
+            sim_bench = benchmark.getSimBench()
+            sim_bench[2].N_exp = N_sim
+            sim_bench[2].error_analysis(
+                self.init_type, err)
+
+            p_s = sim_bench[2].mean_success()
+            mean_f = sim_bench[2].mean_fidelity()
+            std_f = sim_bench[2].std_fidelity()
+            q_vol = sim_bench[2].q_vol()
+
+        self.db_handler.save_in_db(benchmark, simulator, N_sim, err, t1,
+                                   t2, meas_err, p_s, mean_f, std_f, q_vol, experiment_id)
+
+
+class Benchmark(object):
+    '''The Benchmark class describes the benchmark and contains all its desciptions (OpenQL, cQASM and quantumsim)'''
+
+    def __init__(self, openql_file_path, config_file_path, output_dir_name, scheduler="ALAP", mapper="minextendrc", initial_placement="no"):
+
+        self.name = os.path.split(openql_file_path)[
+            1].replace(".py", "").replace("-", "_")
+        self.N_exp = 1000
+        self.ql_descr = _DescripBench(
+            openql_file_path, config_file_path, scheduler=scheduler, mapper=mapper, initial_placement=initial_placement, output_dir_name=output_dir_name)
+        t0 = time.time()
+
+        self.cqasm_pure, self.cqasm_sched, self.cqasm_mapped, self.quantumsim_sched, self.quantumsim_mapped = self.ql_descr.compile(
+            self.N_exp)
+        self.comp_t = time.time() - t0
+
+    def getConfig(self):
+        return self.ql_descr.config_file_path
+
+    def getScheduler(self):
+        return self.ql_descr.scheduler
+
+    def getMapper(self):
+        return self.ql_descr.mapper
+
+    def getInitPlace(self):
+        return self.ql_descr.init_place
+
+    def getOutputDir(self):
+        return self.ql_descr.output_dir
+
+    def getSimBench(self):
+        return [self.cqasm_pure, self.cqasm_sched, self.cqasm_mapped, self.quantumsim_sched, self.quantumsim_mapped]
+
+    def getN_qubits(self, option=-1):
+        if option == PURE_OPT:
+            return self.cqasm_pure.N_qubits
+        elif option == SCHED_OPT:
+            return self.cqasm_sched.N_qubits
+        elif option == MAPP_OPT:
+            return self.cqasm_mapped.N_qubits
+        else:
+            return [self.cqasm_pure.N_qubits, self.cqasm_sched.N_qubits, self.cqasm_mapped.N_qubits]
+
+    def getN_gates(self, option=-1):
+        if option == PURE_OPT:
+            return self.cqasm_pure.N_gates
+        elif option == SCHED_OPT:
+            return self.cqasm_sched.N_gates
+        elif option == MAPP_OPT:
+            return self.cqasm_mapped.N_gates
+        else:
+            return [self.cqasm_pure.N_gates, self.cqasm_sched.N_gates, self.cqasm_mapped.N_gates]
+
+    def getN_swaps(self, option=-1):
+        if option == PURE_OPT:
+            return self.cqasm_pure.N_swaps
+        elif option == SCHED_OPT:
+            return self.cqasm_sched.N_swaps
+        elif option == MAPP_OPT:
+            return self.cqasm_mapped.N_swaps
+        else:
+            return [self.cqasm_pure.N_swaps, self.cqasm_sched.N_swaps, self.cqasm_mapped.N_swaps]
+
+    def getDepth(self, option=-1):
+        if option == PURE_OPT:
+            return self.cqasm_pure.depth
+        elif option == SCHED_OPT:
+            return self.cqasm_sched.depth
+        elif option == MAPP_OPT:
+            return self.cqasm_mapped.depth
+        else:
+            return [self.cqasm_pure.depth, self.cqasm_sched.depth, self.cqasm_mapped.depth]
+
+    def getSimRegistries(self, option=-1):
+
+        if option == PURE_OPT:
+            return self.cqasm_pure.fidelity_registry, self.cqasm_pure.success_registry
+        elif option == SCHED_OPT:
+            return self.cqasm_sched.fidelity_registry, self.cqasm_sched.success_registry
+        elif option == MAPP_OPT:
+            return self.cqasm_mapped.fidelity_registry, self.cqasm_mapped.success_registry
+        else:
+            return option
+
+    def getAll(self):
+
+        return self.name, self.cqasm_mapped.N_swaps, self.cqasm_mapped.depth, self.N_exp, self.ql_descr.scheduler, self.ql_descr.mapper, self.ql_descr.init_place, self.ql_descr.config_file_path
+
+    def getComp_t(self):
+
+        return self.comp_t
+
+
+class DBhandler(object):
+
+    def __init__(self, db_path):
+        "docstring"
+        self.connection = sqlite3.connect(db_path)
+        self.cursor = self.connection.cursor()
 
     def __exit__(self):
 
@@ -241,6 +400,18 @@ class MappingAnalysis(object):
         result_id = self.db_insert_results(prob_succs, mean_f, std_f, q_vol)
         self.db_insert_simulations(hw_id, result_id, exper_id,
                                    sim_name, N_sim, err, t1, t2, meas_err, init_type)
+
+    def save_mapping(self, benchmark):
+
+        self.db_genesis()
+
+        experiment_id = self.db_init_query()
+
+        config_id = self.db_insert_config(benchmark)
+        bench_id = self.db_bench_id(benchmark)
+        hw_id = self.db_insert_hwbench(benchmark, bench_id, config_id)
+
+        self.db_final_query(experiment_id)
 
     def db_init_query(self):
 
@@ -382,142 +553,6 @@ class MappingAnalysis(object):
         query = "SELECT Benchmarks.benchmark, source, behaviour, Benchmarks.N_qubits, Benchmarks.N_gates, conf_file, scheduler, mapper, initial_placement, HardwareBenchs.N_qubits, HardwareBenchs.N_gates, HardwareBenchs.N_swaps, depth, simulator, N_sim, error_rate, t1, t2, meas_error, init_type, prob_succs, mean_f, std_f, q_vol, date, tom_mtrx_path, fail, log_path FROM SimulationsInfo LEFT JOIN HardwareBenchs ON algorithm=HardwareBenchs.id LEFT JOIN Results ON result=Results.id LEFT JOIN Experiments ON experiment=Experiments.id LEFT JOIN Benchmarks ON HardwareBenchs.benchmark=Benchmarks.id LEFT JOIN Configurations ON configuration=Configurations.id;"
         self.cursor.execute(query)
         return self.cursor.fetchone()
-
-    def analyse(self, simulator, N_sim, err, t1=3500, t2=1500, meas_err=0.3):
-
-        self.db_genesis()
-
-        experiment_id = self.db_init_query()
-
-        with h5py.File(self.h5_path, "w") as h5f:
-
-            try:
-
-                for benchmark in self.benchmarks:
-
-                    if simulator:  # Quantumsim
-                        sim_bench = benchmark.getSimBench()
-                        sim_bench[4].N_exp = N_sim
-                        sim_bench[4].error_analysis(
-                            self.init_type, err, t1, t2, meas_err)
-
-                        p_s = sim_bench[4].mean_success()
-                        mean_f = sim_bench[4].mean_fidelity()
-                        std_f = sim_bench[4].std_fidelity()
-                        q_vol = sim_bench[4].q_vol()
-
-                    else:       # QX
-                        sim_bench = benchmark.getSimBench()
-                        sim_bench[2].N_exp = N_sim
-                        sim_bench[2].error_analysis(
-                            self.init_type, err)
-
-                        p_s = sim_bench[2].mean_success()
-                        mean_f = sim_bench[2].mean_fidelity()
-                        std_f = sim_bench[2].std_fidelity()
-                        q_vol = sim_bench[2].q_vol()
-
-                    self.save_in_db(benchmark, simulator, N_sim, err, t1,
-                                    t2, meas_err, p_s, mean_f, std_f, q_vol, experiment_id)
-            except:
-                self.db_interruption_query()
-                raise
-
-        self.db_final_query(experiment_id)
-
-
-class Benchmark(object):
-    '''The Benchmark class describes the benchmark and contains all its desciptions (OpenQL, cQASM and quantumsim)'''
-
-    def __init__(self, openql_file_path, config_file_path, output_dir_name, scheduler="ALAP", mapper="minextendrc", initial_placement="no"):
-
-        self.name = os.path.split(openql_file_path)[
-            1].replace(".py", "").replace("-", "_")
-        self.N_exp = 1000
-        self.ql_descr = _DescripBench(
-            openql_file_path, config_file_path, scheduler=scheduler, mapper=mapper, initial_placement=initial_placement, output_dir_name=output_dir_name)
-        t0 = time.time()
-
-        self.cqasm_pure, self.cqasm_sched, self.cqasm_mapped, self.quantumsim_sched, self.quantumsim_mapped = self.ql_descr.compile(
-            self.N_exp)
-        self.comp_t = time.time() - t0
-
-    def getConfig(self):
-        return self.ql_descr.config_file_path
-
-    def getScheduler(self):
-        return self.ql_descr.scheduler
-
-    def getMapper(self):
-        return self.ql_descr.mapper
-
-    def getInitPlace(self):
-        return self.ql_descr.init_place
-
-    def getOutputDir(self):
-        return self.ql_descr.output_dir
-
-    def getSimBench(self):
-        return [self.cqasm_pure, self.cqasm_sched, self.cqasm_mapped, self.quantumsim_sched, self.quantumsim_mapped]
-
-    def getN_qubits(self, option=-1):
-        if option == PURE_OPT:
-            return self.cqasm_pure.N_qubits
-        elif option == SCHED_OPT:
-            return self.cqasm_sched.N_qubits
-        elif option == MAPP_OPT:
-            return self.cqasm_mapped.N_qubits
-        else:
-            return [self.cqasm_pure.N_qubits, self.cqasm_sched.N_qubits, self.cqasm_mapped.N_qubits]
-
-    def getN_gates(self, option=-1):
-        if option == PURE_OPT:
-            return self.cqasm_pure.N_gates
-        elif option == SCHED_OPT:
-            return self.cqasm_sched.N_gates
-        elif option == MAPP_OPT:
-            return self.cqasm_mapped.N_gates
-        else:
-            return [self.cqasm_pure.N_gates, self.cqasm_sched.N_gates, self.cqasm_mapped.N_gates]
-
-    def getN_swaps(self, option=-1):
-        if option == PURE_OPT:
-            return self.cqasm_pure.N_swaps
-        elif option == SCHED_OPT:
-            return self.cqasm_sched.N_swaps
-        elif option == MAPP_OPT:
-            return self.cqasm_mapped.N_swaps
-        else:
-            return [self.cqasm_pure.N_swaps, self.cqasm_sched.N_swaps, self.cqasm_mapped.N_swaps]
-
-    def getDepth(self, option=-1):
-        if option == PURE_OPT:
-            return self.cqasm_pure.depth
-        elif option == SCHED_OPT:
-            return self.cqasm_sched.depth
-        elif option == MAPP_OPT:
-            return self.cqasm_mapped.depth
-        else:
-            return [self.cqasm_pure.depth, self.cqasm_sched.depth, self.cqasm_mapped.depth]
-
-    def getSimRegistries(self, option=-1):
-
-        if option == PURE_OPT:
-            return self.cqasm_pure.fidelity_registry, self.cqasm_pure.success_registry
-        elif option == SCHED_OPT:
-            return self.cqasm_sched.fidelity_registry, self.cqasm_sched.success_registry
-        elif option == MAPP_OPT:
-            return self.cqasm_mapped.fidelity_registry, self.cqasm_mapped.success_registry
-        else:
-            return option
-
-    def getAll(self):
-
-        return self.name, self.cqasm_mapped.N_swaps, self.cqasm_mapped.depth, self.N_exp, self.ql_descr.scheduler, self.ql_descr.mapper, self.ql_descr.init_place, self.ql_descr.config_file_path
-
-    def getComp_t(self):
-
-        return self.comp_t
 
 
 class _QASMReader(object):
