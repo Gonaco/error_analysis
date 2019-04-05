@@ -1171,12 +1171,12 @@ class _SimBench(object):
             rho = np.sqrt(expected)
             sigma = actual[:expected.shape[1], :expected.shape[0]]
 
-            f = np.trace(np.sqrt(np.dot(rho, np.dot(sigma, rho))))
+            f = np.trace(np.sqrt(np.dot(rho, np.dot(sigma, rho))))**2
 
         elif actual.ndim > 1:
             # Hard calculation
 
-            f = np.sqrt(np.vdot(expected, np.vdot(actual, expected)))
+            f = np.sqrt(np.vdot(expected, np.vdot(actual, expected)))**2
 
         else:
             # Simple calculation
