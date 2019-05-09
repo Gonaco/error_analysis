@@ -1075,11 +1075,23 @@ class _SimBench(object):
             # CIRCUIT DECLARATION
             c = self.qsimc.circuit_function(np.inf, np.inf, 0, 0, init_state)
 
-            c.add_waiting_gates()
-            c.order(False)
+            # add measurements
+            for n in range(self.N_qubits):
+                sampler = uniform_noisy_sampler(
+                    readout_error=meas_error, seed=42)
+                c.add_qubit("m"+str(n))
+                c.add_measurement(
+                    "q"+str(n), time=150, output_bit="m"+str(n), sampler=sampler)
+
+            # c.order(False)
+            c.order()
 
             # SIMULATING
             sdm = sparsedm.SparseDM(c.get_qubit_names())
+
+            # expected_q_state = sdm.full_dm.dm.ravel()
+            expected_q_state = sdm.full_dm.to_array()
+            # expected_q_state = sdm.full_dm.to_array().round(3)
 
             measurements = []
 
@@ -1090,9 +1102,6 @@ class _SimBench(object):
                     measurements.append(sdm.classical[str(q)])
 
             measurement = np.array(measurements, dtype=float)
-            # expected_q_state = sdm.full_dm.dm.ravel()
-            expected_q_state = sdm.full_dm.to_array()
-            # expected_q_state = sdm.full_dm.to_array().round(3)
 
             return measurement, expected_q_state
 
@@ -1103,13 +1112,17 @@ class _SimBench(object):
                 t1, t2, error, meas_error, init_state)
 
             c.add_waiting_gates()
-            c.order(False)
+            # c.order(False)
+            c.order()
+
+            # SIMULATING
+            sdm = sparsedm.SparseDM(c.get_qubit_names())
+            c.apply_to(sdm)
+
+            q_state = sdm.full_dm.to_array()
+            # q_state = sdm.full_dm.to_array().round(3)
 
             for i in range(N_exp):
-
-                # SIMULATING
-                sdm = sparsedm.SparseDM(c.get_qubit_names())
-                c.apply_to(sdm)
 
                 measurements = []
 
@@ -1123,21 +1136,19 @@ class _SimBench(object):
                 print("Actual Measurement:")
                 print(measurement)
 
-                q_state = sdm.full_dm.to_array()
-                # q_state = sdm.full_dm.to_array().round(3)
-
                 exp_m_int = int(''.join(str(int(e))
                                         for e in expected_measurement.tolist()), 2)
                 m_int = int(''.join(str(int(e))
                                     for e in measurement.tolist()), 2)
-                self.tomography_matrix[exp_m_int,
-                                       m_int] = self.tomography_matrix[exp_m_int, m_int] + 1/N_exp
 
-                self.fidelity_registry.append(
-                    self.fidelity(expected_q_state, q_state))
+            self.tomography_matrix[exp_m_int,
+                                   m_int] = self.tomography_matrix[exp_m_int, m_int] + 1/N_exp
 
-                self.success_registry.append(1 if np.array_equal(
-                    measurement, expected_measurement) else 0)
+            self.fidelity_registry.append(
+                self.fidelity(expected_q_state, q_state))
+
+            self.success_registry.append(1 if np.array_equal(
+                measurement, expected_measurement) else 0)
 
             # return self.probability_of_success(self.success_registry, N_exp), self.tomography_matrix
             return self.probability_of_success(), self.tomography_matrix
